@@ -27,7 +27,7 @@ class Client:
         if not 'edit' not in jsonArray and 'Success' not in jsonArray['edit']['result']:
             raise InvalidResponse('Invalid response from url {}, parse information is missing'.format(endpoint))
 
-    def format_section_by_url(self, url: str):
+    def format_section_by_url(self, url: str) -> dict:
         content = self.parse(url)
 
         sections = {}
@@ -53,10 +53,10 @@ class Client:
                 level_cursor = level
                 sections[section_title] = section['index']
             else:
-                for i in range(level,level_cursor+1):
-                  section_title = section_title[0:section_title.rfind('//')]
-                if  not section_title:
-                    section_title =  line
+                for i in range(level, level_cursor + 1):
+                    section_title = section_title[0:section_title.rfind('//')]
+                if not section_title:
+                    section_title = line
                 else:
                     section_title += '//' + line
                 level_cursor = level
@@ -64,7 +64,7 @@ class Client:
 
         return sections
 
-    def parse_cookie_file(self,cookiefile):
+    def parse_cookie_file(self, cookiefile):
         """Parse a cookies.txt file and return a dictionary of key value pairs
         compatible with requests."""
 
