@@ -1,2 +1,2 @@
 from .entity import move_name_changelog_table, pokemon_move_availability_table,PokemonMoveAvailability, MoveNameChangelog,pkm_availability_form_table
-from .repository import pokemon_repository, pokemon_move_availability_repository
+from .repository import *

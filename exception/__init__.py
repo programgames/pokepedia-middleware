@@ -1,1 +1,1 @@
-from exceptions import *
+import exceptions

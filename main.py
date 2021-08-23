@@ -1,7 +1,9 @@
 import argparse
 import sys
 import install
-import handler
+from handler.pokemonmovehandler import process_pokemon_move
+
+
 def main(junk, *argv):
     parser = create_parser()
 
@@ -11,6 +13,7 @@ def main(junk, *argv):
 
     args = parser.parse_args(argv)
     args.func(parser, args)
+
 
 def create_parser():
     """Build and return an ArgumentParser.
@@ -35,13 +38,13 @@ def create_parser():
     return parser
 
 
-
 def command_sync_pokemon_moves(parser, args):
-    handler.process_pokemon_move()
+    process_pokemon_move()
 
 
 def command_init(parser, args):
     install.create_app_tables()
     install.fill_app_tables()
+
 
 main(*sys.argv)

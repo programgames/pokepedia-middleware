@@ -1,7 +1,7 @@
 from pokedex.db.multilang import MultilangSession
 from pokedex.db import connect
 import os
-from .helper import kernel_helper
+from util.helper.kernelhelper import get_project_root
 
-connString = 'sqlite:///' + kernel_helper.get_project_root() + os.sep + 'db.sqlite'
+connString = 'sqlite:///' + get_project_root() + os.sep + 'db.sqlite'
 session = connect(connString)  # type: MultilangSession

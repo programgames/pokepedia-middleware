@@ -1,13 +1,12 @@
 from sqlalchemy.engine.base import Engine
-from pokedex.db.tables import Move, Generation, Language, VersionGroup
 import csv
-from util import generation_helper, session
+from util.helper.generationhelper import int_to_generation_indentifier
 import os
 import re
 from pathlib import Path
-from db.entity import move_name_changelog_table, pokemon_move_availability_table, \
-    PokemonMoveAvailability, MoveNameChangelog, pkm_availability_form_table
-from db import pokemon_repository, pokemon_move_availability_repository
+from db.entity import move_name_changelog_table, pokemon_move_availability_table, MoveNameChangelog, \
+    pkm_availability_form_table
+from db.repository import *
 
 
 def create_app_tables():
@@ -56,7 +55,7 @@ def load_french_aliases():
             if not move:
                 raise RuntimeError('Move not found : ' + row[0])
             for i in range(first_gen, second_gen):
-                generation_identifier = generation_helper.int_to_generation_indentifier(i)
+                generation_identifier = int_to_generation_indentifier(i)
                 generation = session.query(Generation).filter(Generation.identifier == generation_identifier).one()
                 changelog = MoveNameChangelog(
                     language=french.id, move_id=move.id, generation_id=generation.id,
@@ -183,10 +182,10 @@ def save_pokemon_move_availabilities_with_forms(version_groups: list, original_n
                                                 specific_page_forms=False):
     with session.no_autoflush:
         for version_group in version_groups:
-            original_pokemon_availability = pokemon_move_availability_repository.find_availability_by_pkm_and_form(
+            original_pokemon_availability = find_availability_by_pkm_and_form(
                 original_name, version_group)
             for form in forms:
-                form_pokemon = pokemon_repository.find_pokemon_by_identifier(form)
+                form_pokemon = find_pokemon_by_identifier(form)
                 availability = PokemonMoveAvailability()
                 availability.version_group_id = version_group.id
                 availability.pokemon_id = form_pokemon.id
@@ -200,7 +199,7 @@ def save_pokemon_move_availabilities_with_forms(version_groups: list, original_n
 
 
 def save_availabilities(version_group, start, end):
-    pokemons = pokemon_repository.find_default_pokemons_in_national_dex(start, end)
+    pokemons = find_default_pokemons_in_national_dex(start, end)
     for pokemon in pokemons:
         move_availability = PokemonMoveAvailability()
         move_availability.version_group_id = version_group.id
@@ -214,7 +213,7 @@ def save_alola_pokemons(version_group, gen8=False):
         'rattata-alola', 'raticate-alola', 'geodude-alola', 'graveler-alola', 'golem-alola', 'grimer-alola', 'muk-alola'
     ]
 
-    pokemons = pokemon_repository.find_alola_pokemons()
+    pokemons = find_alola_pokemons()
     for pokemon in pokemons:
         if gen8:
             if pokemon.identifier in excludeds:
@@ -228,7 +227,7 @@ def save_alola_pokemons(version_group, gen8=False):
 
 
 def save_galar_pokemons(version_group):
-    pokemons = pokemon_repository.find_galar_pokemons()
+    pokemons = find_galar_pokemons()
     for pokemon in pokemons:
         move_availability = PokemonMoveAvailability()
         move_availability.version_group_id = version_group.id
@@ -239,7 +238,7 @@ def save_galar_pokemons(version_group):
 
 
 def save_default_gen8_pokemons(version_group):
-    pokemons = pokemon_repository.find_default_gen8_pokemons()
+    pokemons = find_default_gen8_pokemons()
     for pokemon in pokemons:
         move_availability = PokemonMoveAvailability()
         move_availability.version_group_id = version_group.id

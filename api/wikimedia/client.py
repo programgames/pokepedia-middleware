@@ -1,12 +1,11 @@
 import requests
 import json
-import pickle
 import re
 
-from exception import InvalidResponse
+from exception.exceptions import InvalidResponse
 
 
-class Client:
+class WikimediaClient:
     def parse(self, url: str) -> dict:
         content = requests.get(url)
         jsonArray = json.loads(content.json())

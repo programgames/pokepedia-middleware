@@ -1,8 +1,8 @@
-from api import Auth
-from api.wikimedia import Client
+from api.wikimedia.auth import Auth
+from api.wikimedia.client import WikimediaClient
 
 
-class PokepediaClient(Client):
+class PokepediaClient(WikimediaClient):
 
     ENDPOINT = "https://www.pokepedia.fr/api.php"
 

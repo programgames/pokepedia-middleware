@@ -1,7 +1,6 @@
 from sqlalchemy.sql.schema import Column, ForeignKey, Table
 from sqlalchemy.types import Integer, Unicode, Boolean
 from sqlalchemy.orm import relationship
-from sqlalchemy.orm import backref as ormbackref
 from pokedex.db.tables import Pokemon, TableBase, VersionGroup, Move, Generation, Language
 from sqlalchemy import and_
 
