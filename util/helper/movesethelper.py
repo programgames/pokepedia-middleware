@@ -17,7 +17,3 @@ def get_pokepedia_invoke_learn_method(move_method: PokemonMoveMethod) -> str:
 
     return french
 
-
-def get_name_by_generation():
-    #TODO implement
-    pass

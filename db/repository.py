@@ -1,7 +1,9 @@
 from pokedex.db.tables import *
 
+from db import MoveNameChangelog
 from db.entity import PokemonMoveAvailability
 from connection.conn import session
+from util.helper.generationhelper import int_to_generation_indentifier
 
 
 def get_default_gen8_national_dex_pokemon_number():
@@ -161,12 +163,42 @@ def find_moves_by_pokemon_move_method_and_version_group(pokemon: Pokemon, pokemo
                                                         version_group: VersionGroup):
     return session.query(PokemonMove) \
         .join(Pokemon, Pokemon.id == pokemon.id) \
-        .join(PokemonMoveMethod,PokemonMoveMethod.id == pokemon_move_method.id) \
+        .join(PokemonMoveMethod, PokemonMoveMethod.id == pokemon_move_method.id) \
         .join(VersionGroup, VersionGroup.id == version_group.id) \
-        .order_by(PokemonMove.id.asc())
+        .order_by(PokemonMove.id.asc()) \
+        .all()
 
-def find_french_move_by_pokemon_move(pokemon_move:PokemonMove,generation: int):
-    move = session.query(Move).join(PokemonMove,PokemonMove.move_id == PokemonMove.id)
-    #try to find alias
+
+def find_french_move_by_pokemon_move_and_generation(pokemon_move: PokemonMove, generation: int):
+    move = session.query(Move).join(PokemonMove, PokemonMove.move_id == pokemon_move.move_id).one()
+
+    alias = session.query(MoveNameChangelog) \
+        .join(Move, Move.id == MoveNameChangelog.move_id) \
+        .join(Language, Language.identifier == 'fr') \
+        .filter(MoveNameChangelog.generation.identifier == int_to_generation_indentifier(
+        generation)).first()  # type: MoveNameChangelog
+
+    if alias:
+        return alias.name
+
     return move.name_map['fr']
 
+
+def find_french_move_by_move_and_generation(move: Move, generation: int):
+    alias = session.query(MoveNameChangelog) \
+        .join(Move, Move.id == MoveNameChangelog.move_id) \
+        .join(Language, Language.identifier == 'fr') \
+        .filter(MoveNameChangelog.generation.identifier == int_to_generation_indentifier(
+        generation)).first()  # type: MoveNameChangelog
+
+    if alias:
+        return alias.name
+
+    return move.name_map['fr']
+
+
+def find_pokepedia_move_methods_methods_repository() -> list:
+    return session.query(PokemonMoveMethod).filter(
+        PokemonMoveMethod.identifier.in_(['level-up', 'tutor', 'machine', 'egg'])).all()
+
+def find_highest_version_group_b
