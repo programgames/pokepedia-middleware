@@ -1,8 +1,9 @@
 - git clone git@github.com:programgames/pokepedia-middleware.git
 - cd pokepedia-middleware
-- cd pokedex 
+- git submodule init
+- git submodule update
+- cd veekun 
 - sudo python setup.py develop
-- pip install -e pokedex
 - cd ..
-- pokedex load
+- pip install -e veekun
 - pokedex load -e sqlite:///db.sqlite
