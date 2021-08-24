@@ -4,6 +4,7 @@ from db import MoveNameChangelog
 from db.entity import PokemonMoveAvailability
 from connection.conn import session
 from util.helper.generationhelper import int_to_generation_indentifier
+import functools
 
 
 def get_default_gen8_national_dex_pokemon_number():
@@ -201,4 +202,20 @@ def find_pokepedia_move_methods_methods_repository() -> list:
     return session.query(PokemonMoveMethod).filter(
         PokemonMoveMethod.identifier.in_(['level-up', 'tutor', 'machine', 'egg'])).all()
 
-def find_highest_version_group_b
+
+def find_highest_version_group_by_generation(generation: Generation) -> VersionGroup:
+    version_groups = session.query(VersionGroup) \
+        .join(Generation, Generation.id == generation.id) \
+        .filter(VersionGroup.identifier.not_in(['colosseum', 'xd', 'lets-go-pikachu-lets-go-eevee'])) \
+        .all()  # type: list
+
+    if len(version_groups) == 1:
+        return version_groups[0]
+
+    return functools.reduce(lambda a, b: a if a.order > b.order else b, version_groups)
+
+
+def get_french_slot1_same_by_generation(pokemon: Pokemon, gen: int):
+    generation = session.query(Generation).filter(Generation.identifier == int_to_generation_indentifier(gen)).one()
+
+
