@@ -1,5 +1,7 @@
 from sqlalchemy.engine.base import Engine
 import csv
+
+from db.entity.entity import pokemon_type_past, PokemonTypePast
 from util.helper.generationhelper import int_to_generation_indentifier
 import os
 import re
@@ -14,6 +16,7 @@ def create_app_tables():
 
     move_name_changelog_table_object = move_name_changelog_table.__table__
     pokemon_move_availability_table_object = pokemon_move_availability_table.__table__
+    pokemon_type_past_object = pokemon_type_past.__table__
 
     if engine.has_table(MoveNameChangelog.__tablename__):
         move_name_changelog_table_object.drop()
@@ -21,10 +24,13 @@ def create_app_tables():
         pokemon_move_availability_table_object.drop()
     if engine.has_table('pkm_availability_form'):
         pkm_availability_form_table.drop()
+    if engine.has_table('pokemon_type_past'):
+        pokemon_type_past_object.drop()
 
-        pokemon_move_availability_table_object.create(engine)
-        move_name_changelog_table_object.create(engine)
-        pkm_availability_form_table.create(engine)
+    pokemon_move_availability_table_object.create(engine)
+    move_name_changelog_table_object.create(engine)
+    pkm_availability_form_table.create(engine)
+    pokemon_type_past_object.create(engine)
 
 
 def fill_app_tables():
@@ -36,6 +42,31 @@ def fill_app_tables():
     load_french_aliases()
     load_basic_move_availabilities()
     load_specific_pokemon_move_availabilities()
+    load_pokemon_type_past()
+
+
+def load_pokemon_type_past():
+    header = True
+    path = Path(__file__).parent / ('data' + os.sep + 'pokemon_type_past.csv')
+
+    with open(path, newline='', encoding='utf-8') as csvfile:
+        line = csv.reader(csvfile, delimiter=',')
+        for row in line:
+            if header:
+                header = False
+                continue
+            pokemon_id = int(row[0])
+            generation_id = int(row[1])
+            type_id = int(row[2])
+            slot = int(row[3])
+
+            type_past = PokemonTypePast()
+            type_past.type_id = type_id
+            type_past.generation_id = generation_id
+            type_past.pokemon_id = pokemon_id
+            type_past.slot = slot
+            session.add(type_past)
+        session.commit()
 
 
 def load_french_aliases():
@@ -245,3 +276,5 @@ def save_default_gen8_pokemons(version_group):
         move_availability.pokemon_id = pokemon.id
         session.add(move_availability)
     session.commit()
+
+

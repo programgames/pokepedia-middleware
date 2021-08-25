@@ -1,7 +1,7 @@
 from sqlalchemy.sql.schema import Column, ForeignKey, Table
 from sqlalchemy.types import Integer, Unicode, Boolean
 from sqlalchemy.orm import relationship
-from pokedex.db.tables import Pokemon, TableBase, VersionGroup, Move, Generation, Language
+from pokedex.db.tables import Pokemon, TableBase, VersionGroup, Move, Generation, Language, Type
 from sqlalchemy import and_
 
 
@@ -12,9 +12,10 @@ class MoveNameChangelog(TableBase):
     generation_id = Column(Integer, ForeignKey('generations.id'), nullable=False)
     move_id = Column(Integer, ForeignKey('moves.id'), nullable=False)
     language_id = Column(Integer, ForeignKey('languages.id'), nullable=False)
-    generation = relationship(Generation,innerjoin=True, lazy='joined')
-    move = relationship(Move,innerjoin=True, lazy='joined')
-    language = relationship(Language,innerjoin=True, lazy='joined')
+    generation = relationship(Generation, innerjoin=True, lazy='joined')
+    move = relationship(Move, innerjoin=True, lazy='joined')
+    language = relationship(Language, innerjoin=True, lazy='joined')
+
 
 pkm_availability_form_table = Table("pkm_availability_form", TableBase.metadata,
                                     Column("parent_id", Integer, ForeignKey("pokemon_move_availability.id"),
@@ -46,5 +47,18 @@ class PokemonMoveAvailability(TableBase):
     version_group = relationship(VersionGroup, innerjoin=True, lazy='joined')
 
 
+class PokemonTypePast(TableBase):
+    __tablename__ = 'pokemon_type_past'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    slot = Column(Integer, nullable=False)
+    generation_id = Column(Integer, ForeignKey('generations.id'), nullable=False)
+    type_id = Column(Integer, ForeignKey('types.id'), nullable=False)
+    pokemon_id = Column(Integer, ForeignKey('pokemon.id'), nullable=False)
+    generation = relationship(Generation, innerjoin=True, lazy='joined')
+    type = relationship(Type, innerjoin=True, lazy='joined')
+    pokemon = relationship(Pokemon, innerjoin=True, lazy='joined')
+
+
 move_name_changelog_table = MoveNameChangelog()
 pokemon_move_availability_table = PokemonMoveAvailability()
+pokemon_type_past = PokemonTypePast()

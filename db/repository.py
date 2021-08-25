@@ -3,6 +3,7 @@ from pokedex.db.tables import *
 from db import MoveNameChangelog
 from db.entity import PokemonMoveAvailability
 from connection.conn import session
+from db.entity.entity import PokemonTypePast
 from util.helper.generationhelper import int_to_generation_indentifier
 import functools
 
@@ -145,7 +146,7 @@ def find_pokemon_with_specific_page(start_at: int):
     return pokemons
 
 
-def is_pokemon_available_in_version_groups(self, pokemon: Pokemon, version_groups: list):
+def is_pokemon_available_in_version_groups(pokemon: Pokemon, version_groups: list):
     return session.query(PokemonMoveAvailability) \
         .join(VersionGroup, VersionGroup.identifier.in_(version_groups)) \
         .join(Pokemon, PokemonMoveAvailability.pokemon_id == pokemon.id).one_or_none()
@@ -215,7 +216,22 @@ def find_highest_version_group_by_generation(generation: Generation) -> VersionG
     return functools.reduce(lambda a, b: a if a.order > b.order else b, version_groups)
 
 
-def get_french_slot1_same_by_generation(pokemon: Pokemon, gen: int):
-    generation = session.query(Generation).filter(Generation.identifier == int_to_generation_indentifier(gen)).one()
+def find_french_slot1_name_by_gen(pokemon: Pokemon, gen: int)-> str:
+    generation_entity = session.query(Generation) \
+        .filter(Generation.identifier == int_to_generation_indentifier(gen)) \
+        .one()
 
+    type_past = session.query(PokemonTypePast) \
+        .join(PokemonTypePast.pokemon_id == pokemon.id) \
+        .join(PokemonTypePast.id <= generation_entity.id) \
+        .filter(PokemonTypePast.slot == 1) \
+        .first()
 
+    if type_past:
+        # TODO test
+        return type_past.move.name_map('fr')
+
+    type1 = session.query(PokemonTypePast).join(PokemonTypePast.pokemon_id == pokemon.id).filter(
+        PokemonTypePast.slot == 1).one()
+
+    return type1.move.name_map('fr')

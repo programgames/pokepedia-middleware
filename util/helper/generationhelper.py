@@ -1,6 +1,6 @@
 from connection.conn import session
 from pokedex.db.tables import Pokemon, Generation, VersionGroup
-from db.repository import is_pokemon_available_in_version_groups
+import db.repository as repository
 
 
 def int_to_generation_indentifier(integer) -> str:
@@ -27,7 +27,7 @@ def int_to_generation_indentifier(integer) -> str:
 def has_pokemon_availabilities_in_generation(pokemon: Pokemon, generation: Generation) -> bool:
     version_groups_entities = session.query(VersionGroup).filter(VersionGroup.generation_id == generation.id).all()
 
-    availabilities = is_pokemon_available_in_version_groups(pokemon,
+    availabilities = repository.is_pokemon_available_in_version_groups(pokemon,
                                                             version_groups_entities).all()
 
     return len(availabilities) > 0
