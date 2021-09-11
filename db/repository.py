@@ -81,7 +81,7 @@ def find_default_pokemons_in_national_dex(start: int, end: int):
 
     return session.query(Pokemon) \
         .join(PokemonSpecies, PokemonSpecies.id == Pokemon.species_id) \
-        .filter(Pokemon.is_default == True) \
+        .filter(Pokemon.is_default.is_(True)) \
         .filter(PokemonSpecies.id.in_(ids)) \
         .all()
 
@@ -113,7 +113,7 @@ def find_default_gen8_pokemons():
         species_ids.append(result.id)
 
     return session.query(Pokemon).join(PokemonSpecies, PokemonSpecies.id == Pokemon.species_id).filter(
-        Pokemon.is_default == True).filter(PokemonSpecies.id.in_(species_ids))
+        Pokemon.is_default.is_(True)).filter(PokemonSpecies.id.in_(species_ids))
 
 
 def find_pokemon_by_identifier(name: str) -> Pokemon:
@@ -135,7 +135,7 @@ def find_pokemon_with_specific_page(start_at: int):
         species_ids.append(result.id)
 
     availabilities = session.query(PokemonMoveAvailability) \
-        .join(Pokemon).order_by(Pokemon.id.desc()).filter(PokemonMoveAvailability.has_pokepedia_page == True).all()
+        .join(Pokemon).order_by(Pokemon.id.desc()).filter(PokemonMoveAvailability.has_pokepedia_page.is_(True)).all()
 
     pokemons = {}
     for availability in availabilities:
@@ -235,3 +235,4 @@ def find_french_slot1_name_by_gen(pokemon: Pokemon, gen: int)-> str:
         PokemonTypePast.slot == 1).one()
 
     return type1.move.name_map('fr')
+
