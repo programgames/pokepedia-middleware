@@ -23,7 +23,7 @@ def check_and_sanitize_moves(moves: list) -> dict:
         raise WrongHeaderError('nvalid header: {}'.format(moves[0]))
     section['topComments'].append(moves[0])
     del moves[0]
-    r = re.compile(r'{{#invoke:Apprentissage\|niveau\|')
+    r = re.compile(r'.*{{#invoke:Apprentissage\|niveau\|.*')
 
     templates = len(list(filter(r.match, moves)))
     if templates == 0:
@@ -37,11 +37,11 @@ def check_and_sanitize_moves(moves: list) -> dict:
             'botComments': [],
         }
         for key, move in moves:
-            if not template and not re.match(r'{{#invoke:Apprentissage\|niveau\|', move):
+            if not template and not re.match(r'.*{{#invoke:Apprentissage\|niveau\|.*', move):
                 section['topComments'].append(move)
-            elif not template and re.match(r'{{#invoke:Apprentissage\|niveau\|', move):
+            elif not template and re.match(r'.*{{#invoke:Apprentissage\|niveau\|.*', move):
                 template = True
-            elif template and re.match(r'}}', move):
+            elif template and re.match(r'.*}}.*', move):
                 template = False
                 end = True
             elif end:
@@ -52,22 +52,22 @@ def check_and_sanitize_moves(moves: list) -> dict:
         return section
 
     for key, move in moves:
-        if template and not form and not re.match(r'=.*=', move):
+        if template and not form and not re.match(r'.*=.*=.*', move):
             section['topComments'].append(move)
-        elif not template and form and re.match(r'{{#invoke:Apprentissage\|niveau\|', move):
+        elif not template and form and re.match(r'.*{{#invoke:Apprentissage\|niveau\|.*', move):
             template = True
-        elif not template and re.match(r'=.*=', move):
+        elif not template and re.match(r'.*=.*=.*', move):
             form = True
             end = False
             actual_form = move.strip().replace('=', '').strip()
-        elif template and re.match(r'}}', move):
+        elif template and re.match(r'.*}}.*', move):
             template = False
             end = True
-        elif template and form and not re.match(r'}}', move):
+        elif template and form and not re.match(r'.*}}.*', move):
             forms[actual_form]['moves'].append(move)
-        elif form and not re.match('=.*=', move) and not template:
+        elif form and not re.match('.*=.*=.*', move) and not template:
             forms[actual_form]['topComments'].append(move)
-        elif form and not template and re.match(r'=.*=', move):
+        elif form and not template and re.match(r'.*=.*=.*', move):
             form = True
             actual_form = move.strip().replace('=', '')
             forms[actual_form] = {
