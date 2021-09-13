@@ -14,8 +14,8 @@ def get_pokemon_moves(name: str, generation: int, move_type: str, version_group_
     section = get_section_index_by_pokemon_move_type_and_generation(move_type, sections, generation,
                                                                     version_group_identifier, dt)
     if generation < 7:
-        page = '{}/Génération_{}'.format(generation,
-                                         name.replace('’', '%27').replace('\'', '%27').replace(' ', '_'))
+        page = '{}/Génération_{}'.format(
+            name.replace('’', '%27').replace('\'', '%27').replace(' ', '_'), generation)
         url = 'https://www.pokepedia.fr/api.php?action=parse&format=json&page={}&prop=wikitext&errorformat=wikitext&section={}&disabletoc=1' \
             .format(page, section)
     else:
@@ -23,18 +23,17 @@ def get_pokemon_moves(name: str, generation: int, move_type: str, version_group_
         url = 'https://www.pokepedia.fr/api.php?action=parse&format=json&page={}&prop=wikitext&errorformat=wikitext&section={}&disabletoc=1' \
             .format(page, section)
     content = pokepedia_client.parse(url)
-    wikitext = content['parse']['wikitext'][0]  # TODO test getting first element in this list
-    wikitext = re.split(r'/\R?^/m', wikitext)
+    wikitext = content['parse']['wikitext']['*']
+    wikitext = wikitext.split('\n')
 
     return {
         wikitext: wikitext,
         section: section,
         page: page,
-
     }
 
 
-def get_move_sections(self, name: str, generation: int) -> dict:
+def get_move_sections(name: str, generation: int) -> dict:
     if generation < 7:
         sections_url = 'https://www.pokepedia.fr/api.php?action=parse&format=json&page={}/G%C3%A9n%C3%A9ration_{}&prop=sections&errorformat=wikitext&disabletoc=1' \
             .format(name.replace('’', '%27').replace('\'', '%27').replace(' ', '_'), generation)
@@ -42,7 +41,7 @@ def get_move_sections(self, name: str, generation: int) -> dict:
         sections_url = 'https://www.pokepedia.fr/api.php?action=parse&format=json&page={}&prop=sections&errorformat=wikitext' \
             .format(name.replace('’', '%27').replace('\'', '%27').replace(' ', '_'))
 
-    return self.client.format_section_by_url(sections_url)
+    return pokepedia_client.format_section_by_url(sections_url)
 
 
 def get_section_index_by_pokemon_move_type_and_generation(move_type: str, sections: dict, generation: int,

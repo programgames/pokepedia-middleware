@@ -8,12 +8,12 @@ from exception.exceptions import InvalidResponse
 class WikimediaClient:
     def parse(self, url: str) -> dict:
         content = requests.get(url)
-        jsonArray = json.loads(content.json())
+        json = content.json()
 
-        if 'parse' not in jsonArray:
+        if 'parse' not in json:
             raise InvalidResponse('Invalid response from url {}, parse information is missing'.format(url))
 
-        return jsonArray
+        return json
 
     def edit(self, endpoint: str, parameters: list):
 
@@ -41,7 +41,11 @@ class WikimediaClient:
             if not section_title:
                 section_title = line
             if level_cursor == level:
-                section_title = section_title[0:section_title.rfind('//')]
+                pos = section_title.rfind('//')
+                if pos == -1:
+                    section_title = False
+                else:
+                    section_title = section_title[0:pos]
                 if not section_title:
                     section_title = line
                 else:
@@ -53,7 +57,11 @@ class WikimediaClient:
                 sections[section_title] = section['index']
             else:
                 for i in range(level, level_cursor + 1):
-                    section_title = section_title[0:section_title.rfind('//')]
+                    pos = section_title.rfind('//')
+                    if pos == -1:
+                        section_title = False
+                    else:
+                        section_title = section_title[0:pos]
                 if not section_title:
                     section_title = line
                 else:

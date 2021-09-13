@@ -6,6 +6,7 @@ from connection.conn import session
 from db.entity.entity import PokemonTypePast
 from util.helper.generationhelper import int_to_generation_indentifier
 import functools
+from collections import OrderedDict
 
 
 def get_default_gen8_national_dex_pokemon_number():
@@ -120,7 +121,7 @@ def find_pokemon_by_identifier(name: str) -> Pokemon:
     return session.query(Pokemon).filter(Pokemon.identifier == name).one()
 
 
-def find_pokemon_with_specific_page(start_at: int):
+def find_pokemon_with_specific_page(start_at: int) -> OrderedDict:
     national_dex = session.query(Pokedex).filter(Pokedex.identifier == 'national').one()
     species_results = session.query(PokemonSpecies.id) \
         .select_from(PokemonDexNumber) \
@@ -138,18 +139,23 @@ def find_pokemon_with_specific_page(start_at: int):
         .join(Pokemon).order_by(Pokemon.id.desc()).filter(PokemonMoveAvailability.has_pokepedia_page.is_(True)).all()
 
     pokemons = {}
+
     for availability in availabilities:
         pokemon = availability.pokemon  # type: Pokemon
         if pokemon.species.id in species_ids:
             pokemons[pokemon.id] = pokemon
 
+    pokemons = OrderedDict(sorted(pokemons.items()))
     return pokemons
 
 
 def is_pokemon_available_in_version_groups(pokemon: Pokemon, version_groups: list):
     return session.query(PokemonMoveAvailability) \
-        .join(VersionGroup, VersionGroup.identifier.in_(version_groups)) \
-        .join(Pokemon, PokemonMoveAvailability.pokemon_id == pokemon.id).one_or_none()
+        .join(PokemonMoveAvailability.version_group) \
+        .join(PokemonMoveAvailability.pokemon) \
+        .filter(PokemonMoveAvailability.pokemon_id == pokemon.id) \
+        .filter(VersionGroup.identifier.in_([version_group.identifier for version_group in version_groups])) \
+        .all()
 
 
 def find_availability_by_pkm_and_form(name: str, version_group: VersionGroup) -> PokemonMoveAvailability:
@@ -216,7 +222,7 @@ def find_highest_version_group_by_generation(generation: Generation) -> VersionG
     return functools.reduce(lambda a, b: a if a.order > b.order else b, version_groups)
 
 
-def find_french_slot1_name_by_gen(pokemon: Pokemon, gen: int)-> str:
+def find_french_slot1_name_by_gen(pokemon: Pokemon, gen: int) -> str:
     generation_entity = session.query(Generation) \
         .filter(Generation.identifier == int_to_generation_indentifier(gen)) \
         .one()
@@ -235,4 +241,3 @@ def find_french_slot1_name_by_gen(pokemon: Pokemon, gen: int)-> str:
         PokemonTypePast.slot == 1).one()
 
     return type1.move.name_map('fr')
-

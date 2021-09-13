@@ -1,1 +1,0 @@
-from wikimedia import Auth

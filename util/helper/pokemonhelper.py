@@ -3,6 +3,8 @@ from pokedex.db.tables import Pokemon, Generation, VersionGroup
 import db.repository as repository
 import re
 
+from util.helper import languagehelper
+
 
 def find_pokepedia_pokemon_url_name(pokemon: Pokemon):
     specific = find_pokepedia_specific_name_if_available(pokemon)
@@ -10,7 +12,7 @@ def find_pokepedia_pokemon_url_name(pokemon: Pokemon):
     if specific:
         return specific
 
-    specy_name = pokemon.specy.name_map['fr']
+    specy_name = pokemon.species.name_map[languagehelper.french]
 
     if not specy_name:
         raise RuntimeError('SpecyName not found for pokemon:   {}'.format(pokemon.identifier))

@@ -28,7 +28,7 @@ def has_pokemon_availabilities_in_generation(pokemon: Pokemon, generation: Gener
     version_groups_entities = session.query(VersionGroup).filter(VersionGroup.generation_id == generation.id).all()
 
     availabilities = repository.is_pokemon_available_in_version_groups(pokemon,
-                                                            version_groups_entities).all()
+                                                            version_groups_entities)
 
     return len(availabilities) > 0
 
