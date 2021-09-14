@@ -20,7 +20,7 @@ def check_and_sanitize_moves(moves: list) -> dict:
         '==== [[Septième génération]] ====',
         '==== [[Huitième génération]] ====',
     ]:
-        raise WrongHeaderError('nvalid header: {}'.format(moves[0]))
+        raise WrongHeaderError('Invalid header: {}'.format(moves[0]))
     section['topComments'].append(moves[0])
     del moves[0]
     r = re.compile(r'.*{{#invoke:Apprentissage\|niveau\|.*')
@@ -36,7 +36,7 @@ def check_and_sanitize_moves(moves: list) -> dict:
             'forms': [],
             'botComments': [],
         }
-        for key, move in moves:
+        for move in moves:
             if not template and not re.match(r'.*{{#invoke:Apprentissage\|niveau\|.*', move):
                 section['topComments'].append(move)
             elif not template and re.match(r'.*{{#invoke:Apprentissage\|niveau\|.*', move):
@@ -47,7 +47,9 @@ def check_and_sanitize_moves(moves: list) -> dict:
             elif end:
                 section['botComments'].append(move)
             else:
-                forms['uniqForm']['moves'].append([])
+                if not 'moves' in forms['uniqForm']:
+                    forms['uniqForm']['moves'] = []
+                forms['uniqForm']['moves'] = []
         section['forms'] = forms
         return section
 

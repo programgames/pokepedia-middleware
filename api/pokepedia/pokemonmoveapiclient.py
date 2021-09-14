@@ -27,9 +27,9 @@ def get_pokemon_moves(name: str, generation: int, move_type: str, version_group_
     wikitext = wikitext.split('\n')
 
     return {
-        wikitext: wikitext,
-        section: section,
-        page: page,
+        'wikitext': wikitext,
+        'section': section,
+        'page': page,
     }
 
 
