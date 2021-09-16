@@ -49,7 +49,7 @@ def check_and_sanitize_moves(moves: list) -> dict:
             else:
                 if not 'moves' in forms['uniqForm']:
                     forms['uniqForm']['moves'] = []
-                forms['uniqForm']['moves'] = []
+                forms['uniqForm']['moves'].append(move)
         section['forms'] = forms
         return section
 

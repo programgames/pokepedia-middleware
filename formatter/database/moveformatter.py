@@ -149,7 +149,7 @@ def _formated_by_pokemon(pokemon: Pokemon, generation: int, learn_method: Pokemo
 
 def get_move_forms(pokemon: Pokemon, generation: int, learn_method: PokemonMoveMethod):
     # TODO : a test
-    generation = session.query(Generation).filter(Generation.identifier == generation).one()
+    generation = session.query(Generation).filter(Generation == generation).one()
 
     version_group = repository.find_highest_version_group_by_generation(generation)
 
