@@ -3,7 +3,7 @@ from pokedex.db.tables import Pokemon, Generation, VersionGroup
 import db.repository as repository
 
 
-def int_to_generation_indentifier(integer) -> str:
+def int_to_generation_identifier(integer) -> str:
     if integer == 1:
         return 'generation-i'
     elif integer == 2:

@@ -2,7 +2,7 @@ from sqlalchemy.engine.base import Engine
 import csv
 
 from db.entity.entity import pokemon_type_past, PokemonTypePast
-from util.helper.generationhelper import int_to_generation_indentifier
+from util.helper.generationhelper import int_to_generation_identifier
 import os
 import re
 from pathlib import Path
@@ -86,7 +86,7 @@ def load_french_aliases():
             if not move:
                 raise RuntimeError('Move not found : ' + row[0])
             for i in range(first_gen, second_gen):
-                generation_identifier = int_to_generation_indentifier(i)
+                generation_identifier = int_to_generation_identifier(i)
                 generation = session.query(Generation).filter(Generation.identifier == generation_identifier).one()
                 changelog = MoveNameChangelog(
                     language=french.id, move_id=move.id, generation_id=generation.id,

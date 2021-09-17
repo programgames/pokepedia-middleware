@@ -3,13 +3,13 @@ from pokedex.db.tables import PokemonMoveMethod, Pokemon, Generation, VersionGro
 from db import repository, PokemonMoveAvailability
 from formatter.dto.levelupmove import LevelUpMove
 from formatter.pokemonmovefiller import fill_leveling_move
+from util.helper import languagehelper
 from util.helper.generationhelper import get_version_group_by_gen_and_column
 from collections import OrderedDict
 from operator import itemgetter
 from connection.conn import session
 
-
-def get_formatted_level_up_database_moves(pokemon: Pokemon, generation: int, learn_method: PokemonMoveMethod):
+def get_formatted_level_up_database_moves(pokemon: Pokemon, generation: Generation, learn_method: PokemonMoveMethod):
     return get_move_forms(pokemon, generation, learn_method)
 
 
@@ -147,9 +147,8 @@ def _formated_by_pokemon(pokemon: Pokemon, generation: int, learn_method: Pokemo
     return formatteds
 
 
-def get_move_forms(pokemon: Pokemon, generation: int, learn_method: PokemonMoveMethod):
-    # TODO : a test
-    generation = session.query(Generation).filter(Generation == generation).one()
+def get_move_forms(pokemon: Pokemon, generation: Generation, learn_method: PokemonMoveMethod):
+    generation = session.query(Generation).filter(Generation.identifier == generation.identifier).one()
 
     version_group = repository.find_highest_version_group_by_generation(generation)
 
@@ -157,12 +156,14 @@ def get_move_forms(pokemon: Pokemon, generation: int, learn_method: PokemonMoveM
         .filter(PokemonMoveAvailability.version_group_id == version_group.id) \
         .filter(PokemonMoveAvailability.pokemon_id == pokemon.id) \
         .filter(PokemonMoveAvailability.is_default.is_(True)) \
-        .filter(PokemonMoveAvailability.hasCustomPokepediaPage.is_(True))
+        .filter(PokemonMoveAvailability.has_pokepedia_page.is_(True)) \
+        .one()
 
-    move_forms = availability.move_forms()
+    move_forms = availability.forms
 
     if not move_forms:
-        specy_name = pokemon.specie.name_map('fr')
+        specy =  pokemon.species
+        specy_name = specy.name_map[languagehelper.french]
 
         return {specy_name: _formated_by_pokemon(pokemon, generation.identifier, learn_method)}
 

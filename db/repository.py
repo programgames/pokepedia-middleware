@@ -4,7 +4,7 @@ from db import MoveNameChangelog
 from db.entity import PokemonMoveAvailability
 from connection.conn import session
 from db.entity.entity import PokemonTypePast
-from util.helper.generationhelper import int_to_generation_indentifier
+from util.helper.generationhelper import int_to_generation_identifier
 import functools
 from collections import OrderedDict
 
@@ -183,7 +183,7 @@ def find_french_move_by_pokemon_move_and_generation(pokemon_move: PokemonMove, g
     alias = session.query(MoveNameChangelog) \
         .join(Move, Move.id == MoveNameChangelog.move_id) \
         .join(Language, Language.identifier == 'fr') \
-        .filter(MoveNameChangelog.generation.identifier == int_to_generation_indentifier(
+        .filter(MoveNameChangelog.generation.identifier == int_to_generation_identifier(
         generation)).first()  # type: MoveNameChangelog
 
     if alias:
@@ -196,7 +196,7 @@ def find_french_move_by_move_and_generation(move: Move, generation: int):
     alias = session.query(MoveNameChangelog) \
         .join(Move, Move.id == MoveNameChangelog.move_id) \
         .join(Language, Language.identifier == 'fr') \
-        .filter(MoveNameChangelog.generation.identifier == int_to_generation_indentifier(
+        .filter(MoveNameChangelog.generation.identifier == int_to_generation_identifier(
         generation)).first()  # type: MoveNameChangelog
 
     if alias:
@@ -212,8 +212,8 @@ def find_pokepedia_move_methods_methods_repository() -> list:
 
 def find_highest_version_group_by_generation(generation: Generation) -> VersionGroup:
     version_groups = session.query(VersionGroup) \
-        .join(Generation, Generation.id == generation.id) \
-        .filter(VersionGroup.identifier.not_in(['colosseum', 'xd', 'lets-go-pikachu-lets-go-eevee'])) \
+        .filter(VersionGroup.identifier.notin_(['colosseum', 'xd', 'lets-go-pikachu-lets-go-eevee'])) \
+        .filter(VersionGroup.generation_id == generation.id) \
         .all()  # type: list
 
     if len(version_groups) == 1:
@@ -224,7 +224,7 @@ def find_highest_version_group_by_generation(generation: Generation) -> VersionG
 
 def find_french_slot1_name_by_gen(pokemon: Pokemon, gen: int) -> str:
     generation_entity = session.query(Generation) \
-        .filter(Generation.identifier == int_to_generation_indentifier(gen)) \
+        .filter(Generation.identifier == int_to_generation_identifier(gen)) \
         .one()
 
     type_past = session.query(PokemonTypePast) \
