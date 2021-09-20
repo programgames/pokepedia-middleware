@@ -1,5 +1,5 @@
 def _clean_string(string: str):
-    return str.replace('N.', '').replace(', ', ' ').replace('<br>', ' ').replace('-', '—')
+    return string.replace('N.', '').replace(', ', ' ').replace('<br>', ' ').replace('-', '—')
 
 
 def compare_level_move(pokepedia_moves: dict, database_moves: dict) -> bool:

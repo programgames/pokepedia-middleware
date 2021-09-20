@@ -11,9 +11,11 @@ def process_pokemon_move():
 
     for generation in generations:
         for id, pokemon in pokemons.items():
-            try:
-                pokemonmoveprocessor.process(generation, learnmethod, pokemon, False)
-            except Exception as exc:
-                raise UnrecoverableMessageHandlingError(
-                    "Error happened for {} generation {}".format(pokemon.identifier,
-                                                                 generation.identifier))
+            # try:
+            print('processing ' + pokemon.identifier)
+            pokemonmoveprocessor.process(generation, learnmethod, pokemon, False)
+
+            # except Exception as exc:
+            #     raise UnrecoverableMessageHandlingError(
+            #         "Error happened for {} generation {}".format(pokemon.identifier,
+            #                                                      generation.identifier))

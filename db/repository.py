@@ -1,9 +1,11 @@
 from pokedex.db.tables import *
+from sqlalchemy.orm import aliased
 
 from db import MoveNameChangelog
 from db.entity import PokemonMoveAvailability
 from connection.conn import session
 from db.entity.entity import PokemonTypePast
+from util.helper import languagehelper
 from util.helper.generationhelper import int_to_generation_identifier
 import functools
 from collections import OrderedDict
@@ -67,10 +69,10 @@ def get_default_gen8_national_dex_pokemon_number():
 
 def find_default_pokemons_in_national_dex(start: int, end: int):
     national_pokedex = session.query(Pokedex).filter(Pokedex.identifier == 'national').one()
+
     id_results = session.query(PokemonSpecies.id) \
         .select_from(PokemonDexNumber) \
-        .join(PokemonSpecies, PokemonSpecies.id == PokemonDexNumber.species_id) \
-        .join(Pokedex, PokemonDexNumber.pokedex_id == national_pokedex.id) \
+        .filter(PokemonDexNumber.pokedex_id == national_pokedex.id) \
         .filter(PokemonDexNumber.pokedex_number >= start) \
         .filter(PokemonDexNumber.pokedex_number <= end) \
         .filter(Pokedex.id == national_pokedex.id) \
@@ -170,26 +172,29 @@ def find_availability_by_pkm_and_form(name: str, version_group: VersionGroup) ->
 def find_moves_by_pokemon_move_method_and_version_group(pokemon: Pokemon, pokemon_move_method: PokemonMoveMethod,
                                                         version_group: VersionGroup):
     return session.query(PokemonMove) \
-        .join(Pokemon, Pokemon.id == pokemon.id) \
-        .join(PokemonMoveMethod, PokemonMoveMethod.id == pokemon_move_method.id) \
-        .join(VersionGroup, VersionGroup.id == version_group.id) \
-        .order_by(PokemonMove.id.asc()) \
+        .filter(PokemonMove.pokemon_id == pokemon.id) \
+        .filter(PokemonMove.pokemon_move_method_id == pokemon_move_method.id) \
+        .filter(PokemonMove.version_group_id == version_group.id) \
+        .order_by(PokemonMove.level.asc()) \
         .all()
 
 
-def find_french_move_by_pokemon_move_and_generation(pokemon_move: PokemonMove, generation: int):
-    move = session.query(Move).join(PokemonMove, PokemonMove.move_id == pokemon_move.move_id).one()
+def get_french_move_by_pokemon_move_and_generation(pokemon_move: PokemonMove, generation: Generation):
+    move = session.query(Move) \
+        .filter(Move.id == pokemon_move.move_id).one()
+
+    gen = aliased(Generation)
 
     alias = session.query(MoveNameChangelog) \
-        .join(Move, Move.id == MoveNameChangelog.move_id) \
-        .join(Language, Language.identifier == 'fr') \
-        .filter(MoveNameChangelog.generation.identifier == int_to_generation_identifier(
-        generation)).first()  # type: MoveNameChangelog
+        .join(Language, Language.iso639 == 'fr') \
+        .join(gen, MoveNameChangelog.generation) \
+        .filter(move.id == MoveNameChangelog.move_id) \
+        .filter(gen.identifier == generation.identifier).first()  # type: MoveNameChangelog
 
     if alias:
         return alias.name
 
-    return move.name_map['fr']
+    return move.name_map[languagehelper.french]
 
 
 def find_french_move_by_move_and_generation(move: Move, generation: int):

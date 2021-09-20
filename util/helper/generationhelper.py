@@ -28,7 +28,7 @@ def has_pokemon_availabilities_in_generation(pokemon: Pokemon, generation: Gener
     version_groups_entities = session.query(VersionGroup).filter(VersionGroup.generation_id == generation.id).all()
 
     availabilities = repository.is_pokemon_available_in_version_groups(pokemon,
-                                                            version_groups_entities)
+                                                                       version_groups_entities)
 
     return len(availabilities) > 0
 
@@ -48,7 +48,7 @@ def get_gen_number_by_name(generation: str) -> int:
     return mapping[generation]
 
 
-def get_version_group_by_gen_and_column(generation: int, column: int) -> VersionGroup:
+def get_version_group_by_gen_and_column(generation: Generation, column: int) -> VersionGroup:
     col1 = {
         '1': 'red-blue',
         '2': 'gold-silver',
@@ -82,4 +82,5 @@ def get_version_group_by_gen_and_column(generation: int, column: int) -> Version
     else:
         mapping = col3
 
-    return session.query(VersionGroup).filter(VersionGroup.identifier == mapping[str(generation)]).one()
+    return session.query(VersionGroup).filter(
+        VersionGroup.identifier == mapping[str(get_gen_number_by_name(generation.identifier))]).one()

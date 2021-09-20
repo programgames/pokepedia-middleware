@@ -1,6 +1,4 @@
-from connection.conn import session
-from pokedex.db.tables import Pokemon, Generation, VersionGroup
-import db.repository as repository
+from pokedex.db.tables import Pokemon
 import re
 
 from util.helper import languagehelper

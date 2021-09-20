@@ -7,7 +7,7 @@ from util.helper import movesethelper
 
 
 def generate_move_wiki_text(learn_method: PokemonMoveMethod, pokemon: Pokemon, generation: int, moves: list,
-                            commentaries: list):
+                            pokepedia_data):
     generated = ''
 
     if commentaries:
