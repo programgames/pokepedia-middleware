@@ -42,14 +42,10 @@ class WikimediaClient:
                 section_title = line
             if level_cursor == level:
                 pos = section_title.rfind('//')
-                if pos == -1:
-                    section_title = False
-                else:
-                    section_title = section_title[0:pos]
-                if not section_title:
+                if not section_title or pos == -1:
                     section_title = line
                 else:
-                    section_title += '//' + line
+                    section_title = section_title[0:pos] + line
                 sections[section_title] = section['index']
             elif level_cursor < level:
                 section_title += '//' + line
@@ -58,9 +54,7 @@ class WikimediaClient:
             else:
                 for i in range(level, level_cursor + 1):
                     pos = section_title.rfind('//')
-                    if pos == -1:
-                        section_title = False
-                    else:
+                    if not pos or pos == -1:
                         section_title = section_title[0:pos]
                 if not section_title:
                     section_title = line
