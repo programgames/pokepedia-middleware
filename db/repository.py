@@ -72,10 +72,10 @@ def find_default_pokemons_in_national_dex(start: int, end: int):
 
     id_results = session.query(PokemonSpecies.id) \
         .select_from(PokemonDexNumber) \
+        .join(PokemonDexNumber.species) \
         .filter(PokemonDexNumber.pokedex_id == national_pokedex.id) \
         .filter(PokemonDexNumber.pokedex_number >= start) \
         .filter(PokemonDexNumber.pokedex_number <= end) \
-        .filter(Pokedex.id == national_pokedex.id) \
         .all()
 
     ids = []

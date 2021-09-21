@@ -13,9 +13,11 @@ def process(generation: Generation, learn_method: PokemonMoveMethod, pokemon: Po
     if not has_pokemon_availabilities_in_generation(pokemon, generation):
         return
 
+
     pokepedia_data= _get_pokepedia_moves_by_method(learn_method, pokemon,
                                                    get_gen_number_by_name(
                                                        generation.identifier))
+
     database_moves = moveformatter.get_formatted_level_up_database_moves(pokemon, generation, learn_method)
 
     if not levelupmovecomparator.compare_level_move(database_moves, database_moves):

@@ -1,5 +1,5 @@
 from sqlalchemy.sql.schema import Column, ForeignKey, Table
-from sqlalchemy.types import Integer, Unicode, Boolean
+from sqlalchemy.types import Integer, Unicode, Boolean, Text, JSON
 from sqlalchemy.orm import relationship
 from pokedex.db.tables import Pokemon, TableBase, VersionGroup, Move, Generation, Language, Type
 from sqlalchemy import and_
@@ -58,7 +58,13 @@ class PokemonTypePast(TableBase):
     type = relationship(Type, innerjoin=True, lazy='joined')
     pokemon = relationship(Pokemon, innerjoin=True, lazy='joined')
 
+class CacheItem(TableBase):
+    __tablename__ = 'cache_item'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    key = Column(Text, nullable=False)
+    data = Column(JSON, nullable=False)
 
 move_name_changelog_table = MoveNameChangelog()
 pokemon_move_availability_table = PokemonMoveAvailability()
-pokemon_type_past = PokemonTypePast()
+pokemon_type_past_table = PokemonTypePast()
+cache_item_table = CacheItem()

@@ -1,13 +1,12 @@
 from sqlalchemy.engine.base import Engine
 import csv
 
-from db.entity.entity import pokemon_type_past, PokemonTypePast
-from util.helper.generationhelper import int_to_generation_identifier
+from db.entity.entity import pokemon_type_past_table
 import os
 import re
 from pathlib import Path
 from db.entity import move_name_changelog_table, pokemon_move_availability_table, MoveNameChangelog, \
-    pkm_availability_form_table
+    pkm_availability_form_table, cache_item_table
 from db.repository import *
 
 
@@ -16,7 +15,8 @@ def create_app_tables():
 
     move_name_changelog_table_object = move_name_changelog_table.__table__
     pokemon_move_availability_table_object = pokemon_move_availability_table.__table__
-    pokemon_type_past_object = pokemon_type_past.__table__
+    pokemon_type_past_object = pokemon_type_past_table.__table__
+    cache_item_table_object = cache_item_table.__table__
 
     if engine.has_table(MoveNameChangelog.__tablename__):
         move_name_changelog_table_object.drop()
@@ -26,11 +26,14 @@ def create_app_tables():
         pkm_availability_form_table.drop()
     if engine.has_table('pokemon_type_past'):
         pokemon_type_past_object.drop()
+    if engine.has_table('cache_item'):
+        cache_item_table_object.drop()
 
     pokemon_move_availability_table_object.create(engine)
     move_name_changelog_table_object.create(engine)
     pkm_availability_form_table.create(engine)
     pokemon_type_past_object.create(engine)
+    cache_item_table_object.create(engine)
 
 
 def fill_app_tables():

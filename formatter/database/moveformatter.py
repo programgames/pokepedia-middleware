@@ -76,7 +76,7 @@ def _format_level(move: LevelUpMove, column: int, previous_weight: int) -> dict:
             weight = getattr(move, 'level' + str(column))
 
     if getattr(move, 'level' + str(column) + 'Extra'):
-        level += ', N.' + getattr(move, 'level' + str(level) + 'Extra')
+        level += ', N.' + getattr(move, 'level' + str(column) + 'Extra')
         weight = getattr(move, 'level' + str(column) + 'Extra') if getattr(move,
                                                                            level + str(column) + 'Extra') else getattr(
             move, 'level' + str(column))

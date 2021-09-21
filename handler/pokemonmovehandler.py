@@ -9,13 +9,14 @@ def process_pokemon_move():
     learnmethod = session.query(PokemonMoveMethod).filter(PokemonMoveMethod.identifier == 'level-up').one()
     generations = session.query(Generation).all()
 
-    for generation in generations:
-        for id, pokemon in pokemons.items():
-            # try:
-            print('processing ' + pokemon.identifier)
-            pokemonmoveprocessor.process(generation, learnmethod, pokemon, False)
 
-            # except Exception as exc:
-            #     raise UnrecoverableMessageHandlingError(
-            #         "Error happened for {} generation {}".format(pokemon.identifier,
-            #                                                      generation.identifier))
+    for id, pokemon in pokemons.items():
+        for generation in generations:
+            try:
+                print('processing ' + pokemon.identifier + ' for generation ' + str(generation.id))
+                pokemonmoveprocessor.process(generation, learnmethod, pokemon, False)
+
+            except Exception as exc:
+                raise UnrecoverableMessageHandlingError(
+                    "Error happened for {} generation {}".format(pokemon.identifier,
+                                                                 generation.identifier))
