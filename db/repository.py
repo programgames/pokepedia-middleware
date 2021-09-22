@@ -4,7 +4,7 @@ from sqlalchemy.orm import aliased
 from db import MoveNameChangelog
 from db.entity import PokemonMoveAvailability
 from connection.conn import session
-from db.entity.entity import PokemonTypePast
+from db.entity.entity import PokemonTypePast, CacheItem
 from util.helper import languagehelper
 from util.helper.generationhelper import int_to_generation_identifier
 import functools
@@ -240,9 +240,20 @@ def find_french_slot1_name_by_gen(pokemon: Pokemon, gen: int) -> str:
 
     if type_past:
         # TODO test
-        return type_past.move.name_map('fr')
+        return type_past.move.name_map(languagehelper.french)
 
     type1 = session.query(PokemonTypePast).join(PokemonTypePast.pokemon_id == pokemon.id).filter(
         PokemonTypePast.slot == 1).one()
 
-    return type1.move.name_map('fr')
+    return type1.move.name_map(languagehelper.french)
+
+
+def get_item_from_cache(key: str, func):
+    item = session.query(CacheItem) \
+        .filter(CacheItem.key == key) \
+        .one_or_none()
+
+    if item:
+        return item
+
+    return func()
