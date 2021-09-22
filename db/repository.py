@@ -254,6 +254,12 @@ def get_item_from_cache(key: str, func):
         .one_or_none()
 
     if item:
-        return item
+        return item.data
 
-    return func()
+    result = func()
+    item = CacheItem()
+    item.key = key
+    item.data = result
+    session.add(item)
+    session.commit()
+    return result

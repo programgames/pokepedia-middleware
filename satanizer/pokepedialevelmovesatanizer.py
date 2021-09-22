@@ -13,10 +13,12 @@ def check_and_sanitize_moves(moves: list) -> dict:
         'forms': [],
         'botComments': [],
     }
+    #TODO regex
     if moves[0] not in [
         '=== Par montée en [[niveau]] ===',
-        '==== Par montée en niveau ====',
         '===Par montée en [[niveau]] ===',
+        '==== Par montée en [[niveau]] ====',
+        '====Par montée en [[niveau]] ====',
         '==== [[Septième génération]] ====',
         '==== [[Huitième génération]] ====',
     ]:

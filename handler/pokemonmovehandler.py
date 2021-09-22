@@ -4,8 +4,8 @@ import handler.pokemonmoveprocessor as pokemonmoveprocessor
 from exception import *
 
 
-def process_pokemon_move():
-    pokemons = find_pokemon_with_specific_page(1)
+def process_pokemon_move(start: int):
+    pokemons = find_pokemon_with_specific_page(start)
     learnmethod = session.query(PokemonMoveMethod).filter(PokemonMoveMethod.identifier == 'level-up').one()
     generations = session.query(Generation).all()
 

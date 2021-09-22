@@ -40,4 +40,5 @@ def _get_pokepedia_moves_by_method(learn_method: PokemonMoveMethod, pokemon: Pok
 def _handle_error(learn_method: PokemonMoveMethod, pokemon: Pokemon, gen: int, database_moves: list, pokepedia_data: dict):
     generated = generate_move_wiki_text(learn_method, pokemon, gen, database_moves, pokepedia_data)
 
+    print('ERROR')
     # TODO: upload
