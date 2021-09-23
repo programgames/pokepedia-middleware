@@ -55,15 +55,20 @@ def check_and_sanitize_moves(moves: list) -> dict:
         section['forms'] = forms
         return section
 
-    for key, move in moves:
-        if template and not form and not re.match(r'.*=.*=.*', move):
+    for move in moves:
+        if template and not form and not bool(re.match(r'.*=.*=.*', move)):
             section['topComments'].append(move)
         elif not template and form and re.match(r'.*{{#invoke:Apprentissage\|niveau\|.*', move):
             template = True
-        elif not template and re.match(r'.*=.*=.*', move):
+        elif not template and bool(re.match(r'.*=.*=.*', move)):
             form = True
             end = False
             actual_form = move.strip().replace('=', '').strip()
+            forms[actual_form] = {
+                'topComments': [],
+                'moves': [],
+                'botComments': [],
+            }
         elif template and re.match(r'.*}}.*', move):
             template = False
             end = True
@@ -71,14 +76,6 @@ def check_and_sanitize_moves(moves: list) -> dict:
             forms[actual_form]['moves'].append(move)
         elif form and not re.match('.*=.*=.*', move) and not template:
             forms[actual_form]['topComments'].append(move)
-        elif form and not template and re.match(r'.*=.*=.*', move):
-            form = True
-            actual_form = move.strip().replace('=', '')
-            forms[actual_form] = {
-                'topComments': [],
-                'moves': [],
-                'botComments': [],
-            }
         elif end:
             forms[actual_form]['botComments'].append(move)
 
