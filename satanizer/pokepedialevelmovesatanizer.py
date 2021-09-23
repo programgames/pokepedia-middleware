@@ -56,9 +56,9 @@ def check_and_sanitize_moves(moves: list) -> dict:
         return section
 
     for move in moves:
-        if template and not form and not bool(re.match(r'.*=.*=.*', move)):
+        if not template and not form and not bool(re.match(r'.*=.*=.*', move)):
             section['topComments'].append(move)
-        elif not template and form and re.match(r'.*{{#invoke:Apprentissage\|niveau\|.*', move):
+        elif not template and form and bool(re.match(r'.*{{#invoke:Apprentissage\|niveau\|.*', move)):
             template = True
         elif not template and bool(re.match(r'.*=.*=.*', move)):
             form = True

@@ -1,4 +1,4 @@
-from pokedex.db.tables import PokemonMoveMethod, Pokemon, Generation, VersionGroup
+from pokedex.db.tables import PokemonMoveMethod, Pokemon, Generation, PokemonForm
 
 from db import repository, PokemonMoveAvailability
 from formatter.dto.levelupmove import LevelUpMove
@@ -9,8 +9,9 @@ from collections import OrderedDict
 from connection.conn import session
 
 
-def get_formatted_level_up_database_moves(pokemon: Pokemon, generation: Generation, learn_method: PokemonMoveMethod):
-    return get_move_forms(pokemon, generation, learn_method)
+def get_formatted_level_up_database_moves(pokemon: Pokemon, generation: Generation, learn_method: PokemonMoveMethod,
+                                          form_order: list):
+    return get_move_forms(pokemon, generation, learn_method, form_order)
 
 
 def _get_preformatteds_database_pokemon_moves(pokemon: Pokemon, generation: Generation,
@@ -77,7 +78,8 @@ def _format_level(move: LevelUpMove, column: int, previous_weight: int) -> dict:
 
     if getattr(move, 'level' + str(column) + 'Extra'):
         level += ', N.' + str(getattr(move, 'level' + str(column) + 'Extra'))
-        weight = getattr(move, 'level' + str(column) + 'Extra') if getattr(move,'level' + str(column) + 'Extra') else getattr(move, 'level' + str(column))
+        weight = getattr(move, 'level' + str(column) + 'Extra') if getattr(move, 'level' + str(
+            column) + 'Extra') else getattr(move, 'level' + str(column))
 
     return {
         'level': level,
@@ -145,7 +147,7 @@ def _formated_by_pokemon(pokemon: Pokemon, generation: Generation, learn_method:
     return formatteds
 
 
-def get_move_forms(pokemon: Pokemon, generation: Generation, learn_method: PokemonMoveMethod):
+def get_move_forms(pokemon: Pokemon, generation: Generation, learn_method: PokemonMoveMethod, form_order: list):
     generation = session.query(Generation).filter(Generation.identifier == generation.identifier).one()
 
     version_group = repository.find_highest_version_group_by_generation(generation)
@@ -165,14 +167,15 @@ def get_move_forms(pokemon: Pokemon, generation: Generation, learn_method: Pokem
 
         return {specy_name: _formated_by_pokemon(pokemon, generation, learn_method)}
 
-    custom = list(move_forms.values())[0].has_custom_pokepedia_page()
+    custom = move_forms[0].has_pokepedia_page
 
     if custom:
-        specy_name = pokemon.specie.name_map('fr')
+        specy_name = pokemon.specie.name_map(languagehelper.french)
         return {specy_name: _formated_by_pokemon(pokemon, generation.identifier, learn_method)}
 
-    forms = {}
-    for move_form in move_forms:
+    forms = OrderedDict()
+    for form_name in form_order:
+        pokemon = repository.find_pokemon_by_french_form_name(form_name)
         availability = session.query(PokemonMoveAvailability).filter(
             PokemonMoveAvailability.version_group == version_group, PokemonMoveAvailability.pokemon == pokemon,
             PokemonMoveAvailability.has_pokepedia_page.is_(False))
