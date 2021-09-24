@@ -1,4 +1,4 @@
-from pokedex.db.tables import PokemonMoveMethod, Pokemon, Generation, PokemonForm
+from pokedex.db.tables import PokemonMoveMethod, Pokemon, Generation, PokemonForm, VersionGroup
 
 from db import repository, PokemonMoveAvailability
 from formatter.dto.levelupmove import LevelUpMove
@@ -16,10 +16,18 @@ def get_formatted_level_up_database_moves(pokemon: Pokemon, generation: Generati
 
 def _get_preformatteds_database_pokemon_moves(pokemon: Pokemon, generation: Generation,
                                               learn_method: PokemonMoveMethod):
+    gen_number = generationhelper.get_gen_number_by_identifier(generation.identifier)
     preformatteds = {}
-    if generationhelper.get_gen_number_by_name(generation.identifier) in [3, 4, 7]:
+    if gen_number == 7:
+        lgpe = session.query(VersionGroup).filter(VersionGroup.identifier == 'lets-go-pikachu-lets-go-eevee').one_or_none()
+        availability = repository.get_availability_by_pokemon_and_version_group(pokemon, lgpe)
+        if not availability:
+            columns = 2
+        else:
+            columns = 3
+    elif gen_number in [3, 4]:
         columns = 3
-    elif generationhelper.get_gen_number_by_name(generation.identifier) in [1, 2, 5, 6]:
+    elif gen_number in [1, 2, 5, 6]:
         columns = 2
     else:
         columns = 1
@@ -50,7 +58,7 @@ def _format_level(move: LevelUpMove, column: int, previous_weight: int) -> dict:
     if not getattr(move, 'level' + str(column)) and not getattr(move, 'onEvolution' + str(column)) and not getattr(
             move, 'onStart' + str(column)):
         return {
-            'level': '—',
+            'level': '-',
             'weight': previous_weight
         }
 
@@ -124,6 +132,7 @@ def _sort_level_moves(formatteds: dict):
 def _formated_by_pokemon(pokemon: Pokemon, generation: Generation, learn_method: PokemonMoveMethod):
     pre_formatteds = _get_preformatteds_database_pokemon_moves(pokemon, generation, learn_method)
     formatteds = {}
+    generation = generationhelper.get_gen_number_by_identifier(generation.identifier)
     if generation == 8:
         for name, move in pre_formatteds:
             first = _format_level(move, 1, 0)

@@ -163,10 +163,18 @@ def is_pokemon_available_in_version_groups(pokemon: Pokemon, version_groups: lis
 def find_availability_by_pkm_and_form(name: str, version_group: VersionGroup) -> PokemonMoveAvailability:
     return session.query(PokemonMoveAvailability) \
         .filter(PokemonMoveAvailability.version_group_id == version_group.id) \
-        .join(Pokemon) \
+        .join(PokemonMoveAvailability.pokemon) \
         .filter(Pokemon.identifier == name) \
         .filter(PokemonMoveAvailability.version_group_id == version_group.id) \
         .one()
+
+def get_availability_by_pokemon_and_version_group(pokemon: Pokemon, version_group: VersionGroup) -> PokemonMoveAvailability:
+    return session.query(PokemonMoveAvailability) \
+        .filter(PokemonMoveAvailability.version_group_id == version_group.id) \
+        .join(PokemonMoveAvailability.pokemon) \
+        .filter(Pokemon.identifier == pokemon.identifier) \
+        .filter(PokemonMoveAvailability.version_group_id == version_group.id) \
+        .one_or_none()
 
 
 def find_moves_by_pokemon_move_method_and_version_group(pokemon: Pokemon, pokemon_move_method: PokemonMoveMethod,

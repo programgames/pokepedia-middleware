@@ -33,7 +33,7 @@ def has_pokemon_availabilities_in_generation(pokemon: Pokemon, generation: Gener
     return len(availabilities) > 0
 
 
-def get_gen_number_by_name(generation: str) -> int:
+def get_gen_number_by_identifier(generation: str) -> int:
     mapping = {
         'generation-i': 1,
         'generation-ii': 2,
@@ -83,4 +83,4 @@ def get_version_group_by_gen_and_column(generation: Generation, column: int) -> 
         mapping = col3
 
     return session.query(VersionGroup).filter(
-        VersionGroup.identifier == mapping[str(get_gen_number_by_name(generation.identifier))]).one()
+        VersionGroup.identifier == mapping[str(get_gen_number_by_identifier(generation.identifier))]).one()

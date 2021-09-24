@@ -4,10 +4,10 @@ def _clean_string(string: str):
 
 def compare_level_move(pokepedia_moves: dict, database_moves: dict) -> bool:
 
-    for form, moves in pokepedia_moves.items():
+    for form, moves in database_moves.items():
 
-        clean_pokepedia_moves = list(map(_clean_string, moves))
-        clean_database_moves = list(map(_clean_string, database_moves[form]))
+        clean_database_moves = list(map(_clean_string, moves))
+        clean_pokepedia_moves = list(map(_clean_string, pokepedia_moves[form]['moves']))
 
         count = len(clean_database_moves)
         if count != len(clean_pokepedia_moves):

@@ -14,12 +14,12 @@ def process(generation: Generation, learn_method: PokemonMoveMethod, pokemon: Po
         return
 
     pokepedia_data = _get_pokepedia_moves_by_method(learn_method, pokemon,
-                                                    get_gen_number_by_name(
+                                                    get_gen_number_by_identifier(
                                                         generation.identifier))
     form_order = list(pokepedia_data['satanized']['forms'].keys())
     database_moves = moveformatter.get_formatted_level_up_database_moves(pokemon, generation, learn_method, form_order)
 
-    if not levelupmovecomparator.compare_level_move(pokepedia_data, database_moves):
+    if not levelupmovecomparator.compare_level_move(pokepedia_data['satanized']['forms'], database_moves):
         return _handle_error(learn_method, pokemon, generation, database_moves, pokepedia_data)
 
 
