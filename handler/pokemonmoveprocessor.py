@@ -13,15 +13,14 @@ def process(generation: Generation, learn_method: PokemonMoveMethod, pokemon: Po
     if not has_pokemon_availabilities_in_generation(pokemon, generation):
         return
 
-
     pokepedia_data = _get_pokepedia_moves_by_method(learn_method, pokemon,
-                                                   get_gen_number_by_name(
-                                                       generation.identifier))
+                                                    get_gen_number_by_name(
+                                                        generation.identifier))
     form_order = list(pokepedia_data['satanized']['forms'].keys())
-    database_moves = moveformatter.get_formatted_level_up_database_moves(pokemon, generation, learn_method,form_order)
+    database_moves = moveformatter.get_formatted_level_up_database_moves(pokemon, generation, learn_method, form_order)
 
-    if not levelupmovecomparator.compare_level_move(database_moves, database_moves):
-        return _handle_error(learn_method, pokemon, generation, database_moves,pokepedia_data)
+    if not levelupmovecomparator.compare_level_move(pokepedia_data, database_moves):
+        return _handle_error(learn_method, pokemon, generation, database_moves, pokepedia_data)
 
 
 def _get_pokepedia_moves_by_method(learn_method: PokemonMoveMethod, pokemon: Pokemon, gen: int):
@@ -37,7 +36,8 @@ def _get_pokepedia_moves_by_method(learn_method: PokemonMoveMethod, pokemon: Pok
         raise RuntimeError('Unknow pokepedia move method : {}'.format(learn_method))
 
 
-def _handle_error(learn_method: PokemonMoveMethod, pokemon: Pokemon, gen: int, database_moves: list, pokepedia_data: dict):
+def _handle_error(learn_method: PokemonMoveMethod, pokemon: Pokemon, gen: int, database_moves: list,
+                  pokepedia_data: dict):
     generated = generate_move_wiki_text(learn_method, pokemon, gen, database_moves, pokepedia_data)
 
     print('ERROR')

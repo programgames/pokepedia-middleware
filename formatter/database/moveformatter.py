@@ -176,8 +176,6 @@ def get_move_forms(pokemon: Pokemon, generation: Generation, learn_method: Pokem
     forms = OrderedDict()
     for form_name in form_order:
         pokemon = repository.find_pokemon_by_french_form_name(form_name)
-        availability = session.query(PokemonMoveAvailability).filter(
-            PokemonMoveAvailability.version_group == version_group, PokemonMoveAvailability.pokemon == pokemon,
-            PokemonMoveAvailability.has_pokepedia_page.is_(False))
+        forms[form_name] = _formated_by_pokemon(pokemon, generation, learn_method)
 
-        forms['test'] = 2
+    return forms
