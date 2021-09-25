@@ -1,6 +1,7 @@
 import re
 
 from exception import WrongHeaderError
+from collections import OrderedDict
 
 
 def check_and_sanitize_moves(moves: list) -> dict:
@@ -10,10 +11,10 @@ def check_and_sanitize_moves(moves: list) -> dict:
     actual_form = None
     section = {
         'topComments': [],
-        'forms': [],
+        'forms': OrderedDict(),
         'botComments': [],
     }
-    #TODO regex
+    # TODO regex
     if moves[0] not in [
         '=== Par montée en [[niveau]] ===',
         '===Par montée en [[niveau]] ===',
@@ -31,11 +32,11 @@ def check_and_sanitize_moves(moves: list) -> dict:
     if templates == 0:
         raise RuntimeError('no level template found')
 
-    forms = {}
+    forms = OrderedDict()
     if templates == 1:
-        forms['uniqForm'] = {
+        forms['uniq_form'] = {
             'topComments': [],
-            'forms': [],
+            'forms': OrderedDict(),
             'botComments': [],
         }
         for move in moves:
@@ -49,9 +50,9 @@ def check_and_sanitize_moves(moves: list) -> dict:
             elif end:
                 section['botComments'].append(move)
             else:
-                if not 'moves' in forms['uniqForm']:
-                    forms['uniqForm']['moves'] = []
-                forms['uniqForm']['moves'].append(move)
+                if 'moves' not in forms['uniq_form']:
+                    forms['uniq_form']['moves'] = []
+                forms['uniq_form']['moves'].append(move)
         section['forms'] = forms
         return section
 
@@ -74,7 +75,7 @@ def check_and_sanitize_moves(moves: list) -> dict:
             end = True
         elif template and form and not re.match(r'.*}}.*', move):
             forms[actual_form]['moves'].append(move)
-        elif form and not re.match('.*=.*=.*', move) and not template:
+        elif form and not re.match('.*=.*=.*', move) and not template and not end:
             forms[actual_form]['topComments'].append(move)
         elif end:
             forms[actual_form]['botComments'].append(move)

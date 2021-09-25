@@ -168,7 +168,9 @@ def find_availability_by_pkm_and_form(name: str, version_group: VersionGroup) ->
         .filter(PokemonMoveAvailability.version_group_id == version_group.id) \
         .one()
 
-def get_availability_by_pokemon_and_version_group(pokemon: Pokemon, version_group: VersionGroup) -> PokemonMoveAvailability:
+
+def get_availability_by_pokemon_and_version_group(pokemon: Pokemon,
+                                                  version_group: VersionGroup) -> PokemonMoveAvailability:
     return session.query(PokemonMoveAvailability) \
         .filter(PokemonMoveAvailability.version_group_id == version_group.id) \
         .join(PokemonMoveAvailability.pokemon) \
@@ -235,25 +237,24 @@ def find_highest_version_group_by_generation(generation: Generation) -> VersionG
     return functools.reduce(lambda a, b: a if a.order > b.order else b, version_groups)
 
 
-def find_french_slot1_name_by_gen(pokemon: Pokemon, gen: int) -> str:
-    generation_entity = session.query(Generation) \
-        .filter(Generation.identifier == int_to_generation_identifier(gen)) \
-        .one()
-
+def find_french_slot1_name_by_gen(pokemon: Pokemon, generation: Generation) -> str:
     type_past = session.query(PokemonTypePast) \
-        .join(PokemonTypePast.pokemon_id == pokemon.id) \
-        .join(PokemonTypePast.id <= generation_entity.id) \
+        .join(PokemonTypePast.pokemon) \
+        .join(PokemonTypePast.generation) \
+        .filter(Pokemon.id == pokemon.id) \
+        .filter(Generation.id <= generation.id) \
         .filter(PokemonTypePast.slot == 1) \
         .first()
 
     if type_past:
-        # TODO test
         return type_past.move.name_map(languagehelper.french)
 
-    type1 = session.query(PokemonTypePast).join(PokemonTypePast.pokemon_id == pokemon.id).filter(
-        PokemonTypePast.slot == 1).one()
+    pokemon_type = session.query(PokemonType) \
+        .filter(PokemonType.pokemon_id == pokemon.id) \
+        .filter(PokemonType.slot == 1).one()
 
-    return type1.move.name_map(languagehelper.french)
+    type = session.query(Type).filter(Type.id == pokemon_type.type_id).one()
+    return type.name_map[languagehelper.french]
 
 
 def get_item_from_cache(key: str, func):

@@ -17,7 +17,7 @@ class Auth:
 
         request = requests.get(endpoint, params=params)
 
-        with open('cookie.txt') as f:
+        with open('cookies.txt', 'wb') as f:
             pickle.dump(session.cookies, f)
 
         json = request.json()
@@ -37,7 +37,7 @@ class Auth:
 
         requests.post(endpoint, data=params)
 
-        with open('cookie.txt') as f:
+        with open('cookies.txt', 'wb') as f:
             pickle.dump(session.cookies, f)
 
     def get_crsf_token(self, endpoint: str):
@@ -51,7 +51,7 @@ class Auth:
 
         request = requests.get(endpoint, params=params)
 
-        with open('cookie.txt') as f:
+        with open('cookies.txt', 'wb') as f:
             pickle.dump(session.cookies, f)
 
         json = request.json()

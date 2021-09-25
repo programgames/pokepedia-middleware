@@ -19,12 +19,14 @@ def _get_preformatteds_database_pokemon_moves(pokemon: Pokemon, generation: Gene
     gen_number = generationhelper.get_gen_number_by_identifier(generation.identifier)
     preformatteds = {}
     if gen_number == 7:
-        lgpe = session.query(VersionGroup).filter(VersionGroup.identifier == 'lets-go-pikachu-lets-go-eevee').one_or_none()
+        lgpe = session.query(VersionGroup) \
+            .filter(VersionGroup.identifier == 'lets-go-pikachu-lets-go-eevee') \
+            .one()
         availability = repository.get_availability_by_pokemon_and_version_group(pokemon, lgpe)
-        if not availability:
-            columns = 2
-        else:
+        if availability:
             columns = 3
+        else:
+            columns = 2
     elif gen_number in [3, 4]:
         columns = 3
     elif gen_number in [1, 2, 5, 6]:
@@ -32,7 +34,7 @@ def _get_preformatteds_database_pokemon_moves(pokemon: Pokemon, generation: Gene
     else:
         columns = 1
 
-    for column in range(1, columns):
+    for column in range(1, columns + 1):
         moves = repository.find_moves_by_pokemon_move_method_and_version_group(pokemon, learn_method,
                                                                                get_version_group_by_gen_and_column(
                                                                                    generation, column))
@@ -67,7 +69,10 @@ def _format_level(move: LevelUpMove, column: int, previous_weight: int) -> dict:
         weight = 0
 
     if getattr(move, 'onEvolution' + str(column)):
-        level += 'Départ'
+        if not level:
+            level = 'Évolution'
+        else:
+            level += ', Évolution'
         weight = 0
 
     if getattr(move, 'level' + str(column)):
@@ -133,12 +138,16 @@ def _formated_by_pokemon(pokemon: Pokemon, generation: Generation, learn_method:
     pre_formatteds = _get_preformatteds_database_pokemon_moves(pokemon, generation, learn_method)
     formatteds = {}
     generation = generationhelper.get_gen_number_by_identifier(generation.identifier)
+    lgpe_vg = session.query(VersionGroup) \
+        .filter(VersionGroup.identifier == 'lets-go-pikachu-lets-go-eevee') \
+        .one()
+    lgpe_availability = repository.get_availability_by_pokemon_and_version_group(pokemon, lgpe_vg)
     if generation == 8:
         for name, move in pre_formatteds:
             first = _format_level(move, 1, 0)
             total_weight = _calculate_total_weight([first], formatteds)
             formatteds[str(total_weight)] = '{} / {}'.format(name, first['level'])
-    elif generation in [1, 2, 5, 6]:
+    elif generation in [1, 2, 5, 6, 7] and not lgpe_availability:
         for name, move in pre_formatteds.items():
             first = _format_level(move, 1, 0)
             second = _format_level(move, 2, first['weight'])

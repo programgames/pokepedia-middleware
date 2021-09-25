@@ -6,3 +6,4 @@ import os
 load_dotenv()
 
 pokepedia_client = PokepediaClient(Auth(os.getenv('POKEPEDIA_PASSWORD'), os.getenv('POKEPEDIA_USER')))
+pokepedia_client.login()

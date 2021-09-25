@@ -4,7 +4,7 @@ from generator.pokepediamovegenerator import generate_move_wiki_text
 from util.helper import pokemonhelper
 from util.helper.generationhelper import *
 from util.helper.movesethelper import LEVELING_UP_TYPE, EGG_TYPE, TUTOR_TYPE, MACHINE_TYPE
-from api.pokepedia import pokemonmoveapi as api
+from api.pokepedia import pokemonmoveapi as api, pokepedia_client
 from formatter.database import moveformatter
 from comparator import levelupmovecomparator
 
@@ -36,9 +36,11 @@ def _get_pokepedia_moves_by_method(learn_method: PokemonMoveMethod, pokemon: Pok
         raise RuntimeError('Unknow pokepedia move method : {}'.format(learn_method))
 
 
-def _handle_error(learn_method: PokemonMoveMethod, pokemon: Pokemon, gen: int, database_moves: list,
+def _handle_error(learn_method: PokemonMoveMethod, pokemon: Pokemon, gen: Generation, database_moves: list,
                   pokepedia_data: dict):
-    generated = generate_move_wiki_text(learn_method, pokemon, gen, database_moves, pokepedia_data)
+    generated = generate_move_wiki_text(learn_method, pokemon, gen, database_moves, pokepedia_data['satanized'])
 
+    pokepedia_client.upload(int(pokepedia_data['section']), pokepedia_data['page'], generated,
+                            'Mis a jour des attaques apprises')
     print('ERROR')
     # TODO: upload
