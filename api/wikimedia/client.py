@@ -4,6 +4,7 @@ import requests
 import json
 import re
 
+from api.wikimedia import wikimedia_session
 from exception.exceptions import InvalidResponse
 
 
@@ -73,9 +74,7 @@ class WikimediaClient:
     def parse_cookie_file(self, cookiefile):
         """Parse a cookies.txt file and return a dictionary of key value pairs
         compatible with requests."""
-        session = requests.session()  # or an existing session
-
         cookies = {}
         with open(cookiefile, 'rb') as f:
-            session.cookies.update(pickle.load(f))
+            wikimedia_session.cookies.update(pickle.load(f))
         return cookies

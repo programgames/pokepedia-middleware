@@ -1,5 +1,7 @@
 import requests, pickle
 
+from api.wikimedia import wikimedia_session
+
 
 class Auth:
     def __init__(self, user, password):
@@ -13,12 +15,10 @@ class Auth:
             "type": "login",
             "format": "json"
         }
-        session = requests.session()
-
         request = requests.get(endpoint, params=params)
 
         with open('cookies.txt', 'wb') as f:
-            pickle.dump(session.cookies, f)
+            pickle.dump(wikimedia_session.cookies, f)
 
         json = request.json()
 
@@ -32,13 +32,10 @@ class Auth:
             "lgtoken": logintoken,
             "format": "json"
         }
-
-        session = requests.session()
-
-        requests.post(endpoint, data=params)
+        result =  requests.post(endpoint, data=params)
 
         with open('cookies.txt', 'wb') as f:
-            pickle.dump(session.cookies, f)
+            pickle.dump(wikimedia_session.cookies, f)
 
     def get_crsf_token(self, endpoint: str):
         params = {
@@ -47,12 +44,10 @@ class Auth:
             "format": "json"
         }
 
-        session = requests.session()
-
         request = requests.get(endpoint, params=params)
 
         with open('cookies.txt', 'wb') as f:
-            pickle.dump(session.cookies, f)
+            pickle.dump(wikimedia_session.cookies, f)
 
         json = request.json()
 
