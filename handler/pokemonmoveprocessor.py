@@ -21,6 +21,7 @@ def process(generation: Generation, learn_method: PokemonMoveMethod, pokemon: Po
     database_moves = moveformatter.get_formatted_level_up_database_moves(pokemon, generation, learn_method, form_order)
 
     if not levelupmovecomparator.compare_level_move(pokepedia_data['satanized']['forms'], database_moves):
+        print('Error detected for {} , uploading ...'.format(pokepedia_pokemon_name))
         return _handle_error(learn_method, pokemon, generation, database_moves, pokepedia_data,pokepedia_pokemon_name)
 
 
@@ -44,4 +45,4 @@ def _handle_error(learn_method: PokemonMoveMethod, pokemon: Pokemon, gen: Genera
 
     pokepedia_client.upload(int(pokepedia_data['section']), pokepedia_data['page'], generated,
                             'Mis a jour des attaques apprises')
-    print('UPLOAD')
+    print('Uploading done')

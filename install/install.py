@@ -12,6 +12,7 @@ from db.repository import *
 
 def create_app_tables():
     engine = session.bind  # type: Engine
+    print('Creating tables...')
 
     move_name_changelog_table_object = move_name_changelog_table.__table__
     pokemon_move_availability_table_object = pokemon_move_availability_table.__table__
@@ -38,6 +39,7 @@ def create_app_tables():
 
 def fill_app_tables():
     # clean tables before
+    print('Filling tables...')
     session.query(MoveNameChangelog).delete()
     session.query(PokemonMoveAvailability).delete()
     session.commit()
@@ -86,10 +88,10 @@ def load_french_aliases():
             gens = re.findall(r'\d', row[2])
             first_gen = int(gens[0])
             second_gen = int(gens[1])
-            move = session.query(Move).filter(Move.identifier == row[0]).one()
+            move = session.query(Move).filter(Move.identifier == row[0]).one_or_none()
             if not move:
                 raise RuntimeError('Move not found : ' + row[0])
-            for i in range(first_gen, second_gen):
+            for i in range(first_gen, second_gen+1):
                 generation_identifier = int_to_generation_identifier(i)
                 generation = session.query(Generation).filter(Generation.identifier == generation_identifier).one()
                 changelog = MoveNameChangelog()

@@ -182,9 +182,11 @@ def get_availability_by_pokemon_and_version_group(pokemon: Pokemon,
 def find_moves_by_pokemon_move_method_and_version_group(pokemon: Pokemon, pokemon_move_method: PokemonMoveMethod,
                                                         version_group: VersionGroup):
     return session.query(PokemonMove) \
-        .filter(PokemonMove.pokemon_id == pokemon.id) \
+        .join(PokemonMove.version_group) \
+        .join(PokemonMove.pokemon) \
+        .filter(Pokemon.id == pokemon.id) \
         .filter(PokemonMove.pokemon_move_method_id == pokemon_move_method.id) \
-        .filter(PokemonMove.version_group_id == version_group.id) \
+        .filter(VersionGroup.id == version_group.id) \
         .order_by(PokemonMove.level.asc()) \
         .all()
 
@@ -193,15 +195,13 @@ def get_french_move_by_pokemon_move_and_generation(pokemon_move: PokemonMove, ge
     move = session.query(Move) \
         .filter(Move.id == pokemon_move.move_id).one()
 
-    gen = aliased(Generation)
-
     alias = session.query(MoveNameChangelog) \
         .join(MoveNameChangelog.language) \
         .join(MoveNameChangelog.generation) \
         .join(MoveNameChangelog.move) \
         .filter(Language.iso639 == 'fr') \
         .filter(move.id == Move.id) \
-        .filter(gen.identifier == generation.identifier).first()  # type: MoveNameChangelog
+        .filter(Generation.identifier == generation.identifier).first()  # type: MoveNameChangelog
 
     if alias:
         return alias.name

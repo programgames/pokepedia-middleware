@@ -1,6 +1,7 @@
 name,alias,gen
 steel-wing,Aile d’Acier,1-7
 attack-order,Appel Attak,1-6
+defend-order,Appel Défens,1-6
 aromatherapy,Aromathérapi,1-5
 magnet-bomb,Bombaimant,1-7
 sludge-bomb,Bombe-Beurk,1-7
@@ -15,6 +16,7 @@ conversion,Adaptation,1-5
 reflect-type,Copie Type,1-7
 razor-shell,Coquilame,1-7
 cross-chop,Coup-Croix,1-7
+cross-poison,Poison-Croix,1-7
 v-create,CoupVictoire,1-5
 poison-fang,Crochetvenin,1-5
 wing-attack,Cru-Aile,1-7
@@ -27,7 +29,7 @@ swords-dance,Danse-Lames,1-7
 lunar-dance,Danse-Lune,1-7
 feather-dance,Danse-Plume,1-7
 last-resort,Dernierecour,1-5
-dragon-claw,Double-Dard,1-7
+dragon-claw,Dracogriffe,1-7
 dragon-rush,Dracocharge,1-7
 dragon-pulse,Dracochoc,1-7
 dragon-claw,Dracogriffe,1-7
@@ -80,3 +82,5 @@ frenzy-plant,Végé-Attak,1-7
 doom-desire,Carnareket,1-7
 glaciate,ÈreGlaciaire,1-5
 crush-claw,Éclategriffe,1-5
+twineedle,Double-Dard,1-7
+dragon-ascent,Draco Ascension,1-7

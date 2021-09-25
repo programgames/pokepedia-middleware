@@ -19,7 +19,7 @@ def int_to_generation_identifier(integer) -> str:
     elif integer == 7:
         return 'generation-vii'
     elif integer == 8:
-        return 'generation-vii'
+        return 'generation-viii'
     else:
         raise RuntimeError('generation not available for integer ' + integer)
 
