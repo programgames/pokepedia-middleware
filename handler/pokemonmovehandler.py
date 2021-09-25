@@ -2,13 +2,17 @@ from connection.conn import session
 from db.repository import *
 import handler.pokemonmoveprocessor as pokemonmoveprocessor
 from exception import *
+from util.helper import generationhelper
 
 
-def process_pokemon_move(start: int):
+def process_pokemon_move(start: int, gen: int):
     pokemons = find_pokemon_with_specific_page(start)
     learnmethod = session.query(PokemonMoveMethod).filter(PokemonMoveMethod.identifier == 'level-up').one()
-    generations = session.query(Generation).all()
-
+    if gen:
+        generations = session.query(Generation).filter(
+            Generation.identifier == generationhelper.int_to_generation_identifier(gen)).all()
+    else:
+        generations = session.query(Generation).all()
 
     for id, pokemon in pokemons.items():
         for generation in generations:

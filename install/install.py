@@ -83,20 +83,22 @@ def load_french_aliases():
             if header:
                 header = False
                 continue
-            first_gen = int(re.search(r'^\d+', row[2]).group(0))
-            second_gen = int(re.search(r'\d+', row[2]).group(0))
+            gens = re.findall(r'\d', row[2])
+            first_gen = int(gens[0])
+            second_gen = int(gens[1])
             move = session.query(Move).filter(Move.identifier == row[0]).one()
             if not move:
                 raise RuntimeError('Move not found : ' + row[0])
             for i in range(first_gen, second_gen):
                 generation_identifier = int_to_generation_identifier(i)
                 generation = session.query(Generation).filter(Generation.identifier == generation_identifier).one()
-                changelog = MoveNameChangelog(
-                    language=french.id, move_id=move.id, generation_id=generation.id,
-                    name=row[1]
-                )
+                changelog = MoveNameChangelog()
+                changelog.language_id = french.id
+                changelog.move_id = move.id
+                changelog.generation_id = generation.id
+                changelog.name = row[1]
                 session.add(changelog)
-        session.commit()
+            session.commit()
 
 
 def load_basic_move_availabilities():
@@ -279,5 +281,3 @@ def save_default_gen8_pokemons(version_group):
         move_availability.pokemon_id = pokemon.id
         session.add(move_availability)
     session.commit()
-
-

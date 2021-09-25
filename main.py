@@ -28,7 +28,8 @@ def create_parser():
     cmd_sync_pokemon_moves = cmds.add_parser(
         'syncpokemonmoves', help=u'Sync pokemon moves',
         parents=[common_parser])
-    cmd_sync_pokemon_moves.add_argument("--start", help="URL to be checked", required=True)
+    cmd_sync_pokemon_moves.add_argument("--start", help="Pokemon number to start synchro", required=True)
+    cmd_sync_pokemon_moves.add_argument("--gen", help="Specific gen to sync", required=False)
     cmd_sync_pokemon_moves.set_defaults(func=command_sync_pokemon_moves)
 
     init_command = cmds.add_parser(
@@ -40,7 +41,7 @@ def create_parser():
 
 
 def command_sync_pokemon_moves(parser, args):
-    process_pokemon_move(int(args.start))
+    process_pokemon_move(int(args.start), int(args.gen) if args.gen else None)
 
 
 def command_init(parser, args):

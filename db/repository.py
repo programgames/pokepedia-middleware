@@ -196,9 +196,11 @@ def get_french_move_by_pokemon_move_and_generation(pokemon_move: PokemonMove, ge
     gen = aliased(Generation)
 
     alias = session.query(MoveNameChangelog) \
-        .join(Language, Language.iso639 == 'fr') \
-        .join(gen, MoveNameChangelog.generation) \
-        .filter(move.id == MoveNameChangelog.move_id) \
+        .join(MoveNameChangelog.language) \
+        .join(MoveNameChangelog.generation) \
+        .join(MoveNameChangelog.move) \
+        .filter(Language.iso639 == 'fr') \
+        .filter(move.id == Move.id) \
         .filter(gen.identifier == generation.identifier).first()  # type: MoveNameChangelog
 
     if alias:

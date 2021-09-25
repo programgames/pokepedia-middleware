@@ -117,7 +117,11 @@ def _sort_level_moves(formatteds: dict):
     splitteds = {}
     sorted_moves = []
 
-    for level, formatted in formatteds.items():
+    sortedss = sorted(formatteds, key=lambda k: float(k))
+    pre_sorted = OrderedDict()
+    for value in sortedss:
+        pre_sorted[value] = formatteds[value]
+    for level, formatted in pre_sorted.items():
         level = float(level)
 
         if int(level) not in splitteds:
@@ -143,7 +147,7 @@ def _formated_by_pokemon(pokemon: Pokemon, generation: Generation, learn_method:
         .one()
     lgpe_availability = repository.get_availability_by_pokemon_and_version_group(pokemon, lgpe_vg)
     if generation == 8:
-        for name, move in pre_formatteds:
+        for name, move in pre_formatteds.items():
             first = _format_level(move, 1, 0)
             total_weight = _calculate_total_weight([first], formatteds)
             formatteds[str(total_weight)] = '{} / {}'.format(name, first['level'])
