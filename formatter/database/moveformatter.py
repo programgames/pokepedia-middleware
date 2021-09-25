@@ -147,7 +147,7 @@ def _formated_by_pokemon(pokemon: Pokemon, generation: Generation, learn_method:
             first = _format_level(move, 1, 0)
             total_weight = _calculate_total_weight([first], formatteds)
             formatteds[str(total_weight)] = '{} / {}'.format(name, first['level'])
-    elif generation in [1, 2, 5, 6, 7] and not lgpe_availability:
+    elif generation in [1, 2, 5, 6] or (generation == 7 and not lgpe_availability):
         for name, move in pre_formatteds.items():
             first = _format_level(move, 1, 0)
             second = _format_level(move, 2, first['weight'])

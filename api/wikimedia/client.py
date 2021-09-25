@@ -1,5 +1,3 @@
-import pickle
-
 import requests
 import json
 
@@ -19,8 +17,6 @@ class WikimediaClient:
         return json
 
     def edit(self, endpoint: str, parameters: dict):
-
-        # cookies = self.parse_cookie_file('cookies.txt')
 
         content = wikimedia_session.post(endpoint, data=parameters)
 
@@ -69,11 +65,3 @@ class WikimediaClient:
                 sections[section_title] = section['index']
 
         return sections
-
-    def parse_cookie_file(self, cookiefile):
-        """Parse a cookies.txt file and return a dictionary of key value pairs
-        compatible with requests."""
-        cookies = {}
-        with open(cookiefile, 'rb') as f:
-            wikimedia_session.cookies.update(pickle.load(f))
-        return cookies

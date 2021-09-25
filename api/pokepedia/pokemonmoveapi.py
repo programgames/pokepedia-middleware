@@ -15,7 +15,7 @@ def _get_level_moves_from_cache(name: str, generation: int) -> dict:
 
 def get_level_moves(name: str, generation: int) -> dict:
     moves_data = _get_level_moves_from_cache(name, generation)
-    moves_data['satanized'] = check_and_sanitize_moves(moves_data['wikitext'])
+    moves_data['satanized'] = check_and_sanitize_moves(moves_data['wikitext'], name)
 
     return moves_data
 

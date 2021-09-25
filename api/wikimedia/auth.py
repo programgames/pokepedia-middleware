@@ -1,6 +1,5 @@
 from api.wikimedia import wikimedia_session
 
-
 class Auth:
     def __init__(self, user, password):
         self.user = user
@@ -14,9 +13,6 @@ class Auth:
             "format": "json"
         }
         result = wikimedia_session.get(endpoint, params=params)
-
-        # with open('cookies.txt', 'wb') as f:
-        #     pickle.dump(wikimedia_session.cookies, f)
 
         json = result.json()
 

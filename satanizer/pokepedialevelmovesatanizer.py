@@ -4,7 +4,7 @@ from exception import WrongHeaderError
 from collections import OrderedDict
 
 
-def check_and_sanitize_moves(moves: list) -> dict:
+def check_and_sanitize_moves(moves: list, pokemon_name: str) -> dict:
     template = None
     end = None
     form = None
@@ -34,7 +34,7 @@ def check_and_sanitize_moves(moves: list) -> dict:
 
     forms = OrderedDict()
     if templates == 1:
-        forms['uniq_form'] = {
+        forms[pokemon_name] = {
             'topComments': [],
             'forms': OrderedDict(),
             'botComments': [],
@@ -50,9 +50,9 @@ def check_and_sanitize_moves(moves: list) -> dict:
             elif end:
                 section['botComments'].append(move)
             else:
-                if 'moves' not in forms['uniq_form']:
-                    forms['uniq_form']['moves'] = []
-                forms['uniq_form']['moves'].append(move)
+                if 'moves' not in forms[pokemon_name]:
+                    forms[pokemon_name]['moves'] = []
+                forms[pokemon_name]['moves'].append(move)
         section['forms'] = forms
         return section
 

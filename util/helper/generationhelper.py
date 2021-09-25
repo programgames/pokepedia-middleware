@@ -72,7 +72,7 @@ def get_version_group_by_gen_and_column(generation: Generation, column: int) -> 
     col3 = {
         '3': 'firered-leafgreen',
         '4': 'heartgold-soulsilver',
-        '7': 'lets-go',
+        '7': 'lets-go-pikachu-lets-go-eevee',
     }
 
     if column == 1:
