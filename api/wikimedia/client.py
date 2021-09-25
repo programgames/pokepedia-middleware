@@ -2,7 +2,6 @@ import pickle
 
 import requests
 import json
-import re
 
 from api.wikimedia import wikimedia_session
 from exception.exceptions import InvalidResponse
@@ -21,9 +20,9 @@ class WikimediaClient:
 
     def edit(self, endpoint: str, parameters: dict):
 
-        cookies = self.parse_cookie_file('cookies.txt')
+        # cookies = self.parse_cookie_file('cookies.txt')
 
-        content = requests.post(endpoint, params=parameters, cookies=cookies)
+        content = wikimedia_session.post(endpoint, data=parameters)
 
         result = json.loads(content.content)
 
