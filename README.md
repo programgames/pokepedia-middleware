@@ -13,7 +13,7 @@
 - sudo python setup.py develop
 - cd ..
 - pip install -e veekun
-- pokedex load -e sqlite:///db.sqlite
+- pokedex load -e sqlite:///local/db.sqlite
 - cp .env.dist .env
 - setup your env variables
 - python main.py init

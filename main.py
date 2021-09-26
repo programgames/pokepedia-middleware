@@ -2,7 +2,9 @@ import argparse
 import sys
 import install
 from handler.pokemonmovehandler import process_pokemon_move
+from dotenv import load_dotenv
 
+load_dotenv()
 
 def main(junk, *argv):
     parser = create_parser()

@@ -40,11 +40,12 @@ def check_and_sanitize_moves(moves: list, pokemon_name: str) -> dict:
             'botComments': [],
         }
         for move in moves:
-            if not template and not re.match(r'.*{{#invoke:Apprentissage\|niveau\|.*', move):
+            if not template and not re.match(r'.*{{#invoke:Apprentissage\|niveau\|.*', move) and not end:
                 section['topComments'].append(move)
             elif not template and re.match(r'.*{{#invoke:Apprentissage\|niveau\|.*', move):
                 template = True
-            elif template and re.match(r'.*}}.*', move):
+                end = False
+            elif template and re.match(r'^}}$', move):
                 template = False
                 end = True
             elif end:
@@ -57,10 +58,11 @@ def check_and_sanitize_moves(moves: list, pokemon_name: str) -> dict:
         return section
 
     for move in moves:
-        if not template and not form and not bool(re.match(r'.*=.*=.*', move)):
+        if not template and not form and not bool(re.match(r'.*=.*=.*', move)) and not end:
             section['topComments'].append(move)
         elif not template and form and bool(re.match(r'.*{{#invoke:Apprentissage\|niveau\|.*', move)):
             template = True
+            end = False
         elif not template and bool(re.match(r'.*=.*=.*', move)):
             form = True
             end = False
