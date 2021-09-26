@@ -20,7 +20,7 @@ def generate_move_wiki_text(learn_method: PokemonMoveMethod, pokemon: Pokemon, g
             generated += comment + "\r\n"
         generated += "{{"f"#invoke:Apprentissage|{pokepedia_learn_method}|type={french_slot1_name}|génération={generationhelper.get_gen_number_by_identifier(generation.identifier)}|\r\n"
 
-        for move in pokepedia_data['forms'][pokepedia_pokemon_name]['moves']:
+        for move in forms[pokepedia_pokemon_name]:
             generated += move.replace('’', '\'') + '\r\n'
         generated += "}}\r\n"
         for comment in pokepedia_data['forms'][pokepedia_pokemon_name]['botComments']:

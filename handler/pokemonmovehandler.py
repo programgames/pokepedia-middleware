@@ -5,7 +5,7 @@ from exception import *
 from util.helper import generationhelper
 
 
-def process_pokemon_move(start: int, gen: int):
+def process_pokemon_move(start: int, gen: int,only_download=False):
     pokemons = find_pokemon_with_specific_page(start)
     learnmethod = session.query(PokemonMoveMethod).filter(PokemonMoveMethod.identifier == 'level-up').one()
     if gen:
@@ -17,8 +17,8 @@ def process_pokemon_move(start: int, gen: int):
     for id, pokemon in pokemons.items():
         for generation in generations:
             try:
-                print('processing ' + pokemon.identifier + ' for generation ' + str(generation.id))
-                pokemonmoveprocessor.process(generation, learnmethod, pokemon, False)
+                print('processing ' + pokemon.identifier + ' for generation ' + str(generation.id) + f" with id {pokemon.id}")
+                pokemonmoveprocessor.process(generation, learnmethod, pokemon, False,only_download)
 
             except Exception as exc:
                 raise UnrecoverableMessageHandlingError(

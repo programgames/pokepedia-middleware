@@ -1,5 +1,4 @@
 from pokedex.db.tables import PokemonMoveMethod, Pokemon, Generation, PokemonForm, VersionGroup
-
 from db import repository, PokemonMoveAvailability
 from formatter.dto.levelupmove import LevelUpMove
 from formatter.pokemonmovefiller import fill_leveling_move
@@ -7,7 +6,7 @@ from util.helper import languagehelper, generationhelper
 from util.helper.generationhelper import get_version_group_by_gen_and_column
 from collections import OrderedDict
 from connection.conn import session
-
+from pyuca import Collator
 
 def get_formatted_level_up_database_moves(pokemon: Pokemon, generation: Generation, learn_method: PokemonMoveMethod,
                                           form_order: list):
@@ -108,7 +107,7 @@ def _calculate_total_weight(weights: list, formatteds: dict):
 
     while True:
         if str(total) in formatteds:
-            total += 0.1
+            total += 0.01
         else:
             return str(total)
 
@@ -129,10 +128,12 @@ def _sort_level_moves(formatteds: dict):
         splitteds[int(level)][level] = formatted
 
     for key, splitteds_moves in splitteds.items():
-        splitteds[key] = OrderedDict(sorted(splitteds_moves.items(), key=lambda t: t[::-1]))
+        c = Collator()
+
+        splitteds[key] = sorted(splitteds_moves.values(), key=c.sort_key)
 
     for level, moves in splitteds.items():
-        for order, move in moves.items():
+        for move in moves:
             sorted_moves.append(move)
 
     return sorted_moves

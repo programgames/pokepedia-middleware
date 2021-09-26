@@ -244,12 +244,12 @@ def find_french_slot1_name_by_gen(pokemon: Pokemon, generation: Generation) -> s
         .join(PokemonTypePast.pokemon) \
         .join(PokemonTypePast.generation) \
         .filter(Pokemon.id == pokemon.id) \
-        .filter(Generation.id <= generation.id) \
+        .filter(generation.id <= Generation.id) \
         .filter(PokemonTypePast.slot == 1) \
         .first()
 
     if type_past:
-        return type_past.move.name_map(languagehelper.french)
+        return type_past.type.name_map[languagehelper.french]
 
     pokemon_type = session.query(PokemonType) \
         .filter(PokemonType.pokemon_id == pokemon.id) \
