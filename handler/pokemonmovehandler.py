@@ -1,11 +1,12 @@
-from connection.conn import session
 from db.repository import *
 import handler.pokemonmoveprocessor as pokemonmoveprocessor
 from exception import *
 from util.helper import generationhelper
+import logging
 
 
-def process_pokemon_move(start: int, gen: int,only_download=False):
+def process_pokemon_move(start: int, gen: int, only_download=False):
+    logging.basicConfig(filename='level.log')
     pokemons = find_pokemon_with_specific_page(start)
     learnmethod = session.query(PokemonMoveMethod).filter(PokemonMoveMethod.identifier == 'level-up').one()
     if gen:
@@ -17,10 +18,11 @@ def process_pokemon_move(start: int, gen: int,only_download=False):
     for id, pokemon in pokemons.items():
         for generation in generations:
             try:
-                print('processing ' + pokemon.identifier + ' for generation ' + str(generation.id) + f" with id {pokemon.id}")
-                pokemonmoveprocessor.process(generation, learnmethod, pokemon, False,only_download)
+                print('processing ' + pokemon.identifier + ' for generation ' + str(
+                    generation.id) + f" with id {pokemon.id}")
+                pokemonmoveprocessor.process(generation, learnmethod, pokemon, False, only_download)
 
             except Exception as exc:
-                raise UnrecoverableMessageHandlingError(
-                    "Error happened for {} generation {}".format(pokemon.identifier,
-                                                                 generation.identifier))
+                logging.error("Error happened for {} generation {} , error : {}".format(pokemon.identifier,
+                                                                           generation.identifier,exc.edededed))
+

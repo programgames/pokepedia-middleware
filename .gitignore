@@ -1,6 +1,9 @@
 .idea
-db.sqlite
+db1.sqlite
 .env
+
+local/*
+!local/.gitkeep
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

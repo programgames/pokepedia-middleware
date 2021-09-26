@@ -5,7 +5,6 @@ greenlet==1.1.1
 icu==0.0.1
 idna==3.2
 markdown==2.4.1
--e git+git@github.com:veekun/pokedex.git@cc483e1877f22b8c19ac27ec0ff5fafd09c5cd5b#egg=Pokedex&subdirectory=..\..\veekun
 psycopg2-binary==2.9.1
 python-dotenv==0.19.0
 requests==2.26.0
