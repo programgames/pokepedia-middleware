@@ -1,12 +1,14 @@
 from db.repository import *
 import handler.pokemonmoveprocessor as pokemonmoveprocessor
-from exception import *
 from util.helper import generationhelper
 import logging
+from dotenv import load_dotenv
+import os
 
+load_dotenv()
 
 def process_pokemon_move(start: int, gen: int, only_download=False):
-    logging.basicConfig(filename='level.log')
+    logging.basicConfig(filename=os.getenv('LOG_PATH'))
     pokemons = find_pokemon_with_specific_page(start)
     learnmethod = session.query(PokemonMoveMethod).filter(PokemonMoveMethod.identifier == 'level-up').one()
     if gen:
@@ -24,5 +26,5 @@ def process_pokemon_move(start: int, gen: int, only_download=False):
 
             except Exception as exc:
                 logging.error("Error happened for {} generation {} , error : {}".format(pokemon.identifier,
-                                                                           generation.identifier,exc.edededed))
+                                                                           generation.identifier,exc))
 
