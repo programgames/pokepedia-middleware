@@ -283,7 +283,15 @@ def find_pokemon_by_french_form_name(original_pokemon: Pokemon, name: str):
         .filter(form_name_table.form_name == name) \
         .all()
     if len(form_name_entities) == 0:
-        raise RuntimeError('form not found for name {}'.format(name))
+        form_name_entity = session \
+            .query(form_name_table) \
+            .filter(form_name_table.pokemon_name == name.title()) \
+            .one_or_none()
+        if not form_name_entity:
+            raise RuntimeError('form not found for name {}'.format(name))
+        else:
+            return session.query(PokemonForm).filter(
+                PokemonForm.id == form_name_entity.pokemon_form_id).one().pokemon
     elif len(form_name_entities) == 1:
         return session.query(PokemonForm).filter(PokemonForm.id == form_name_entities[0].pokemon_form_id).one().pokemon
     else:

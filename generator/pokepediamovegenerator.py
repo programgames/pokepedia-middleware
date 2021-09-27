@@ -5,7 +5,7 @@ from util.helper import movesethelper, generationhelper
 
 
 def generate_move_wiki_text(learn_method: PokemonMoveMethod, pokemon: Pokemon, generation: Generation, forms: list,
-                            pokepedia_data: dict, pokepedia_pokemon_name: str):
+                            pokepedia_data: dict, pokepedia_pokemon_name: str,form_order: dict):
     generated = ''
 
     french_slot1_name = repository.find_french_slot1_name_by_gen(pokemon, generation)
@@ -28,6 +28,7 @@ def generate_move_wiki_text(learn_method: PokemonMoveMethod, pokemon: Pokemon, g
         return generated
 
     for form, moves in forms.items():
+        form = form + form_order[form]
         generated += "===== " + form + " =====" + '\r\n'
         for comment in pokepedia_data['forms'][form]['topComments']:
             generated += comment + "\r\n"

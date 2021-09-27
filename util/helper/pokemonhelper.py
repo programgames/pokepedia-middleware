@@ -26,15 +26,19 @@ def find_pokepedia_pokemon_url_name(pokemon: Pokemon):
 
 
 def find_pokepedia_specific_name_if_available(pokemon: Pokemon):
-    if pokemon.name == 'kyurem-black':
+    if pokemon.identifier == 'kyurem-black':
         return 'Kyurem_Noir'
-    elif pokemon.name == 'kyurem-white':
+    elif pokemon.identifier == 'kyurem-white':
         return 'Kyurem_Blanc'
-    elif pokemon.name == 'necrozma-dusk':
+    elif pokemon.identifier == 'necrozma-dusk':
         return 'Necrozma_Crinière_du_Couchant'
-    elif pokemon.name == 'necrozma-dawn':
+    elif pokemon.identifier == 'necrozma-dawn':
         return 'Necrozma_Ailes_de_l\'Aurore'
-    elif pokemon.name == 'necrozma-ultra':
+    elif pokemon.identifier == 'necrozma-ultra':
         return 'Ultra-Necrozma'
+    elif pokemon.identifier == 'calyrex-ice':
+        return 'Sylveroy_Cavalier_du_Froid'
+    elif pokemon.identifier == 'calyrex-shadow':
+        return 'Sylveroy Cavalier d\'Effroi'
 
     return False

@@ -24,3 +24,7 @@ class DataFormatError(RuntimeError):
 class WrongHeaderError(DataFormatError):
     def __init__(self, message):
         self.message = message
+
+class TemplateNotFound(DataFormatError):
+    def __init__(self, message):
+        self.message = message

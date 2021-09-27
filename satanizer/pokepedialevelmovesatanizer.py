@@ -14,15 +14,8 @@ def check_and_sanitize_moves(moves: list, pokemon_name: str) -> dict:
         'forms': OrderedDict(),
         'botComments': [],
     }
-    # TODO regex
-    if moves[0] not in [
-        '=== Par montée en [[niveau]] ===',
-        '===Par montée en [[niveau]] ===',
-        '==== Par montée en [[niveau]] ====',
-        '====Par montée en [[niveau]] ====',
-        '==== [[Septième génération]] ====',
-        '==== [[Huitième génération]] ====',
-    ]:
+    if not re.search(r'(\[\[Septième génération]])|(\[\[Huitième génération]])|(\[\[Par montée en \[\[niveau]]]])',
+                     moves[0]):
         raise WrongHeaderError('Invalid header: {}'.format(moves[0]))
     section['topComments'].append(moves[0])
     del moves[0]

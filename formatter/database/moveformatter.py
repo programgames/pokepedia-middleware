@@ -11,7 +11,7 @@ import re
 
 
 def get_formatted_level_up_database_moves(pokemon: Pokemon, generation: Generation, learn_method: PokemonMoveMethod,
-                                          form_order: list):
+                                          form_order: dict):
     return get_move_forms(pokemon, generation, learn_method, form_order)
 
 
@@ -92,7 +92,8 @@ def _format_level(move: LevelUpMove, column: int, previous_weight: int) -> dict:
 
     if getattr(move, 'level' + str(column) + 'Extra'):
         level += ', N.' + str(getattr(move, 'level' + str(column) + 'Extra'))
-        weight = getattr(move, 'level' + str(column) + 'Extra') if getattr(move, 'level' + str(
+        weight = min(getattr(move, 'level' + str(column) + 'Extra'),
+                     getattr(move, 'level' + str(column))) if getattr(move, 'level' + str(
             column) + 'Extra') else getattr(move, 'level' + str(column))
 
     return {
@@ -172,24 +173,27 @@ def _formated_by_pokemon(pokemon: Pokemon, generation: Generation, learn_method:
     return formatteds
 
 
-def get_move_forms(pokemon: Pokemon, generation: Generation, learn_method: PokemonMoveMethod, form_order: list):
+def get_move_forms(pokemon: Pokemon, generation: Generation, learn_method: PokemonMoveMethod, form_order: dict):
     generation = session.query(Generation).filter(Generation.identifier == generation.identifier).one()
 
     version_group = repository.find_highest_version_group_by_generation(generation)
-
+    if pokemon.identifier == 'meltan' or pokemon.identifier == 'melmetal':
+        version_group = session.query(VersionGroup).filter(
+            VersionGroup.identifier == 'lets-go-pikachu-lets-go-eevee').one()
     availability = session.query(PokemonMoveAvailability) \
         .filter(PokemonMoveAvailability.version_group_id == version_group.id) \
         .filter(PokemonMoveAvailability.pokemon_id == pokemon.id) \
-        .filter(PokemonMoveAvailability.is_default.is_(True)) \
         .filter(PokemonMoveAvailability.has_pokepedia_page.is_(True)) \
         .one()
 
     move_forms = availability.forms
 
-    if not move_forms:
+    if not move_forms or move_forms[0].has_pokepedia_page:
         specy = pokemon.species
         specy_name = specy.name_map[languagehelper.french].replace(' ', '_')  # M. Mime
-
+        form_order_name = next(iter(form_order))
+        if specy_name != form_order_name:  # handle case of pokemon with forms on different page like Sylveroy
+            specy_name = form_order_name
         return {specy_name: _formated_by_pokemon(pokemon, generation, learn_method)}
 
     custom = move_forms[0].has_pokepedia_page
@@ -199,7 +203,7 @@ def get_move_forms(pokemon: Pokemon, generation: Generation, learn_method: Pokem
         return {specy_name: _formated_by_pokemon(pokemon, generation.identifier, learn_method)}
 
     forms = OrderedDict()
-    for form_name in form_order:
+    for form_name, form_extra in form_order.items():
         pokemon = repository.find_pokemon_by_french_form_name(pokemon, form_name)
         forms[form_name] = _formated_by_pokemon(pokemon, generation, learn_method)
 

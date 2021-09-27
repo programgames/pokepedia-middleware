@@ -186,8 +186,10 @@ def load_specific_pokemon_move_availabilities():
     save_pokemon_move_availabilities_with_forms([black_white_vg, black2_white2_vg],
                                                 'shaymin-land', ['shaymin-sky'])
     save_pokemon_move_availabilities_with_forms([black2_white2_vg],
-                                                'kyurem', ['kyurem-black', 'kyurem-white'])
+                                                'kyurem', ['kyurem-black', 'kyurem-white'], True)
     # gen6
+    save_pokemon_move_availabilities_with_forms([xy_vg, oras_vg],
+                                                'meowstic-male', ['meowstic-female'])
     save_pokemon_move_availabilities_with_forms([xy_vg, oras_vg],
                                                 'deoxys-normal', ['deoxys-attack', 'deoxys-defense', 'deoxys-speed'])
     save_pokemon_move_availabilities_with_forms([xy_vg, oras_vg],
@@ -195,18 +197,20 @@ def load_specific_pokemon_move_availabilities():
     save_pokemon_move_availabilities_with_forms([xy_vg, oras_vg],
                                                 'shaymin-land', ['shaymin-sky'])
     save_pokemon_move_availabilities_with_forms([xy_vg, oras_vg],
-                                                'kyurem', ['kyurem-black', 'kyurem-white'])
+                                                'kyurem', ['kyurem-black', 'kyurem-white'], True)
     save_pokemon_move_availabilities_with_forms([xy_vg, oras_vg],
                                                 'hoopa', ['hoopa-unbound'])
     # gen7
     save_pokemon_move_availabilities_with_forms([sun_moon_vg, ultra_sun_ultra_moon_vg],
+                                                'meowstic-male', ['meowstic-female'])
+    save_pokemon_move_availabilities_with_forms([sun_moon_vg, ultra_sun_ultra_moon_vg],
                                                 'deoxys-normal', ['deoxys-attack', 'deoxys-defense', 'deoxys-speed'])
     save_pokemon_move_availabilities_with_forms([sun_moon_vg, ultra_sun_ultra_moon_vg],
                                                 'wormadam-plant', ['wormadam-sandy', 'wormadam-trash'])
     save_pokemon_move_availabilities_with_forms([sun_moon_vg, ultra_sun_ultra_moon_vg],
                                                 'shaymin-land', ['shaymin-sky'])
     save_pokemon_move_availabilities_with_forms([sun_moon_vg, ultra_sun_ultra_moon_vg],
-                                                'kyurem', ['kyurem-black', 'kyurem-white'])
+                                                'kyurem', ['kyurem-black', 'kyurem-white'], True)
     save_pokemon_move_availabilities_with_forms([sun_moon_vg, ultra_sun_ultra_moon_vg],
                                                 'hoopa', ['hoopa-unbound'])
     save_pokemon_move_availabilities_with_forms([sun_moon_vg],
@@ -214,20 +218,18 @@ def load_specific_pokemon_move_availabilities():
     save_pokemon_move_availabilities_with_forms([ultra_sun_ultra_moon_vg],
                                                 'lycanroc-midday', ['lycanroc-midnight', 'lycanroc-dusk'])
     save_pokemon_move_availabilities_with_forms([ultra_sun_ultra_moon_vg],
-                                                'necrozma', ['necrozma-dusk', 'necrozma-dawn'])
+                                                'necrozma', ['necrozma-dusk', 'necrozma-dawn'], True)
     # gen 8
     save_pokemon_move_availabilities_with_forms([sword_shield_vg],
-                                                'kyurem', ['kyurem-black', 'kyurem-white'])
+                                                'meowstic-male', ['meowstic-female'])
     save_pokemon_move_availabilities_with_forms([sword_shield_vg],
                                                 'lycanroc-midday', ['lycanroc-midnight', 'lycanroc-dusk'])
-    save_pokemon_move_availabilities_with_forms([sword_shield_vg],
-                                                'necrozma', ['necrozma-dusk', 'necrozma-dawn'])
     save_pokemon_move_availabilities_with_forms([sword_shield_vg],
                                                 'toxtricity-amped', ['toxtricity-low-key'])
     save_pokemon_move_availabilities_with_forms([sword_shield_vg],
                                                 'urshifu-single-strike', ['urshifu-rapid-strike'])
     save_pokemon_move_availabilities_with_forms([sword_shield_vg],
-                                                'calyrex', ['calyrex-ice', 'calyrex-shadow'])
+                                                'calyrex', ['calyrex-ice', 'calyrex-shadow'], True)
 
 
 def save_pokemon_move_availabilities_with_forms(version_groups: list, original_name: str, forms: list,

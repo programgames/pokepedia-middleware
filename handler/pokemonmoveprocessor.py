@@ -9,22 +9,24 @@ from formatter.database import moveformatter
 from comparator import levelupmovecomparator
 
 
-def process(generation: Generation, learn_method: PokemonMoveMethod, pokemon: Pokemon, retry=True,only_download=False):
+def process(generation: Generation, learn_method: PokemonMoveMethod, pokemon: Pokemon, retry=True, only_download=False):
     if not has_pokemon_availabilities_in_generation(pokemon, generation):
         return
 
     pokepedia_pokemon_name = pokemonhelper.find_pokepedia_pokemon_url_name(pokemon)
+
     pokepedia_data = _get_pokepedia_moves_by_method(learn_method, pokemon,
                                                     get_gen_number_by_identifier(
                                                         generation.identifier), pokepedia_pokemon_name)
     if only_download:
         return
-    form_order = list(pokepedia_data['satanized']['forms'].keys())
+    form_order = _format_forms(pokepedia_data)
     database_moves = moveformatter.get_formatted_level_up_database_moves(pokemon, generation, learn_method, form_order)
 
     if not levelupmovecomparator.compare_level_move(pokepedia_data['satanized']['forms'], database_moves):
         print('Error detected for {} , uploading ...'.format(pokepedia_pokemon_name))
-        return _handle_error(learn_method, pokemon, generation, database_moves, pokepedia_data, pokepedia_pokemon_name)
+        return _handle_error(learn_method, pokemon, generation, database_moves, pokepedia_data, pokepedia_pokemon_name,
+                             form_order)
 
 
 def _get_pokepedia_moves_by_method(learn_method: PokemonMoveMethod, pokemon: Pokemon, gen: int,
@@ -42,10 +44,25 @@ def _get_pokepedia_moves_by_method(learn_method: PokemonMoveMethod, pokemon: Pok
 
 
 def _handle_error(learn_method: PokemonMoveMethod, pokemon: Pokemon, gen: Generation, database_moves: list,
-                  pokepedia_data: dict, pokepedia_pokemon_name: str):
+                  pokepedia_data: dict, pokepedia_pokemon_name: str, form_order: dict):
     generated = generate_move_wiki_text(learn_method, pokemon, gen, database_moves, pokepedia_data['satanized'],
-                                        pokepedia_pokemon_name)
+                                        pokepedia_pokemon_name, form_order)
 
     pokepedia_client.upload(int(pokepedia_data['section']), pokepedia_data['page'], generated,
                             'Mis a jour des attaques apprises')
     print('Uploading done')
+
+
+def _format_forms(pokepedia_data: dict) -> dict:
+    """
+    Handle case when form is followed by a template like Forme Céleste{{Sup|Pt}}{{Sup|HGSS}}
+    """
+    form_names = list(pokepedia_data['satanized']['forms'].keys())
+    formatteds = {}
+    for name in form_names:
+        temp = name.split('{', 1)
+        if len(temp) == 1:
+            formatteds[temp[0]] = ''
+        else:
+            formatteds[temp[0]] = '{' + temp[1]
+    return formatteds
