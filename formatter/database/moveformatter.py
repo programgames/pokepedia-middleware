@@ -7,6 +7,8 @@ from util.helper.generationhelper import get_version_group_by_gen_and_column
 from collections import OrderedDict
 from connection.conn import session
 from pyuca import Collator
+import re
+
 
 def get_formatted_level_up_database_moves(pokemon: Pokemon, generation: Generation, learn_method: PokemonMoveMethod,
                                           form_order: list):
@@ -95,7 +97,7 @@ def _format_level(move: LevelUpMove, column: int, previous_weight: int) -> dict:
 
     return {
         'level': level,
-        'weight': max(previous_weight, weight)
+        'weight': max(previous_weight, weight if isinstance(weight, int) else int(re.search(r'\d+', weight).group()))
     }
 
 
@@ -186,7 +188,7 @@ def get_move_forms(pokemon: Pokemon, generation: Generation, learn_method: Pokem
 
     if not move_forms:
         specy = pokemon.species
-        specy_name = specy.name_map[languagehelper.french]
+        specy_name = specy.name_map[languagehelper.french].replace(' ', '_')  # M. Mime
 
         return {specy_name: _formated_by_pokemon(pokemon, generation, learn_method)}
 
