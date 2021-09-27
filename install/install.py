@@ -91,7 +91,7 @@ def load_french_aliases():
             move = session.query(Move).filter(Move.identifier == row[0]).one_or_none()
             if not move:
                 raise RuntimeError('Move not found : ' + row[0])
-            for i in range(first_gen, second_gen+1):
+            for i in range(first_gen, second_gen + 1):
                 generation_identifier = int_to_generation_identifier(i)
                 generation = session.query(Generation).filter(Generation.identifier == generation_identifier).one()
                 changelog = MoveNameChangelog()
@@ -152,6 +152,9 @@ def load_basic_move_availabilities():
 
 
 def load_specific_pokemon_move_availabilities():
+    ruby_sapphir_vg = session.query(VersionGroup).filter(VersionGroup.identifier == 'ruby-sapphire').one()
+    emerald_vg = session.query(VersionGroup).filter(VersionGroup.identifier == 'emerald').one()
+    firered_leafgreen_vg = session.query(VersionGroup).filter(VersionGroup.identifier == 'firered-leafgreen').one()
     diamond_pearl_vg = session.query(VersionGroup).filter(VersionGroup.identifier == 'diamond-pearl').one()
     platinum_vg = session.query(VersionGroup).filter(VersionGroup.identifier == 'platinum').one()
     heart_gold_soul_silver_vg = session.query(VersionGroup).filter(
@@ -165,12 +168,19 @@ def load_specific_pokemon_move_availabilities():
         VersionGroup.identifier == 'ultra-sun-ultra-moon').one()
     sword_shield_vg = session.query(VersionGroup).filter(VersionGroup.identifier == 'sword-shield').one()
 
+    # gen 3
+    save_pokemon_move_availabilities_with_forms([ruby_sapphir_vg, emerald_vg, firered_leafgreen_vg],
+                                                'deoxys-normal', ['deoxys-attack', 'deoxys-defense', 'deoxys-speed'])
     # gen4
+    save_pokemon_move_availabilities_with_forms([diamond_pearl_vg, platinum_vg, heart_gold_soul_silver_vg],
+                                                'deoxys-normal', ['deoxys-attack', 'deoxys-defense', 'deoxys-speed'])
     save_pokemon_move_availabilities_with_forms([diamond_pearl_vg, platinum_vg, heart_gold_soul_silver_vg],
                                                 'wormadam-plant', ['wormadam-sandy', 'wormadam-trash'])
     save_pokemon_move_availabilities_with_forms([platinum_vg, heart_gold_soul_silver_vg],
                                                 'shaymin-land', ['shaymin-sky'])
     # gen 5
+    save_pokemon_move_availabilities_with_forms([black_white_vg, black2_white2_vg],
+                                                'deoxys-normal', ['deoxys-attack', 'deoxys-defense', 'deoxys-speed'])
     save_pokemon_move_availabilities_with_forms([black_white_vg, black2_white2_vg],
                                                 'wormadam-plant', ['wormadam-sandy', 'wormadam-trash'])
     save_pokemon_move_availabilities_with_forms([black_white_vg, black2_white2_vg],
@@ -178,6 +188,8 @@ def load_specific_pokemon_move_availabilities():
     save_pokemon_move_availabilities_with_forms([black2_white2_vg],
                                                 'kyurem', ['kyurem-black', 'kyurem-white'])
     # gen6
+    save_pokemon_move_availabilities_with_forms([xy_vg, oras_vg],
+                                                'deoxys-normal', ['deoxys-attack', 'deoxys-defense', 'deoxys-speed'])
     save_pokemon_move_availabilities_with_forms([xy_vg, oras_vg],
                                                 'wormadam-plant', ['wormadam-sandy', 'wormadam-trash'])
     save_pokemon_move_availabilities_with_forms([xy_vg, oras_vg],
@@ -187,6 +199,8 @@ def load_specific_pokemon_move_availabilities():
     save_pokemon_move_availabilities_with_forms([xy_vg, oras_vg],
                                                 'hoopa', ['hoopa-unbound'])
     # gen7
+    save_pokemon_move_availabilities_with_forms([sun_moon_vg, ultra_sun_ultra_moon_vg],
+                                                'deoxys-normal', ['deoxys-attack', 'deoxys-defense', 'deoxys-speed'])
     save_pokemon_move_availabilities_with_forms([sun_moon_vg, ultra_sun_ultra_moon_vg],
                                                 'wormadam-plant', ['wormadam-sandy', 'wormadam-trash'])
     save_pokemon_move_availabilities_with_forms([sun_moon_vg, ultra_sun_ultra_moon_vg],

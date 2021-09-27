@@ -276,10 +276,23 @@ def get_item_from_cache(key: str, func):
     return result
 
 
-def find_pokemon_by_french_form_name(name: str):
+def find_pokemon_by_french_form_name(original_pokemon: Pokemon, name: str):
     form_name_table = PokemonForm.names_table
-    form_name_entity = session.query(form_name_table).filter(form_name_table.form_name == name).one_or_none()
-    if form_name_entity:
-        return session.query(PokemonForm).filter(PokemonForm.id == form_name_entity.pokemon_form_id).one().pokemon
-
+    form_name_entities = session \
+        .query(form_name_table) \
+        .filter(form_name_table.form_name == name) \
+        .all()
+    if len(form_name_entities) == 0:
+        raise RuntimeError('form not found for name {}'.format(name))
+    elif len(form_name_entities) == 1:
+        return session.query(PokemonForm).filter(PokemonForm.id == form_name_entities[0].pokemon_form_id).one().pokemon
+    else:
+        #cheniselle
+        for form_name_entity in form_name_entities:
+            form_entity = session \
+                .query(PokemonForm) \
+                .filter(PokemonForm.id == form_name_entity.pokemon_form_id) \
+                .one() #type: PokemonForm
+            if form_entity.pokemon.species_id == original_pokemon.species_id:
+                return form_entity.pokemon
     raise RuntimeError('form not found for name {}'.format(name))

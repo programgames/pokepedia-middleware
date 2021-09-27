@@ -200,7 +200,7 @@ def get_move_forms(pokemon: Pokemon, generation: Generation, learn_method: Pokem
 
     forms = OrderedDict()
     for form_name in form_order:
-        pokemon = repository.find_pokemon_by_french_form_name(form_name)
+        pokemon = repository.find_pokemon_by_french_form_name(pokemon, form_name)
         forms[form_name] = _formated_by_pokemon(pokemon, generation, learn_method)
 
     return forms
