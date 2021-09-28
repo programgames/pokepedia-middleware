@@ -92,7 +92,7 @@ def _format_level(move: LevelUpMove, column: int, previous_weight: int) -> dict:
 
     if getattr(move, 'level' + str(column) + 'Extra'):
         level += ', N.' + str(getattr(move, 'level' + str(column) + 'Extra'))
-        weight = min(getattr(move, 'level' + str(column) + 'Extra'),
+        weight = min(int(re.search(r'\d+', getattr(move, 'level' + str(column) + 'Extra')).group()),
                      getattr(move, 'level' + str(column))) if getattr(move, 'level' + str(
             column) + 'Extra') else getattr(move, 'level' + str(column))
 

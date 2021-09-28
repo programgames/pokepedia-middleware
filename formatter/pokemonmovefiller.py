@@ -13,7 +13,7 @@ def fill_leveling_move(move: LevelUpMove, column: int, name: str, pokemon_move_e
     elif getattr(move, 'level' + str(column)) == None:
         setattr(move, 'level' + str(column), level)
     elif getattr(move, 'level' + str(column) + 'Extra') == None:
-        setattr(move, 'level' + str(column) + 'Extra', level)
+        setattr(move, 'level' + str(column) + 'Extra', str(level))
     else:
         level_extra = getattr(move, 'level' + str(column) + 'Extra')
         setattr(move, 'level' + str(column) + 'Extra', str(level_extra) + ', ' + str(level)) # Queulorior
