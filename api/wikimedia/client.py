@@ -23,7 +23,7 @@ class WikimediaClient:
         result = json.loads(content.content)
 
         if 'error' in result:
-            raise InvalidResponse('Invalid response from url {} , error {}'.format(endpoint, result.error.info))
+            raise InvalidResponse('Invalid response from url {} , error {}'.format(endpoint, result))
 
     def format_section_by_url(self, url: str) -> dict:
         content = self.parse(url)
