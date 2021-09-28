@@ -23,7 +23,7 @@ def process(generation: Generation, learn_method: PokemonMoveMethod, pokemon: Po
     form_order = _format_forms(pokepedia_data)
     database_moves = moveformatter.get_formatted_level_up_database_moves(pokemon, generation, learn_method, form_order)
 
-    if not levelupmovecomparator.compare_level_move(pokepedia_data['satanized']['forms'], database_moves):
+    if not levelupmovecomparator.compare_level_move(pokepedia_data['satanized']['forms'], database_moves, form_order):
         print('Error detected for {} , uploading ...'.format(pokepedia_pokemon_name))
         return _handle_error(learn_method, pokemon, generation, database_moves, pokepedia_data, pokepedia_pokemon_name,
                              form_order)

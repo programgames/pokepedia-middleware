@@ -26,5 +26,5 @@ def process_pokemon_move(start: int, gen: int, only_download=False):
                 pokemonmoveprocessor.process(generation, learnmethod, pokemon, False, only_download)
 
             except Exception as exc:
-                logging.error("Error happened for {} generation {} , error : {}".format(pokemon.identifier,
-                                                                           generation.identifier,exc))
+                logging.exception("Error happened for {} generation {} , error : {}".format(pokemon.identifier,
+                                                                                            generation.identifier, exc))

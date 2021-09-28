@@ -176,7 +176,7 @@ def load_specific_pokemon_move_availabilities():
                                                 'deoxys-normal', ['deoxys-attack', 'deoxys-defense', 'deoxys-speed'])
     save_pokemon_move_availabilities_with_forms([diamond_pearl_vg, platinum_vg, heart_gold_soul_silver_vg],
                                                 'wormadam-plant', ['wormadam-sandy', 'wormadam-trash'])
-    save_pokemon_move_availabilities_with_forms([platinum_vg, heart_gold_soul_silver_vg],
+    save_pokemon_move_availabilities_with_forms([platinum_vg, heart_gold_soul_silver_vg,heart_gold_soul_silver_vg],
                                                 'shaymin-land', ['shaymin-sky'])
     # gen 5
     save_pokemon_move_availabilities_with_forms([black_white_vg, black2_white2_vg],
@@ -222,6 +222,8 @@ def load_specific_pokemon_move_availabilities():
     # gen 8
     save_pokemon_move_availabilities_with_forms([sword_shield_vg],
                                                 'meowstic-male', ['meowstic-female'])
+    save_pokemon_move_availabilities_with_forms([sword_shield_vg],
+                                                'indeedee-male', ['indeedee-female'])
     save_pokemon_move_availabilities_with_forms([sword_shield_vg],
                                                 'lycanroc-midday', ['lycanroc-midnight', 'lycanroc-dusk'])
     save_pokemon_move_availabilities_with_forms([sword_shield_vg],
