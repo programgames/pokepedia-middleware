@@ -21,12 +21,16 @@ def check_and_sanitize_moves(moves: list, pokemon_name: str) -> dict:
         'forms': OrderedDict(),
         'bot_comments': [],
     }
-    if not re.search(r'(\[\[Septième génération]])|(\[\[Huitième génération]])|(Par montée en \[\[niveau]])',
+    if not re.search(r'(\[\[Septième génération]])|(\[\[Huitième génération]])|'
+                     r'(Par montée en \[\[niveau]])|(Par \[\[CT]]\/\[\[CS]])|'
+                     r'\{\{Jeu|SL}} et \{\{Jeu|USUL}}',
                      moves[0]):
         raise WrongHeaderError('Invalid header: {}'.format(moves[0]))
     section['top_comments'].append(moves[0])
     del moves[0]
-    r = re.compile(r'.*{{#invoke:Apprentissage\|niveau\|.*')
+    template_regex = r'.*{{#invoke:Apprentissage\|(niveau|capsule)\|.*'
+
+    r = re.compile(template_regex)
 
     templates = len(list(filter(r.match, moves)))
     if templates == 0:
@@ -36,13 +40,13 @@ def check_and_sanitize_moves(moves: list, pokemon_name: str) -> dict:
     if templates == 1:
         forms[pokemon_name] = {
             'top_comments': [],
-            'forms': OrderedDict(),
+            'moves':  [],
             'bot_comments': [],
         }
         for move in moves:
-            if not template and not re.match(r'.*{{#invoke:Apprentissage\|niveau\|.*', move) and not end:
+            if not template and not re.match(template_regex, move) and not end:
                 section['top_comments'].append(move)
-            elif not template and re.match(r'.*{{#invoke:Apprentissage\|niveau\|.*', move):
+            elif not template and re.match(template_regex, move):
                 template = True
                 end = False
             elif template and re.match(r'^}}$', move):
@@ -60,7 +64,7 @@ def check_and_sanitize_moves(moves: list, pokemon_name: str) -> dict:
     for move in moves:
         if not template and not form and not bool(re.match(r'.*=.*=.*', move)) and not end:
             section['top_comments'].append(move)
-        elif not template and form and bool(re.match(r'.*{{#invoke:Apprentissage\|niveau\|.*', move)):
+        elif not template and form and bool(re.match(template_regex, move)):
             template = True
             end = False
         elif not template and bool(re.match(r'.*=.*=.*', move)):

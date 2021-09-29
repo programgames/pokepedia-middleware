@@ -1,4 +1,5 @@
 from middleware.api.pokepedia import pokepedia_client
+from middleware.db import repository
 from middleware.exception.exceptions import NotAvailableError
 from middleware.util.helper.pokemonmovehelper import TUTOR_TYPE, MACHINE_TYPE, LEVELING_UP_TYPE, EGG_TYPE
 
@@ -8,10 +9,13 @@ from middleware.util.helper.pokemonmovehelper import TUTOR_TYPE, MACHINE_TYPE, L
 
 def get_pokemon_moves(name: str, generation: int, move_type: str, version_group_identifier=None, dt=None) -> dict:
     if (move_type == TUTOR_TYPE or move_type == MACHINE_TYPE) \
-            and not version_group_identifier and generation > 6:
+            and not version_group_identifier and generation == 7:
         raise RuntimeError('argument version_group_name is required for %s type'.format(move_type))
 
-    sections = get_move_sections(name, generation)
+    sections = repository.get_item_from_cache(
+        f'pokepedia.section.pokemonmove.{name}.{generation}',
+        lambda: get_pokemon_move_sections(name, generation)
+    )
     section = get_section_index_by_pokemon_move_type_and_generation(move_type, sections, generation,
                                                                     version_group_identifier, dt)
     if generation < 7:
@@ -34,7 +38,7 @@ def get_pokemon_moves(name: str, generation: int, move_type: str, version_group_
     }
 
 
-def get_move_sections(name: str, generation: int) -> dict:
+def get_pokemon_move_sections(name: str, generation: int) -> dict:
     if generation < 7:
         sections_url = 'https://www.pokepedia.fr/api.php?action=parse&format=json&page={}/G%C3%A9n%C3%A9ration_{}' \
                        '&prop=sections&errorformat=wikitext&disabletoc=1' \

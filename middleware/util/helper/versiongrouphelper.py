@@ -7,6 +7,9 @@ from pokedex.db.tables import Generation, VersionGroup
 
 
 def get_version_group_by_gen_and_column(generation: Generation, column: int) -> VersionGroup:
+    """
+    Used  in pokemon level move process
+    """
     col1 = {
         '1': 'red-blue',
         '2': 'gold-silver',

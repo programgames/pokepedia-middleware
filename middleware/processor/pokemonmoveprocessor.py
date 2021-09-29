@@ -36,7 +36,7 @@ def process(generation: Generation, learn_method: PokemonMoveMethod, pokemon: Po
 
         pokepedia_data = _get_pokepedia_moves_by_method(learn_method,
                                                         generationhelper.gen_id_to_int(
-                                                            generation.identifier), pokepedia_pokemon_name,step)
+                                                            generation.identifier), pokepedia_pokemon_name, step)
         form_order = _format_forms(pokepedia_data)
         if learn_method.identifier == LEVELING_UP_TYPE:
             database_moves = pokemonlevelmoveformatter.get_formatted_level_up_database_moves(pokemon, generation,
@@ -45,7 +45,7 @@ def process(generation: Generation, learn_method: PokemonMoveMethod, pokemon: Po
         elif learn_method.identifier == MACHINE_TYPE:
             database_moves = pokemonmachinemoveformatter.get_formatted_machine_database_moves(pokemon, generation,
                                                                                               learn_method,
-                                                                                              form_order)
+                                                                                              form_order, step)
         else:
             raise RuntimeError(f'invalid learn method {learn_method.identifier}')
 
@@ -58,8 +58,8 @@ def process(generation: Generation, learn_method: PokemonMoveMethod, pokemon: Po
 
 
 def _get_pokepedia_moves_by_method(learn_method: PokemonMoveMethod, gen: int,
-                                   pokepedia_pokemon_name: str):
-    return pokemonmoveapi.get_pokemon_moves(pokepedia_pokemon_name, gen, learn_method.identifier)
+                                   pokepedia_pokemon_name: str, step: int):
+    return pokemonmoveapi.get_pokemon_moves(pokepedia_pokemon_name, gen, learn_method.identifier, step)
 
 
 def _generate_and_upload(learn_method: PokemonMoveMethod, pokemon: Pokemon, gen: Generation, database_moves: dict,

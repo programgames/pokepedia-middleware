@@ -7,52 +7,48 @@ from collections import OrderedDict
 from middleware.connection.conn import session
 from pyuca import Collator
 import re
+from pokedex.db import util
 
 """Format pokemon level moves from database into a pretty format
 """
 
 
 def get_formatted_machine_database_moves(pokemon: Pokemon, generation: Generation, learn_method: PokemonMoveMethod,
-                                          form_order: dict):
-    return get_move_forms(pokemon, generation, learn_method, form_order)
+                                         form_order: dict, step: int):
+    return _get_move_forms(pokemon, generation, learn_method, form_order, step)
 
 
-def _get_preformatteds_database_pokemon_moves(pokemon: Pokemon, generation: Generation,
+def _get_preformatteds_database_pokemon_moves(pokemon: Pokemon, generation: Generation, step: int,
                                               learn_method: PokemonMoveMethod):
     gen_number = generationhelper.gen_id_to_int(generation.identifier)
     preformatteds = {}
-    if gen_number == 7:
-        lgpe = session.query(VersionGroup) \
-            .filter(VersionGroup.identifier == 'lets-go-pikachu-lets-go-eevee') \
-            .one()
-        availability = repository.get_availability_by_pokemon_and_version_group(pokemon, lgpe)
-        if availability:
-            columns = 3
-        else:
-            columns = 2
-    elif gen_number in [3, 4]:
-        columns = 3
-    elif gen_number in [1, 2, 5, 6]:
-        columns = 2
+
+    if gen_number >= 1 <= 6 or gen_number == 8:
+        version_group = repository.find_highest_version_group_by_generation(generation)
+
+    elif gen_number == 7 and step == 1:
+        version_group = util.get(session, VersionGroup, 'ultra-sun-ultra-moon')
+    elif gen_number == 7 and step == 2:
+        version_group = util.get(session, VersionGroup, 'lets-go-pikachu-lets-go-eevee')
     else:
-        columns = 1
+        raise RuntimeError('Invalid generation/step condition')
 
-    for column in range(1, columns + 1):
-        moves = repository.find_moves_by_pokemon_move_method_and_version_group(
-            pokemon, learn_method,
-            versiongrouphelper.get_version_group_by_gen_and_column(generation, column)
-        )
-        for pokemon_move_entity in moves:
-            french_move_name = repository.get_french_move_by_pokemon_move_and_generation(pokemon_move_entity,
-                                                                                         generation)
-            if french_move_name in preformatteds:
-                move = preformatteds[french_move_name]
-            else:
-                move = LevelUpMove()
 
-            move = _fill_leveling_move(move, column, french_move_name, pokemon_move_entity)
+    moves = repository.find_moves_by_pokemon_move_method_and_version_group(
+        pokemon, learn_method,
+        version_group
+    )
+    for pokemon_move_entity in moves:
+        french_move_name = repository.get_french_move_by_pokemon_move_and_generation(pokemon_move_entity,
+                                                                                     generation)
+        if french_move_name in preformatteds:
+            move = preformatteds[french_move_name]
+        else:
+            move = LevelUpMove()
 
-            preformatteds[french_move_name] = move
+        move = _fill_leveling_move(move, 't', french_move_name, pokemon_move_entity)
+
+        preformatteds[french_move_name] = move
 
     return preformatteds
 
@@ -146,10 +142,10 @@ def _sort_level_moves(formatteds: dict):
     return sorted_moves
 
 
-def _formated_by_pokemon(pokemon: Pokemon, generation: Generation, learn_method: PokemonMoveMethod):
-    pre_formatteds = _get_preformatteds_database_pokemon_moves(pokemon, generation, learn_method)
+def _formated_by_pokemon(pokemon: Pokemon, generation: Generation, learn_method: PokemonMoveMethod, step: int):
+    pre_formatteds = _get_preformatteds_database_pokemon_moves(pokemon, generation, step, learn_method)
     formatteds = {}
-    generation = generationhelper.gen_id_to_int(generation.identifier)
+    generation = generationhelper.gen_to_int(generation)
     lgpe_vg = session.query(VersionGroup) \
         .filter(VersionGroup.identifier == 'lets-go-pikachu-lets-go-eevee') \
         .one()
@@ -177,13 +173,19 @@ def _formated_by_pokemon(pokemon: Pokemon, generation: Generation, learn_method:
     return formatteds
 
 
-def get_move_forms(pokemon: Pokemon, generation: Generation, learn_method: PokemonMoveMethod, form_order: dict):
-    generation = session.query(Generation).filter(Generation.identifier == generation.identifier).one()
+def _get_move_forms(pokemon: Pokemon, generation: Generation, learn_method: PokemonMoveMethod, form_order: dict, step):
+    gen_number = generationhelper.gen_to_int(generation)
 
-    version_group = repository.find_highest_version_group_by_generation(generation)
-    if pokemon.identifier == 'meltan' or pokemon.identifier == 'melmetal':
-        version_group = session.query(VersionGroup).filter(
-            VersionGroup.identifier == 'lets-go-pikachu-lets-go-eevee').one()
+    if gen_number >= 1 <= 6 or gen_number == 8:
+        version_group = repository.find_highest_version_group_by_generation(generation)
+
+    elif gen_number == 7 and step == 1:
+        version_group = util.get(session, VersionGroup, 'ultra-sun-ultra-moon')
+    elif gen_number == 7 and step == 2:
+        version_group = util.get(session, VersionGroup, 'lets-go-pikachu-lets-go-eevee')
+    else:
+        raise RuntimeError('Invalid generation/step condition')
+
     availability = session.query(PokemonMoveAvailability) \
         .filter(PokemonMoveAvailability.version_group_id == version_group.id) \
         .filter(PokemonMoveAvailability.pokemon_id == pokemon.id) \
@@ -199,19 +201,19 @@ def get_move_forms(pokemon: Pokemon, generation: Generation, learn_method: Pokem
         form_order_name = next(iter(form_order))
         if specy_name != form_order_name:  # handle case of pokemon with forms on different page like Sylveroy
             specy_name = form_order_name
-        return {specy_name: _formated_by_pokemon(pokemon, generation, learn_method)}
+        return {specy_name: _formated_by_pokemon(pokemon, generation, learn_method, step)}
 
     custom = move_forms[0].has_pokepedia_page
 
     if custom:
         # noinspection PyUnresolvedReferences
         specy_name = pokemon.specie.name_map(languagehelper.french)
-        return {specy_name: _formated_by_pokemon(pokemon, generation.identifier, learn_method)}
+        return {specy_name: _formated_by_pokemon(pokemon, generation, learn_method, step)}
 
     forms = OrderedDict()
     for form_name, form_extra in form_order.items():
         pokemon = repository.find_pokemon_by_french_form_name(pokemon, form_name)
-        forms[form_name] = _formated_by_pokemon(pokemon, generation, learn_method)
+        forms[form_name] = _formated_by_pokemon(pokemon, generation, learn_method, step)
 
     return forms
 
