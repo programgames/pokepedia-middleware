@@ -97,6 +97,8 @@ def get_section_index_by_pokemon_move_type_and_generation(move_type: str, sectio
         return sections["Capacités apprises//Par Donneur de capacités//Septième génération"]
     elif move_type == TUTOR_TYPE and generation == 8:
         return sections["Capacités apprises//Par Donneur de capacités//Huitième génération"]
+    else:
+        raise RuntimeError('Unknow condition')
 
 
 def _get_version_group_name(version_group_identifier):

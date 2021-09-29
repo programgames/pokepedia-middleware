@@ -12,15 +12,15 @@ def _get_steps_by_pokemon_method_and_gen(pokemon: Pokemon, generation: Generatio
         int:
     if learn_method.identifier == LEVELING_UP_TYPE:
         return 1
-    elif learn_method.identifier == MACHINE_TYPE and generationhelper.gen_to_int(generation) >= 1 <= 6:
+    elif learn_method.identifier == MACHINE_TYPE and 1 <= generationhelper.gen_to_int(generation) <= 6:
         return 1
-    elif learn_method == MACHINE_TYPE and generationhelper.gen_to_int(generation) == 7:
+    elif learn_method.identifier == MACHINE_TYPE and generationhelper.gen_to_int(generation) == 7:
         lgpe = generationhelper.check_if_pokemon_is_available_in_lgpe(pokemon)
         if lgpe:
             return 2
         else:
             return 3
-    elif generation == 8:
+    elif learn_method.identifier == MACHINE_TYPE and generationhelper.gen_to_int(generation) == 8:
         return 2
     else:
         raise RuntimeError('Unknow')  # TODO improve
@@ -64,7 +64,6 @@ def _get_pokepedia_moves_by_method(learn_method: PokemonMoveMethod, gen: int,
 
 def _generate_and_upload(learn_method: PokemonMoveMethod, pokemon: Pokemon, gen: Generation, database_moves: dict,
                          pokepedia_data: dict, pokepedia_pokemon_name: str, form_order: dict):
-    return
     generated = pokepediapokemonmovegenerator.generate_move_wiki_text(learn_method, pokemon, gen, database_moves,
                                                                       pokepedia_data['satanized'],
                                                                       pokepedia_pokemon_name, form_order)
