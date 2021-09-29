@@ -8,7 +8,7 @@ from middleware.util.helper.pokemonmovehelper import TUTOR_TYPE, MACHINE_TYPE, L
 
 def get_pokemon_moves(name: str, generation: int, move_type: str, version_group_identifier=None, dt=None) -> dict:
     if (move_type == TUTOR_TYPE or move_type == MACHINE_TYPE) \
-            and not version_group_identifier:
+            and not version_group_identifier and generation > 6:
         raise RuntimeError('argument version_group_name is required for %s type'.format(move_type))
 
     sections = get_move_sections(name, generation)

@@ -1,5 +1,5 @@
 """
-Compator for pokemon level moves
+Compator for pokemon moves
 """
 
 
@@ -7,7 +7,7 @@ def _clean_string(string: str):
     return string.replace('N.', '').replace(', ', ' ').replace('<br>', ' ').replace('-', '—').replace('’', '\'')
 
 
-def compare_level_move(pokepedia_moves: dict, database_moves: dict, form_order: dict) -> bool:
+def compare_moves(pokepedia_moves: dict, database_moves: dict, form_order: dict) -> bool:
     for form, moves in database_moves.items():
 
         clean_database_moves = list(map(_clean_string, moves))

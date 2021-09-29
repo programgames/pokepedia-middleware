@@ -3,48 +3,68 @@ from pokedex.db.tables import PokemonMoveMethod, Pokemon, Generation
 
 from middleware.util.helper import pokemonhelper, generationhelper
 from middleware.util.helper.pokemonmovehelper import LEVELING_UP_TYPE, EGG_TYPE, TUTOR_TYPE, MACHINE_TYPE
-from middleware.api.pokepedia import pokemonmoveapi as api, pokepedia_client
-from middleware.formatter.database import pokemonlevelmoveformatter
-from middleware.comparator import pokemonlevelupmovecomparator
+from middleware.api.pokepedia import pokemonmoveapi, pokepedia_client
+from middleware.formatter.database import pokemonlevelmoveformatter, pokemonmachinemoveformatter
+from middleware.comparator import pokemonmachinemovecomparator
+
+
+def _get_steps_by_pokemon_method_and_gen(pokemon: Pokemon, generation: Generation, learn_method: PokemonMoveMethod) -> \
+        int:
+    if learn_method.identifier == LEVELING_UP_TYPE:
+        return 1
+    elif learn_method.identifier == MACHINE_TYPE and generationhelper.gen_to_int(generation) >= 1 <= 6:
+        return 1
+    elif learn_method == MACHINE_TYPE and generationhelper.gen_to_int(generation) == 7:
+        lgpe = generationhelper.check_if_pokemon_is_available_in_lgpe(pokemon)
+        if lgpe:
+            return 2
+        else:
+            return 3
+    elif generation == 8:
+        return 2
+    else:
+        raise RuntimeError('Unknow')  # TODO improve
 
 
 def process(generation: Generation, learn_method: PokemonMoveMethod, pokemon: Pokemon):
     if not generationhelper.check_if_pokemon_has_move_availability_in_generation(pokemon, generation):
         return
 
-    pokepedia_pokemon_name = pokemonhelper.find_pokepedia_pokemon_url_name(pokemon)
+    steps = _get_steps_by_pokemon_method_and_gen(pokemon, generation, learn_method)
+    for step in range(1, steps + 1):
+        pokepedia_pokemon_name = pokemonhelper.find_pokepedia_pokemon_url_name(pokemon)
 
-    pokepedia_data = _get_pokepedia_moves_by_method(learn_method, pokemon,
-                                                    generationhelper.gen_id_to_int(
-                                                        generation.identifier), pokepedia_pokemon_name)
-    form_order = _format_forms(pokepedia_data)
-    database_moves = pokemonlevelmoveformatter.get_formatted_level_up_database_moves(pokemon, generation, learn_method,
-                                                                                     form_order)
+        pokepedia_data = _get_pokepedia_moves_by_method(learn_method,
+                                                        generationhelper.gen_id_to_int(
+                                                            generation.identifier), pokepedia_pokemon_name,step)
+        form_order = _format_forms(pokepedia_data)
+        if learn_method.identifier == LEVELING_UP_TYPE:
+            database_moves = pokemonlevelmoveformatter.get_formatted_level_up_database_moves(pokemon, generation,
+                                                                                             learn_method,
+                                                                                             form_order)
+        elif learn_method.identifier == MACHINE_TYPE:
+            database_moves = pokemonmachinemoveformatter.get_formatted_machine_database_moves(pokemon, generation,
+                                                                                              learn_method,
+                                                                                              form_order)
+        else:
+            raise RuntimeError(f'invalid learn method {learn_method.identifier}')
 
-    if not pokemonlevelupmovecomparator.compare_level_move(pokepedia_data['satanized']['forms'], database_moves,
-                                                           form_order):
-        print('Error detected for {} , uploading ...'.format(pokepedia_pokemon_name))
-        return _generate_and_upload(learn_method, pokemon, generation, database_moves, pokepedia_data,
-                                    pokepedia_pokemon_name,
-                                    form_order)
+        if not pokemonmachinemovecomparator.compare_moves(pokepedia_data['satanized']['forms'], database_moves,
+                                                          form_order):
+            print('Error detected for {} , uploading ...'.format(pokepedia_pokemon_name))
+            return _generate_and_upload(learn_method, pokemon, generation, database_moves, pokepedia_data,
+                                        pokepedia_pokemon_name,
+                                        form_order)
 
 
-def _get_pokepedia_moves_by_method(learn_method: PokemonMoveMethod, pokemon: Pokemon, gen: int,
+def _get_pokepedia_moves_by_method(learn_method: PokemonMoveMethod, gen: int,
                                    pokepedia_pokemon_name: str):
-    if learn_method.identifier == LEVELING_UP_TYPE:
-        return api.get_level_moves(pokepedia_pokemon_name, gen)
-    elif learn_method.identifier == EGG_TYPE:
-        return api.get_egg_moves(pokemonhelper.find_pokepedia_pokemon_url_name(pokemon), gen)
-    if learn_method.identifier == TUTOR_TYPE:
-        return api.get_tutor_moves(pokemonhelper.find_pokepedia_pokemon_url_name(pokemon), gen)
-    if learn_method.identifier == MACHINE_TYPE:
-        return api.get_machine_moves(pokemonhelper.find_pokepedia_pokemon_url_name(pokemon), gen)
-    else:
-        raise RuntimeError('Unknow pokepedia move method : {}'.format(learn_method))
+    return pokemonmoveapi.get_pokemon_moves(pokepedia_pokemon_name, gen, learn_method.identifier)
 
 
 def _generate_and_upload(learn_method: PokemonMoveMethod, pokemon: Pokemon, gen: Generation, database_moves: dict,
                          pokepedia_data: dict, pokepedia_pokemon_name: str, form_order: dict):
+    return
     generated = pokepediapokemonmovegenerator.generate_move_wiki_text(learn_method, pokemon, gen, database_moves,
                                                                       pokepedia_data['satanized'],
                                                                       pokepedia_pokemon_name, form_order)

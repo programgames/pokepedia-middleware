@@ -8,10 +8,11 @@ import os
 load_dotenv()
 
 
-def process_pokemon_level_move(start: int, gen: int, debug: bool):
+def process_pokemon_move(move_method_type: str, start: int, gen: int, debug: bool):
     logging.basicConfig(filename=os.getenv('LOG_PATH'))
     pokemons = find_pokemon_with_specific_page(start)
-    learnmethod = session.query(PokemonMoveMethod).filter(PokemonMoveMethod.identifier == 'level-up').one()
+
+    learnmethod = session.query(PokemonMoveMethod).filter(PokemonMoveMethod.identifier == move_method_type).one()
     if gen:
         generations = session.query(Generation).filter(
             Generation.identifier == generationhelper.gen_int_to_id(gen)).all()
@@ -23,12 +24,12 @@ def process_pokemon_level_move(start: int, gen: int, debug: bool):
         for generation in generations:
             if debug:
                 print('processing ' + pokemon.identifier + ' for generation ' + str(
-                    generation.id) + f" with id {pokemon.id}")
+                    generation.id) + f" with id {pokemon.id} for method : {move_method_type}")
                 pokemonmoveprocessor.process(generation, learnmethod, pokemon)
             else:
                 try:
                     print('processing ' + pokemon.identifier + ' for generation ' + str(
-                        generation.id) + f" with id {pokemon.id}")
+                        generation.id) + f" with id {pokemon.id} for method : {move_method_type}")
                     pokemonmoveprocessor.process(generation, learnmethod, pokemon)
 
                 except Exception as exc:
