@@ -18,7 +18,7 @@ def get_formatted_machine_database_moves(pokemon: Pokemon, generation: Generatio
 
 
 def _get_preformatteds_database_pokemon_machine_moves(pokemon: Pokemon, generation: Generation, step: int,
-                                                      learn_method: PokemonMoveMethod):
+                                                      learn_method: PokemonMoveMethod)-> dict:
     gen_number = generationhelper.gen_id_to_int(generation.identifier)
     preformatteds = {}
 
@@ -29,17 +29,14 @@ def _get_preformatteds_database_pokemon_machine_moves(pokemon: Pokemon, generati
         pokemon, learn_method,
         version_groups
     )
+
     for pokemon_move_entity in moves:
         french_move_name = repository.get_french_move_by_pokemon_move_and_generation(pokemon_move_entity,
                                                                                      generation)
-        if french_move_name in preformatteds:
-            move = preformatteds[french_move_name]
-        else:
-            move = MachineMove()
 
-        move = _fill_machine_move(move, french_move_name, pokemon_move_entity, generationhelper.gen_to_int(generation))
+        move = _fill_machine_move(french_move_name, pokemon_move_entity, generationhelper.gen_to_int(generation))
 
-        preformatteds[french_move_name] = move
+        preformatteds[f"{move.item}/{move.version_group}"] = move
 
     return preformatteds
 
@@ -61,11 +58,14 @@ def _get_formatted_moves_by_pokemons(pokemon: Pokemon, generation: Generation, l
                                      step: int):
     """
     Return the fully formatted list of pokemon machine move for a specific pokemon
+    Algorithm :
+    - if the item is version group specific ( not same item ) , add a toolip next to the name
+    - if the
     """
     pre_formatteds = _get_preformatteds_database_pokemon_machine_moves(pokemon, generation, step, learn_method)
     formatteds = {}
 
-    for name, move in pre_formatteds.items():
+    for move in pre_formatteds:
         string = _format_machine(move)
         weight = _calculate_weight(move)
         formatteds[weight] = string
@@ -124,12 +124,14 @@ def _get_pokemon_machine_move_forms(pokemon: Pokemon, generation: Generation, le
 
 
 # noinspection PyUnresolvedReferences
-def _fill_machine_move(move: MachineMove, name: str, pokemon_move_entity: PokemonMove,
+def _fill_machine_move(name: str, pokemon_move_entity: PokemonMove,
                        generation: int) -> MachineMove:
+    move = MachineMove()
     move.name = name
 
     move.is_hm = machinehelper.is_hm(pokemon_move_entity.machine, generation)
     move.item = pokemon_move_entity.machine.item.name_map[languagehelper.french]
+    move.version_group = pokemon_move_entity.version_group.identifier
     return move
 
 
