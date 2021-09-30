@@ -1,6 +1,7 @@
 from middleware.db.tables import PokemonMoveAvailability
 from middleware.formatter.dto.machinemove import MachineMove
-from middleware.util.helper import generationhelper, machinehelper, languagehelper, pokemonmovehelper
+from middleware.util.helper import generationhelper, machinehelper, languagehelper, pokemonmovehelper, \
+    versiongrouphelper
 from pokedex.db.tables import PokemonMoveMethod, Pokemon, Generation, VersionGroup, PokemonMove
 from middleware.db import repository
 from collections import OrderedDict
@@ -18,9 +19,16 @@ def get_formatted_machine_database_moves(pokemon: Pokemon, generation: Generatio
 
 
 def _get_preformatteds_database_pokemon_machine_moves(pokemon: Pokemon, generation: Generation, step: int,
-                                                      learn_method: PokemonMoveMethod)-> dict:
+                                                      learn_method: PokemonMoveMethod) -> list:
+    """
+    Get all pokemon machine move for the current step / pokemon and transform them in a list of DTO
+    and then filter by the following algo
+    Algorithm :
+    - if the item is version group specific ( not same item ) , add a toolip next to the name and add it in the list
+    - else add it simply in the list
+    """
     gen_number = generationhelper.gen_id_to_int(generation.identifier)
-    preformatteds = {}
+    preformatteds = []
 
     version_groups = pokemonmovehelper.get_pokepedia_version_groups_identifiers_for_pkm_machine_by_step(
         gen_number, step)
@@ -36,19 +44,40 @@ def _get_preformatteds_database_pokemon_machine_moves(pokemon: Pokemon, generati
 
         move = _fill_machine_move(french_move_name, pokemon_move_entity, generationhelper.gen_to_int(generation))
 
-        preformatteds[f"{move.item}/{move.version_group}"] = move
+        preformatteds.append(move)
 
-    return preformatteds
+    pre_filtered = []
+
+    unspecifics = []
+    for preformatted in preformatteds:
+
+        different_item = any((machine.name == preformatted.name and machine.item != preformatted.item) for machine in
+                             preformatteds)
+        different_name = any(machine.item == preformatted.item and machine.name != preformatted.name
+                             for machine in
+                             preformatteds)
+        if different_item or different_name:
+            preformatted.is_specific = True
+            pre_filtered.append(preformatted)
+        else:
+            if preformatted.name not in unspecifics:
+                unspecifics.append(preformatted.name)
+
+                pre_filtered.append(preformatted)
+    return pre_filtered
 
 
 def _format_machine(move: MachineMove) -> str:
-    return f"{move.item[2:]} / {move.name}"
+    name = f"{move.item[2:]} / {move.name}"
+    if move.is_specific:
+        name += f" / {versiongrouphelper.vg_id_to_short_name(move.version_group)}"
+    return name
 
 
 def _sort_pokemon_machine_moves(formatteds: dict) -> list:
     sorted_moves = []
 
-    sorteds_keys = sorted(formatteds, key=lambda k: k)
+    sorteds_keys = sorted(formatteds, key=lambda k: float(k))
     for key in sorteds_keys:
         sorted_moves.append(formatteds[key])
     return sorted_moves
@@ -58,9 +87,6 @@ def _get_formatted_moves_by_pokemons(pokemon: Pokemon, generation: Generation, l
                                      step: int):
     """
     Return the fully formatted list of pokemon machine move for a specific pokemon
-    Algorithm :
-    - if the item is version group specific ( not same item ) , add a toolip next to the name
-    - if the
     """
     pre_formatteds = _get_preformatteds_database_pokemon_machine_moves(pokemon, generation, step, learn_method)
     formatteds = {}
@@ -68,6 +94,8 @@ def _get_formatted_moves_by_pokemons(pokemon: Pokemon, generation: Generation, l
     for move in pre_formatteds:
         string = _format_machine(move)
         weight = _calculate_weight(move)
+        if weight in formatteds.keys():
+            weight += 0.001
         formatteds[weight] = string
 
     formatteds = _sort_pokemon_machine_moves(formatteds)

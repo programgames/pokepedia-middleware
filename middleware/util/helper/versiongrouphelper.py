@@ -45,3 +45,44 @@ def get_version_group_by_gen_and_column(generation: Generation, column: int) -> 
 
     return session.query(VersionGroup).filter(
         VersionGroup.identifier == mapping[str(generationhelper.gen_id_to_int(generation.identifier))]).one()
+
+
+def vg_id_to_short_name(version_group):
+    if version_group == 'red-blue':
+        return 'RB'
+    elif version_group == 'yellow':
+        return 'J'
+    elif version_group == 'gold-silver':
+        return 'OA'
+    elif version_group == 'crystal':
+        return 'C'
+    elif version_group == 'ruby-sapphire':
+        return 'RS'
+    elif version_group == 'emerald':
+        return 'É'
+    elif version_group == 'firered-leafgreen':
+        return 'RFVF'
+    elif version_group == 'diamond-pearl':
+        return 'DP'
+    elif version_group == 'platinum':
+        return 'Pt'
+    elif version_group == 'heartgold-soulsilver':
+        return 'HGSS'
+    elif version_group == 'black-white':
+        return 'NB'
+    elif version_group == 'black-2-white-2':
+        return 'N2B2'
+    elif version_group == 'x-y':
+        return 'XY'
+    elif version_group == 'omega-ruby-alpha-sapphire':
+        return 'ROSA'
+    elif version_group == 'sun-moon':
+        return 'SL'
+    elif version_group == 'ultra-sun-ultra-moon':
+        return 'USUL'
+    elif version_group == 'lets-go-pikachu-lets-go-eevee':
+        return 'LGPE'
+    elif version_group == 'sword-shield':
+        return 'EB'
+    else:
+        raise RuntimeError('Unknow shortcut')
