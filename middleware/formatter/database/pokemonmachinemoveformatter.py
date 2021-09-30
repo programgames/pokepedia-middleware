@@ -1,6 +1,6 @@
 from middleware.db.tables import PokemonMoveAvailability
 from middleware.formatter.dto.machinemove import MachineMove
-from middleware.util.helper import generationhelper, machinehelper, languagehelper
+from middleware.util.helper import generationhelper, machinehelper, languagehelper, pokemonmovehelper
 from pokedex.db.tables import PokemonMoveMethod, Pokemon, Generation, VersionGroup, PokemonMove
 from middleware.db import repository
 from collections import OrderedDict
@@ -22,19 +22,12 @@ def _get_preformatteds_database_pokemon_machine_moves(pokemon: Pokemon, generati
     gen_number = generationhelper.gen_id_to_int(generation.identifier)
     preformatteds = {}
 
-    if gen_number >= 1 <= 6 or gen_number == 8:
-        version_group = repository.find_highest_version_group_by_generation(generation)
+    version_groups = pokemonmovehelper.get_pokepedia_version_groups_identifiers_for_pkm_machine_by_step(
+        gen_number, step)
 
-    elif gen_number == 7 and step == 1:
-        version_group = util.get(session, VersionGroup, 'ultra-sun-ultra-moon')
-    elif gen_number == 7 and step == 2:
-        version_group = util.get(session, VersionGroup, 'lets-go-pikachu-lets-go-eevee')
-    else:
-        raise RuntimeError('Invalid generation/step condition')
-
-    moves = repository.find_moves_by_pokemon_move_method_and_version_group(
+    moves = repository.find_moves_by_pokemon_move_method_and_version_groups(
         pokemon, learn_method,
-        version_group
+        version_groups
     )
     for pokemon_move_entity in moves:
         french_move_name = repository.get_french_move_by_pokemon_move_and_generation(pokemon_move_entity,

@@ -193,6 +193,18 @@ def find_moves_by_pokemon_move_method_and_version_group(pkm: Pokemon, pkm_move_m
         .order_by(PokemonMove.level.asc()) \
         .all()
 
+# noinspection PyUnresolvedReferences
+def find_moves_by_pokemon_move_method_and_version_groups(pkm: Pokemon, pkm_move_method: PokemonMoveMethod,
+                                                        vgs_identifier: list):
+    return session.query(PokemonMove) \
+        .join(PokemonMove.version_group) \
+        .join(PokemonMove.pokemon) \
+        .filter(Pokemon.id == pkm.id) \
+        .filter(PokemonMove.pokemon_move_method_id == pkm_move_method.id) \
+        .filter(VersionGroup.identifier.in_(vgs_identifier)) \
+        .order_by(VersionGroup.identifier) \
+        .all()
+
 
 def get_french_move_by_pokemon_move_and_generation(pokemon_move: PokemonMove, gen: Generation):
     move = session.query(Move) \
