@@ -51,8 +51,8 @@ def process(generation: Generation, learn_method: PokemonMoveMethod, pokemon: Po
 
         if not pokemonmachinemovecomparator.compare_moves(pokepedia_data['satanized']['forms'], database_moves,
                                                           form_order):
-            print('Error detected for {} , uploading ...'.format(pokepedia_pokemon_name))
-            return _generate_and_upload(learn_method, pokemon, generation, database_moves, pokepedia_data,
+            print('Error detected for {} , step {}, uploading ...'.format(pokepedia_pokemon_name,step))
+            _generate_and_upload(learn_method, pokemon, generation, database_moves, pokepedia_data,
                                         pokepedia_pokemon_name,
                                         form_order)
 
