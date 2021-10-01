@@ -1,4 +1,4 @@
-from pokedex.db.tables import PokemonMoveMethod
+from pokedex.db.tables import PokemonMoveMethod, Generation
 
 LEVELING_UP_TYPE = 'level-up'
 MACHINE_TYPE = 'machine'
@@ -9,12 +9,14 @@ TUTOR_TYPE = 'tutor'
 """
 
 
-def get_pokepedia_invoke_learn_method(move_method: PokemonMoveMethod) -> str:
+def get_pokepedia_invoke_learn_method(move_method: PokemonMoveMethod, gen: int, step: int) -> str:
     french = None
     if move_method.identifier == LEVELING_UP_TYPE:
         french = 'niveau'
-    elif move_method.identifier == MACHINE_TYPE:
+    elif move_method.identifier == MACHINE_TYPE and not (gen == 8 and step == 2):
         french = 'capsule'
+    elif move_method.identifier == MACHINE_TYPE and (gen == 8 and step == 2):
+        french = 'disque'
 
     if not french:
         raise RuntimeError('Impossible to translate learn method {} to french'.format(move_method.identifier))

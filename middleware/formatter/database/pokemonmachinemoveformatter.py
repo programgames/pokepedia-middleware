@@ -51,10 +51,12 @@ def _get_preformatteds_database_pokemon_machine_moves(pokemon: Pokemon, generati
     unspecifics = []
     for preformatted in preformatteds:
 
-        #gen 8 machine moves are in two categories
-        if any(version_group == 'sword-shield' for version_group in version_groups) and preformatted.is_hm and step == 1:
+        # gen 8 machine moves are in two categories
+        if any(version_group == 'sword-shield' for version_group in
+               version_groups) and preformatted.is_hm and step == 1:
             continue
-        if any(version_group == 'sword-shield' for version_group in version_groups) and not preformatted.is_hm and step == 2:
+        if any(version_group == 'sword-shield' for version_group in
+               version_groups) and not preformatted.is_hm and step == 2:
             continue
 
         different_item = any((machine.name == preformatted.name and machine.item != preformatted.item) for machine in
@@ -67,9 +69,18 @@ def _get_preformatteds_database_pokemon_machine_moves(pokemon: Pokemon, generati
             pre_filtered.append(preformatted)
         else:
             if preformatted.name not in unspecifics:
-                unspecifics.append(preformatted.name)
-
-                pre_filtered.append(preformatted)
+                count = 1
+                for temp in preformatteds:
+                    if temp.item == preformatted.item and temp.is_hm == preformatted.is_hm \
+                            and temp.name == preformatted.name \
+                            and temp.version_group != preformatted.version_group:
+                        count += 1
+                if count < len(version_groups):
+                    preformatted.is_specific = True
+                    pre_filtered.append(preformatted)
+                else:
+                    unspecifics.append(preformatted.name)
+                    pre_filtered.append(preformatted)
     return pre_filtered
 
 

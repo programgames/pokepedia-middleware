@@ -5,7 +5,7 @@ from middleware.util.helper import pokemonmovehelper, generationhelper
 
 
 def generate_move_wiki_text(learn_method: PokemonMoveMethod, pokemon: Pokemon, generation: Generation, forms: dict,
-                            pokepedia_data: dict, pokepedia_pokemon_name: str, form_order: dict):
+                            pokepedia_data: dict, pokepedia_pokemon_name: str, form_order: dict, step: int):
     generated = ''
 
     french_slot1_name = repository.find_french_slot1_name_by_gen(pokemon, generation)
@@ -13,7 +13,9 @@ def generate_move_wiki_text(learn_method: PokemonMoveMethod, pokemon: Pokemon, g
     for comment in pokepedia_data['top_comments']:
         generated += comment + "\r\n"
 
-    pokepedia_learn_method = pokemonmovehelper.get_pokepedia_invoke_learn_method(learn_method)
+    pokepedia_learn_method = pokemonmovehelper.get_pokepedia_invoke_learn_method(learn_method,
+                                                                                 generationhelper.gen_to_int(
+                                                                                     generation), step)
 
     if len(forms) == 1:
         for comment in pokepedia_data['forms'][pokepedia_pokemon_name]['top_comments']:

@@ -51,10 +51,10 @@ def process(generation: Generation, learn_method: PokemonMoveMethod, pokemon: Po
 
         if not pokemonmachinemovecomparator.compare_moves(pokepedia_data['satanized']['forms'], database_moves,
                                                           form_order):
-            print('Error detected for {} , step {}, uploading ...'.format(pokepedia_pokemon_name,step))
+            print('Error detected for {} , step {}, uploading ...'.format(pokepedia_pokemon_name, step))
             _generate_and_upload(learn_method, pokemon, generation, database_moves, pokepedia_data,
-                                        pokepedia_pokemon_name,
-                                        form_order)
+                                 pokepedia_pokemon_name,
+                                 form_order, step)
 
 
 def _get_pokepedia_moves_by_method(learn_method: PokemonMoveMethod, gen: int,
@@ -63,10 +63,10 @@ def _get_pokepedia_moves_by_method(learn_method: PokemonMoveMethod, gen: int,
 
 
 def _generate_and_upload(learn_method: PokemonMoveMethod, pokemon: Pokemon, gen: Generation, database_moves: dict,
-                         pokepedia_data: dict, pokepedia_pokemon_name: str, form_order: dict):
+                         pokepedia_data: dict, pokepedia_pokemon_name: str, form_order: dict, step: int):
     generated = pokepediapokemonmovegenerator.generate_move_wiki_text(learn_method, pokemon, gen, database_moves,
                                                                       pokepedia_data['satanized'],
-                                                                      pokepedia_pokemon_name, form_order)
+                                                                      pokepedia_pokemon_name, form_order, step)
 
     pokepedia_client.upload(int(pokepedia_data['section']), pokepedia_data['page'], generated,
                             'Mis a jour des attaques apprises')

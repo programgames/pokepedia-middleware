@@ -28,7 +28,7 @@ def check_and_sanitize_moves(moves: list, pokemon_name: str) -> dict:
         raise WrongHeaderError('Invalid header: {}'.format(moves[0]))
     section['top_comments'].append(moves[0])
     del moves[0]
-    template_regex = r'.*{{#invoke:Apprentissage\|(niveau|capsule)\|.*'
+    template_regex = r'.*{{#invoke:Apprentissage\|(niveau|capsule|disque)\|.*'
 
     r = re.compile(template_regex)
 
