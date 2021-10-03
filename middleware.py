@@ -72,6 +72,7 @@ def command_sync_pokemon_machine_moves(parser, args):
 
 def command_clear_cache(parser, args):
     deleted = session.query(CacheItem).delete()
+    session.commit()
     print(f"{deleted} cache item deleted")
 
 
