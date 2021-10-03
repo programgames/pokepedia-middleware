@@ -64,10 +64,18 @@ def get_section_index_by_pokemon_move_type_and_generation(move_type: str, sectio
         return sections['Capacités apprises//Par CT/CS']
     elif move_type == MACHINE_TYPE and generation == 7 and (
             version_group_identifier == "ultra-sun-ultra-moon" or version_group_identifier == "sun-moon"):
+        if 'Capacités apprises//Par CT/CS//Septième génération//Pokémon Soleil et Lune et Pokémon Ultra-Soleil et ' \
+           'Ultra-Lune' not in sections.keys():
+            return sections['Capacités apprises//Par CT/CS//Septième génération'] #pokemon not available in lgpe or
+            # without moves
         return sections[
             'Capacités apprises//Par CT/CS//Septième génération//Pokémon Soleil et Lune et Pokémon Ultra-Soleil'
             ' et Ultra-Lune']
     elif move_type == MACHINE_TYPE and generation == 7 and version_group_identifier == "lets-go-pikachu-lets-go-eevee":
+        if 'Capacités apprises//Par CT/CS//Septième génération//Pokémon : Let\'s Go, Pikachu et Let\'s Go, ' \
+           'Évoli' not in sections.keys():
+            return sections['Capacités apprises//Par CT/CS//Septième génération'] #pokemon not available in lgpe or
+            # without moves
         return sections[
             "Capacités apprises//Par CT/CS//Septième génération//Pokémon : Let's Go, Pikachu et Let's Go, Évoli"]
     elif move_type == MACHINE_TYPE and generation == 8 and not dt:

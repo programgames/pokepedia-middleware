@@ -1,7 +1,7 @@
 from middleware.db.tables import PokemonMoveAvailability
 from middleware.formatter.dto.machinemove import MachineMove
 from middleware.util.helper import generationhelper, machinehelper, languagehelper, pokemonmovehelper, \
-    versiongrouphelper
+    versiongrouphelper, specificcasehelper
 from pokedex.db.tables import PokemonMoveMethod, Pokemon, Generation, VersionGroup, PokemonMove
 from middleware.db import repository
 from collections import OrderedDict
@@ -38,6 +38,7 @@ def _get_preformatteds_database_pokemon_machine_moves(pokemon: Pokemon, generati
         version_groups
     )
 
+    moves = specificcasehelper.filter_dive_pokemon_move_lgfr(moves)
     for pokemon_move_entity in moves:
         french_move_name = repository.get_french_move_by_pokemon_move_and_generation(pokemon_move_entity,
                                                                                      generation)
@@ -46,10 +47,13 @@ def _get_preformatteds_database_pokemon_machine_moves(pokemon: Pokemon, generati
 
         preformatteds.append(move)
 
-    pre_filtered = []
+    return _filter_machine_moves(preformatteds, version_groups, step)
 
+
+def _filter_machine_moves(preformatteds: list, version_groups: list, step: int) -> list:
+    pre_filtered = []
     unspecifics = []
-    for preformatted in preformatteds:
+    for preformatted in preformatteds:  # type: MachineMove
 
         # gen 8 machine moves are in two categories
         if any(version_group == 'sword-shield' for version_group in
@@ -65,29 +69,37 @@ def _get_preformatteds_database_pokemon_machine_moves(pokemon: Pokemon, generati
                              for machine in
                              preformatteds)
         if different_item or different_name:
-            preformatted.is_specific = True
+            preformatted.different_item_or_name = True
             pre_filtered.append(preformatted)
+            preformatted.specifics_vgs.append(preformatted.version_group)
         else:
             if preformatted.name not in unspecifics:
                 count = 1
-                for temp in preformatteds:
-                    if temp.item == preformatted.item and temp.is_hm == preformatted.is_hm \
-                            and temp.name == preformatted.name \
-                            and temp.version_group != preformatted.version_group:
+                specific_vgs = [preformatted.version_group]
+                for move_dto in preformatteds:
+                    if move_dto.item == preformatted.item and move_dto.is_hm == preformatted.is_hm \
+                            and move_dto.name == preformatted.name \
+                            and move_dto.version_group != preformatted.version_group:
                         count += 1
+                        if move_dto.version_group not in specific_vgs:
+                            specific_vgs.append(move_dto.version_group)
                 if count < len(version_groups):
-                    preformatted.is_specific = True
+                    preformatted.specifics_vgs = specific_vgs
+                    preformatted.different_version_group = True
                     pre_filtered.append(preformatted)
                 else:
                     unspecifics.append(preformatted.name)
                     pre_filtered.append(preformatted)
+
     return pre_filtered
 
 
 def _format_machine(move: MachineMove) -> str:
     name = f"{move.item[2:]} / {move.name}"
-    if move.is_specific:
+    if move.different_item_or_name:
         name += f" / {versiongrouphelper.vg_id_to_short_name(move.version_group)}"
+    elif move.different_version_group:
+        name += f" / {versiongrouphelper.get_vg_string_from_vg_identifiers(move.specifics_vgs)}"
     return name
 
 
@@ -97,7 +109,7 @@ def _sort_pokemon_machine_moves(formatteds: dict) -> list:
     sorteds_keys = sorted(formatteds, key=lambda k: float(k))
     for key in sorteds_keys:
         sorted_moves.append(formatteds[key])
-    return sorted_moves
+    return list(dict.fromkeys(sorted_moves))
 
 
 def _get_formatted_moves_by_pokemons(pokemon: Pokemon, generation: Generation, learn_method: PokemonMoveMethod,

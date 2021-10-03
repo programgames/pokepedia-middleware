@@ -86,3 +86,26 @@ def vg_id_to_short_name(version_group):
         return 'EB'
     else:
         raise RuntimeError('Unknow shortcut')
+
+
+def get_vg_string_from_vg_identifiers(specifics_vgs: list) -> str:
+    if all(vg in ['diamond-pearl', 'platinum'] for vg in specifics_vgs):
+        return 'DPP'
+    elif all(vg in ['yellow'] for vg in specifics_vgs):
+        return 'J'
+    elif all(vg in ['emerald','ruby-sapphire'] for vg in specifics_vgs):
+        return 'RSE'
+    elif all(vg in ['heartgold-soulsilver'] for vg in specifics_vgs):
+        return 'HGSS'
+    elif all(vg in ['omega-ruby-alpha-sapphire'] for vg in specifics_vgs):
+        return 'ROSA'
+    elif all(vg in ['black-white'] for vg in specifics_vgs):
+        return 'NB'
+    elif all(vg in ['black-2-white-2'] for vg in specifics_vgs):
+        return 'N2B2'
+    elif all(vg in ['x-y'] for vg in specifics_vgs):
+        return 'XY'
+    elif all(vg in ['ultra-sun-ultra-moon'] for vg in specifics_vgs):
+        return 'USUL'
+    else:
+        raise RuntimeError('Uknow condition')

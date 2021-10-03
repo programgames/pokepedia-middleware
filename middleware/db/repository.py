@@ -193,9 +193,10 @@ def find_moves_by_pokemon_move_method_and_version_group(pkm: Pokemon, pkm_move_m
         .order_by(PokemonMove.level.asc()) \
         .all()
 
+
 # noinspection PyUnresolvedReferences
 def find_moves_by_pokemon_move_method_and_version_groups(pkm: Pokemon, pkm_move_method: PokemonMoveMethod,
-                                                        vgs_identifier: list):
+                                                         vgs_identifier: list):
     return session.query(PokemonMove) \
         .join(PokemonMove.version_group) \
         .join(PokemonMove.pokemon) \
@@ -243,7 +244,10 @@ def find_pokepedia_move_methods_methods_repository() -> list:
         PokemonMoveMethod.identifier.in_(['level-up', 'tutor', 'machine', 'egg'])).all()
 
 
-def find_highest_version_group_by_generation(generation: Generation) -> VersionGroup:
+def find_highest_version_group_by_generation(generation) -> VersionGroup:
+    if isinstance(generation, int):
+        generation = session.query(Generation).filter(Generation.identifier == generationhelper.gen_int_to_id(
+            generation)).one()
     version_groups = session.query(VersionGroup) \
         .filter(VersionGroup.identifier.notin_(['colosseum', 'xd', 'lets-go-pikachu-lets-go-eevee'])) \
         .filter(VersionGroup.generation_id == generation.id) \

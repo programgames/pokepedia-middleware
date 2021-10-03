@@ -3,6 +3,8 @@ import re
 from middleware.exception import WrongHeaderError
 from collections import OrderedDict
 
+from middleware.exception.exceptions import TemplateNotFoundError
+
 """ Parse , check , and satanize data from a pokepedia pokemon level move section
 """
 
@@ -34,7 +36,7 @@ def check_and_sanitize_moves(moves: list, pokemon_name: str) -> dict:
 
     templates = len(list(filter(r.match, moves)))
     if templates == 0:
-        raise RuntimeError('no level template found')
+        raise TemplateNotFoundError('no pokemon move template found')
 
     forms = OrderedDict()
     if templates == 1:
