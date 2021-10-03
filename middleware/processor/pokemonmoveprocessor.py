@@ -20,7 +20,7 @@ def _get_steps_by_pokemon_method_and_gen(pokemon: Pokemon, generation: Generatio
         if lgpe:
             return 2
         else:
-            return 3
+            return 1
     elif learn_method.identifier == MACHINE_TYPE and generationhelper.gen_to_int(generation) == 8:
         return 2
     else:
