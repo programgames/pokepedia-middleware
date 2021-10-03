@@ -2,6 +2,8 @@ import argparse
 import sys
 from dotenv import load_dotenv
 
+from middleware.connection.conn import session
+from middleware.db.tables import CacheItem
 from middleware.handler import pokemonmovehandler
 from middleware.install import installer
 
@@ -52,6 +54,11 @@ def create_parser():
         parents=[common_parser])
     init_command.set_defaults(func=command_install)
 
+    clear_cache_command = cmds.add_parser(
+        'clearcache', help=u'clear cache',
+        parents=[common_parser])
+    clear_cache_command.set_defaults(func=command_clear_cache)
+
     return parser
 
 
@@ -62,6 +69,10 @@ def command_sync_pokemon_level_moves(parser, args):
 
 def command_sync_pokemon_machine_moves(parser, args):
     pokemonmovehandler.process_pokemon_move('machine', int(args.start), int(args.gen) if args.gen else None, args.debug)
+
+def command_clear_cache(parser, args):
+    deleted = session.query(CacheItem).delete()
+    print(f"{deleted} cache item deleted")
 
 
 def command_install(parser, args):
