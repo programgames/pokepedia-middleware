@@ -28,10 +28,11 @@ def process_pokemon_move(move_method_type: str, start: int, gen: int, debug: boo
                 pokemonmoveprocessor.process(generation, learnmethod, pokemon)
             else:
                 try:
+                    pokemonmoveprocessor.laerro()
                     print('processing ' + pokemon.identifier + ' for generation ' + str(
                         generation.id) + f" with id {pokemon.id} for method : {move_method_type}")
                     pokemonmoveprocessor.process(generation, learnmethod, pokemon)
 
                 except Exception as exc:
-                    logging.exception(f"Error happened for {pokemon.identifier} generation {generation.identifier} , "
-                                      f"error : {exc}")
+                    logging.error(f"Error happened for {pokemon.identifier} generation {generation.identifier} , "
+                                  f"error {str(exc)}")
