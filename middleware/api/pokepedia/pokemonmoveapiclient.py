@@ -40,20 +40,25 @@ def get_pokemon_moves(name: str, generation: int, move_type: str, version_group_
 
 def get_pokemon_move_sections(name: str, generation: int) -> dict:
     if generation < 7:
-        sections_url = 'https://www.pokepedia.fr/api.php?action=parse&format=json&page={}/G%C3%A9n%C3%A9ration_{}' \
-                       '&prop=sections&errorformat=wikitext&disabletoc=1' \
-            .format(name.replace('’', '%27').replace('\'', '%27').replace(' ', '_'), generation)
-    else:
-        sections_url = 'https://www.pokepedia.fr/api.php?action=parse&format=json' \
-                       '&page={}&prop=sections&errorformat=wikitext' \
-            .format(name.replace('’', '%27').replace('\'', '%27').replace(' ', '_'))
+        page = '{}/G%C3%A9n%C3%A9ration_{}'.format(name.replace('’', '%27').replace('\'', '%27').replace(' ', '_'), generation)
+        sections_url = f'https://www.pokepedia.fr/api.php?action=parse&format=json&page={page}' \
+                       '&prop=sections&errorformat=wikitext&disabletoc=1'
 
-    return pokepedia_client.format_section_by_url(sections_url)
+    else:
+        page = '{}'.format(name.replace('’', '%27').replace('\'', '%27').replace(' ', '_'))
+        sections_url = f"https://www.pokepedia.fr/api.php?action=parse&format=json' \
+                       '&page={page}&prop=sections&errorformat=wikitext"
+
+    return {
+        'sections': pokepedia_client.format_section_by_url(sections_url),
+        'page': page
+    }
 
 
 def get_section_index_by_pokemon_move_type_and_generation(move_type: str, sections: dict, generation: int,
                                                           version_group_identifier: str,
                                                           dt: bool) -> int:
+    section_paths = sections['sections']
     if move_type == LEVELING_UP_TYPE and generation <= 6:
         section_name = 'Capacités apprises//Par montée en niveau'
     elif move_type == LEVELING_UP_TYPE and generation == 7:
@@ -65,14 +70,14 @@ def get_section_index_by_pokemon_move_type_and_generation(move_type: str, sectio
     elif move_type == MACHINE_TYPE and generation == 7 and (
             version_group_identifier == "ultra-sun-ultra-moon" or version_group_identifier == "sun-moon"):
         if 'Capacités apprises//Par CT/CS//Septième génération//Pokémon Soleil et Lune et Pokémon Ultra-Soleil et ' \
-           'Ultra-Lune' not in sections.keys():
+           'Ultra-Lune' not in section_paths.keys():
             section_name = 'Capacités apprises//Par CT/CS//Septième génération'  # pokemon not available in lgpe or
             # without moves
         else:
             section_name = 'Capacités apprises//Par CT/CS//Septième génération//Pokémon Soleil et Lune et Pokémon Ultra-Soleil et Ultra-Lune'
     elif move_type == MACHINE_TYPE and generation == 7 and version_group_identifier == "lets-go-pikachu-lets-go-eevee":
         if 'Capacités apprises//Par CT/CS//Septième génération//Pokémon : Let\'s Go, Pikachu et Let\'s Go, ' \
-           'Évoli' not in sections.keys():
+           'Évoli' not in section_paths.keys():
             section_name = 'Capacités apprises//Par CT/CS//Septième génération'  # pokemon not available in lgpe or
             # without moves
         else:
@@ -107,12 +112,14 @@ def get_section_index_by_pokemon_move_type_and_generation(move_type: str, sectio
     else:
         raise RuntimeError('Unknow condition')
 
-    if section_name not in sections.keys():
+    if section_name not in section_paths.keys():
         raise SectionNotFoundException(
-            f'Section not found {section_name} / generation {generation} / vg : {version_group_identifier}',{
-                'section_name': section_name,
+            f'Section not found {section_name} / generation {generation} / vg : {version_group_identifier}', {
+                'section_not_found': section_name,
                 'generation': generation,
-                'version_group': version_group_identifier
+                'version_group': version_group_identifier,
+                'sections': section_paths,
+                'page': f"https://www.pokepedia.fr/{sections['page']}"
             })
 
     return sections[section_name]

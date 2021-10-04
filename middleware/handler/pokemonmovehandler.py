@@ -1,5 +1,6 @@
 from middleware.db.repository import *
 import middleware.processor.pokemonmoveprocessor as pokemonmoveprocessor
+from middleware.exception.exceptions import SectionNotFoundException
 from middleware.util.helper import generationhelper
 import logging
 from dotenv import load_dotenv
@@ -35,3 +36,4 @@ def process_pokemon_move(move_method_type: str, start: int, gen: int, debug: boo
                 except Exception as exc:
                     logging.error(f"Error happened for {pokemon.identifier} generation {generation.identifier} , "
                                   f"error {str(exc)}")
+

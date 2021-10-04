@@ -1,3 +1,5 @@
+from urllib.parse import unquote
+
 class UnrecoverableMessageHandlingError(Exception):
 
     def __init__(self, message):
@@ -17,11 +19,21 @@ class NotAvailableError(RuntimeError):
 
 
 class SectionNotFoundException(NotAvailableError):
-    additional_data = {}
+    additional_data = {
+        'section_not_found': 'section',
+        'generation': -1,
+        'version_group': 'vg',
+        'sections': {},
+        'page': 'page'
+    }
 
     def __init__(self, message, additional_data):
         self.message = message
         self.additional_data = additional_data
+
+    def __str__(self):
+        return f"Section not found / url : { unquote(self.additional_data['page'])} / section :" \
+               f" {self.additional_data['section_not_found']}"
 
 
 class DataFormatError(RuntimeError):
