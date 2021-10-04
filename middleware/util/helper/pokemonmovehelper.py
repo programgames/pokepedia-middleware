@@ -1,4 +1,5 @@
-from pokedex.db.tables import PokemonMoveMethod, Generation
+from middleware.util.helper import generationhelper
+from pokedex.db.tables import PokemonMoveMethod, Generation, Pokemon
 
 LEVELING_UP_TYPE = 'level-up'
 MACHINE_TYPE = 'machine'
@@ -45,3 +46,21 @@ def get_pokepedia_version_groups_identifiers_for_pkm_machine_by_step(gen: int, s
         return ['sword-shield']
     else:
         raise RuntimeError(f'Unknow condition gen : {gen} / step : {step}')
+
+
+def get_steps_by_pokemon_method_and_gen(pokemon: Pokemon, generation: Generation, learn_method: PokemonMoveMethod) -> \
+        int:
+    if learn_method.identifier == LEVELING_UP_TYPE:
+        return 1
+    elif learn_method.identifier == MACHINE_TYPE and 1 <= generationhelper.gen_to_int(generation) <= 6:
+        return 1
+    elif learn_method.identifier == MACHINE_TYPE and generationhelper.gen_to_int(generation) == 7:
+        lgpe = generationhelper.check_if_pokemon_is_available_in_lgpe(pokemon)
+        if lgpe:
+            return 2
+        else:
+            return 1
+    elif learn_method.identifier == MACHINE_TYPE and generationhelper.gen_to_int(generation) == 8:
+        return 2
+    else:
+        raise RuntimeError('Unknow')  # TODO improve

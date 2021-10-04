@@ -2,29 +2,11 @@ from middleware.exception.exceptions import SpecificPokemonMachineMoveError
 from middleware.generator import pokepediapokemonmovegenerator
 from pokedex.db.tables import PokemonMoveMethod, Pokemon, Generation
 
-from middleware.util.helper import pokemonhelper, generationhelper, specificcasehelper
+from middleware.util.helper import pokemonhelper, generationhelper, specificcasehelper, pokemonmovehelper
 from middleware.util.helper.pokemonmovehelper import LEVELING_UP_TYPE, MACHINE_TYPE
 from middleware.api.pokepedia import pokemonmoveapi, pokepedia_client
 from middleware.formatter.database import pokemonlevelmoveformatter, pokemonmachinemoveformatter
 from middleware.comparator import pokemonmachinemovecomparator
-
-
-def _get_steps_by_pokemon_method_and_gen(pokemon: Pokemon, generation: Generation, learn_method: PokemonMoveMethod) -> \
-        int:
-    if learn_method.identifier == LEVELING_UP_TYPE:
-        return 1
-    elif learn_method.identifier == MACHINE_TYPE and 1 <= generationhelper.gen_to_int(generation) <= 6:
-        return 1
-    elif learn_method.identifier == MACHINE_TYPE and generationhelper.gen_to_int(generation) == 7:
-        lgpe = generationhelper.check_if_pokemon_is_available_in_lgpe(pokemon)
-        if lgpe:
-            return 2
-        else:
-            return 1
-    elif learn_method.identifier == MACHINE_TYPE and generationhelper.gen_to_int(generation) == 8:
-        return 2
-    else:
-        raise RuntimeError('Unknow')  # TODO improve
 
 
 def process(generation: Generation, learn_method: PokemonMoveMethod, pokemon: Pokemon):
@@ -33,7 +15,7 @@ def process(generation: Generation, learn_method: PokemonMoveMethod, pokemon: Po
     if specificcasehelper.is_specific_pokemon_move_case(learn_method, pokemon, generation):
         return
 
-    steps = _get_steps_by_pokemon_method_and_gen(pokemon, generation, learn_method)
+    steps = pokemonmovehelper.get_steps_by_pokemon_method_and_gen(pokemon, generation, learn_method)
     for step in range(1, steps + 1):
         pokepedia_pokemon_name = pokemonhelper.find_pokepedia_pokemon_url_name(pokemon)
 

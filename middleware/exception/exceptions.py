@@ -16,6 +16,14 @@ class NotAvailableError(RuntimeError):
         self.message = message
 
 
+class SectionNotFoundException(NotAvailableError):
+    additional_data = {}
+
+    def __init__(self, message, additional_data):
+        self.message = message
+        self.additional_data = additional_data
+
+
 class DataFormatError(RuntimeError):
     def __init__(self, message):
         self.message = message

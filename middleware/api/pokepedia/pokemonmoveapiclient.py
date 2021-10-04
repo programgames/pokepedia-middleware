@@ -1,6 +1,6 @@
 from middleware.api.pokepedia import pokepedia_client
 from middleware.db import repository
-from middleware.exception.exceptions import NotAvailableError
+from middleware.exception.exceptions import NotAvailableError, SectionNotFoundException
 from middleware.util.helper.pokemonmovehelper import TUTOR_TYPE, MACHINE_TYPE, LEVELING_UP_TYPE, EGG_TYPE
 
 """Pokepedia client implementation to extract pokemon moves data on respective pokemon page
@@ -55,58 +55,67 @@ def get_section_index_by_pokemon_move_type_and_generation(move_type: str, sectio
                                                           version_group_identifier: str,
                                                           dt: bool) -> int:
     if move_type == LEVELING_UP_TYPE and generation <= 6:
-        return sections['Capacités apprises//Par montée en niveau']
+        section_name = 'Capacités apprises//Par montée en niveau'
     elif move_type == LEVELING_UP_TYPE and generation == 7:
-        return sections['Capacités apprises//Par montée en niveau//Septième génération']
+        section_name = 'Capacités apprises//Par montée en niveau//Septième génération'
     elif move_type == LEVELING_UP_TYPE and generation == 8:
-        return sections['Capacités apprises//Par montée en niveau//Huitième génération']
+        section_name = 'Capacités apprises//Par montée en niveau//Huitième génération'
     elif move_type == MACHINE_TYPE and generation <= 6:
-        return sections['Capacités apprises//Par CT/CS']
+        section_name = 'Capacités apprises//Par CT/CS'
     elif move_type == MACHINE_TYPE and generation == 7 and (
             version_group_identifier == "ultra-sun-ultra-moon" or version_group_identifier == "sun-moon"):
         if 'Capacités apprises//Par CT/CS//Septième génération//Pokémon Soleil et Lune et Pokémon Ultra-Soleil et ' \
            'Ultra-Lune' not in sections.keys():
-            return sections['Capacités apprises//Par CT/CS//Septième génération'] #pokemon not available in lgpe or
+            section_name = 'Capacités apprises//Par CT/CS//Septième génération'  # pokemon not available in lgpe or
             # without moves
-        return sections[
-            'Capacités apprises//Par CT/CS//Septième génération//Pokémon Soleil et Lune et Pokémon Ultra-Soleil'
-            ' et Ultra-Lune']
+        else:
+            section_name = 'Capacités apprises//Par CT/CS//Septième génération//Pokémon Soleil et Lune et Pokémon Ultra-Soleil et Ultra-Lune'
     elif move_type == MACHINE_TYPE and generation == 7 and version_group_identifier == "lets-go-pikachu-lets-go-eevee":
         if 'Capacités apprises//Par CT/CS//Septième génération//Pokémon : Let\'s Go, Pikachu et Let\'s Go, ' \
            'Évoli' not in sections.keys():
-            return sections['Capacités apprises//Par CT/CS//Septième génération'] #pokemon not available in lgpe or
+            section_name = 'Capacités apprises//Par CT/CS//Septième génération'  # pokemon not available in lgpe or
             # without moves
-        return sections[
-            "Capacités apprises//Par CT/CS//Septième génération//Pokémon : Let's Go, Pikachu et Let's Go, Évoli"]
+        else:
+            section_name = "Capacités apprises//Par CT/CS//Septième génération//Pokémon : Let's Go, Pikachu et Let's Go, Évoli"
     elif move_type == MACHINE_TYPE and generation == 8 and not dt:
-        return sections["Capacités apprises//Par CT/CS//Huitième génération"]
+        section_name = "Capacités apprises//Par CT/CS//Huitième génération"
     elif move_type == MACHINE_TYPE and generation == 8 and dt:
-        return sections["Capacités apprises//Par DT//Huitième génération"]
+        section_name = "Capacités apprises//Par DT//Huitième génération"
     elif move_type == EGG_TYPE and generation == 1:
         raise NotAvailableError("egg mooves are not available in gen 1")
     elif move_type == EGG_TYPE and 2 <= generation <= 6:
-        return sections["Capacités apprises//Par reproduction"]
+        section_name = "Capacités apprises//Par reproduction"
     elif move_type == EGG_TYPE and generation == 7:
-        return sections["Capacités apprises//Par reproduction//Septième génération"]
+        section_name = "Capacités apprises//Par reproduction//Septième génération"
     elif move_type == EGG_TYPE and generation == 8:
-        return sections["Capacités apprises//Par reproduction//Huitième génération"]
+        section_name = "Capacités apprises//Par reproduction//Huitième génération"
     elif move_type == TUTOR_TYPE and generation == 1:
         raise NotAvailableError("tutor mooves are not available in gen 1")
     elif move_type == TUTOR_TYPE and generation == 2 and version_group_identifier != 'crystal':
         raise NotAvailableError("tutor mooves are only available in crystal version for gen 2")
     elif move_type == TUTOR_TYPE and generation == 2 and version_group_identifier == 'crystal':
-        return sections["Capacités apprises//Par Donneur de capacités//Pokémon Cristal"]
+        section_name = "Capacités apprises//Par Donneur de capacités//Pokémon Cristal"
     elif move_type == TUTOR_TYPE and generation == 3 and version_group_identifier == 'ruby-sapphire':
         raise NotAvailableError("tutor mooves are not available in ruby/sapphir")
     elif move_type == TUTOR_TYPE and 3 <= generation <= 6:
-        return sections["Capacités apprises//Par Donneur de capacités//{}".format(
-            _get_version_group_name(version_group_identifier))]
+        section_name = "Capacités apprises//Par Donneur de capacités//{}".format(
+            _get_version_group_name(version_group_identifier))
     elif move_type == TUTOR_TYPE and generation == 7:
-        return sections["Capacités apprises//Par Donneur de capacités//Septième génération"]
+        section_name = "Capacités apprises//Par Donneur de capacités//Septième génération"
     elif move_type == TUTOR_TYPE and generation == 8:
-        return sections["Capacités apprises//Par Donneur de capacités//Huitième génération"]
+        section_name = "Capacités apprises//Par Donneur de capacités//Huitième génération"
     else:
         raise RuntimeError('Unknow condition')
+
+    if section_name not in sections.keys():
+        raise SectionNotFoundException(
+            f'Section not found {section_name} / generation {generation} / vg : {version_group_identifier}',{
+                'section_name': section_name,
+                'generation': generation,
+                'version_group': version_group_identifier
+            })
+
+    return sections[section_name]
 
 
 def _get_version_group_name(version_group_identifier):

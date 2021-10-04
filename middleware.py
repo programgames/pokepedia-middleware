@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 
 from middleware.connection.conn import session
 from middleware.db.tables import CacheItem
-from middleware.handler import pokemonmovehandler, sectionhandler
+from middleware.handler import pokemonmovehandler
 from middleware.install import installer
 
 load_dotenv()
@@ -75,10 +75,6 @@ def command_clear_cache(parser, args):
     deleted = session.query(CacheItem).delete()
     session.commit()
     print(f"{deleted} cache item deleted")
-
-def command_add_section(parser, args):
-    sectionhandler.handle_sections(args.file, int(args.level), args.after)
-
 
 def command_install(parser, args):
     installer.install()
