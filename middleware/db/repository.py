@@ -219,10 +219,10 @@ def get_french_move_by_pokemon_move_and_generation(pokemon_move: PokemonMove, ge
         .filter(move.id == Move.id) \
         .filter(Generation.identifier == gen.identifier).first()  # type: MoveNameChangelog
 
-    if alias:
-        return alias.name
-
-    return move.name_map[languagehelper.french]
+    return {
+        'name': move.name_map[languagehelper.french],
+        'alias': alias.name if alias else None
+    }
 
 
 def find_french_move_by_move_and_generation(move: Move, generation: int):

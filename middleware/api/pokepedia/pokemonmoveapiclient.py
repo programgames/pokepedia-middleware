@@ -122,7 +122,7 @@ def get_section_index_by_pokemon_move_type_and_generation(move_type: str, sectio
                 'page': f"https://www.pokepedia.fr/{sections['page']}"
             })
 
-    return sections[section_name]
+    return sections['sections'][section_name]
 
 
 def _get_version_group_name(version_group_identifier):

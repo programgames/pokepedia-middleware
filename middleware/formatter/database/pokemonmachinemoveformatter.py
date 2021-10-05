@@ -40,10 +40,12 @@ def _get_preformatteds_database_pokemon_machine_moves(pokemon: Pokemon, generati
 
     moves = specificcasehelper.filter_dive_pokemon_move_lgfr(moves)
     for pokemon_move_entity in moves:
-        french_move_name = repository.get_french_move_by_pokemon_move_and_generation(pokemon_move_entity,
-                                                                                     generation)
+        move_name = repository.get_french_move_by_pokemon_move_and_generation(pokemon_move_entity,
+                                                                              generation)
 
-        move = _fill_machine_move(french_move_name, pokemon_move_entity, generationhelper.gen_to_int(generation))
+        move = _fill_machine_move(move_name['name'], move_name['alias'], pokemon_move_entity,
+                                  generationhelper.gen_to_int(
+                                      generation))
 
         preformatteds.append(move)
 
@@ -68,10 +70,22 @@ def _filter_machine_moves(preformatteds: list, version_groups: list, step: int) 
         different_name = any(machine.item == preformatted.item and machine.name != preformatted.name
                              for machine in
                              preformatteds)
-        if different_item or different_name:
-            preformatted.different_item_or_name = True
+        if different_item:
+            vg = preformatted.version_group
+            for dto in preformatteds:
+                if dto.item == preformatted.item and dto.version_group != preformatted.version_group:
+                    preformatted = dto
+            preformatted.different_item = True
+            preformatted.add_vg_if_possible(vg)
             pre_filtered.append(preformatted)
-            preformatted.specifics_vgs.append(preformatted.version_group)
+        elif different_name:
+            vg = preformatted.version_group
+            for dto in preformatteds:
+                if dto.name == preformatted.name and dto.version_group != preformatted.version_group:
+                    preformatted = dto
+            preformatted.different_name = True
+            preformatted.add_vg_if_possible(vg)
+            pre_filtered.append(preformatted)
         else:
             if preformatted.name not in unspecifics:
                 count = 1
@@ -91,14 +105,15 @@ def _filter_machine_moves(preformatteds: list, version_groups: list, step: int) 
                     unspecifics.append(preformatted.name)
                     pre_filtered.append(preformatted)
 
-    return pre_filtered
+    return list(set(pre_filtered))
 
 
 def _format_machine(move: MachineMove) -> str:
-    name = f"{move.item[2:]} / {move.name}"
-    if move.different_item_or_name:
-        name += f" / {versiongrouphelper.vg_id_to_short_name(move.version_group)}"
-    elif move.different_version_group:
+    if move.alias:
+        name = f"{move.item[2:]} / " + move.name + "{{!}}" + move.alias
+    else:
+        name = f"{move.item[2:]} / {move.name}"
+    if move.different_name or move.different_item or move.different_version_group:
         name += f" / {versiongrouphelper.get_vg_string_from_vg_identifiers(move.specifics_vgs)}"
     return name
 
@@ -156,7 +171,10 @@ def _get_pokemon_machine_move_forms(pokemon: Pokemon, generation: Generation, le
 
     move_forms = availability.forms
 
-    if not move_forms or move_forms[0].has_pokepedia_page:
+    has_multiple_form_for_move_method = False
+
+
+    if not move_forms or move_forms[0].has_pokepedia_pageor or not has_multiple_form_for_move_method:
         # noinspection PyUnresolvedReferences
         specy = pokemon.species
         specy_name = specy.name_map[languagehelper.french].replace(' ', '_')  # M. Mime
@@ -181,11 +199,11 @@ def _get_pokemon_machine_move_forms(pokemon: Pokemon, generation: Generation, le
 
 
 # noinspection PyUnresolvedReferences
-def _fill_machine_move(name: str, pokemon_move_entity: PokemonMove,
+def _fill_machine_move(name: str, alias: str, pokemon_move_entity: PokemonMove,
                        generation: int) -> MachineMove:
     move = MachineMove()
     move.name = name
-
+    move.alias = alias
     move.is_hm = machinehelper.is_hm(pokemon_move_entity.machine, generation)
     move.item = pokemon_move_entity.machine.item.name_map[languagehelper.french]
     move.version_group = pokemon_move_entity.version_group.identifier

@@ -49,16 +49,16 @@ def _get_preformatteds_database_pokemon_moves(pokemon: Pokemon, generation: Gene
             versiongrouphelper.get_version_group_by_gen_and_column(generation, column)
         )
         for pokemon_move_entity in moves:
-            french_move_name = repository.get_french_move_by_pokemon_move_and_generation(pokemon_move_entity,
-                                                                                         generation)
-            if french_move_name in preformatteds:
-                move = preformatteds[french_move_name]
+            french_move = repository.get_french_move_by_pokemon_move_and_generation(pokemon_move_entity,
+                                                                                    generation)
+            if french_move['name'] in preformatteds:
+                move = preformatteds[french_move['name']]
             else:
                 move = LevelUpMove()
 
-            move = _fill_leveling_move(move, column, french_move_name, pokemon_move_entity)
+            move = _fill_leveling_move(move, column, french_move['name'], french_move['alias'], pokemon_move_entity)
 
-            preformatteds[french_move_name] = move
+            preformatteds[french_move['name']] = move
 
     return preformatteds
 
@@ -131,7 +131,7 @@ def _calculate_total_weight(weights: list, formatteds: dict):
             return str(total)
 
 
-def _sort_level_moves(formatteds: dict)->list:
+def _sort_level_moves(formatteds: dict) -> list:
     """
     Sort pokemon level moves , fitst by their weights and then alphabetically
     """
@@ -174,17 +174,23 @@ def _get_formatted_moves_by_pokemons(pokemon: Pokemon, generation: Generation, l
     lgpe_availability = repository.get_availability_by_pokemon_and_version_group(pokemon, lgpe_vg)
     if generation == 8:
         for name, move in pre_formatteds.items():
+            if move.alias:
+                name = name + "{{!}}" + move.alias
             first = _format_level(move, 1, 0)
             total_weight = _calculate_total_weight([first], formatteds)
             formatteds[str(total_weight)] = '{} / {}'.format(name, first['level'])
     elif generation in [1, 2, 5, 6] or (generation == 7 and not lgpe_availability):
         for name, move in pre_formatteds.items():
+            if move.alias:
+                name = move.alias + "{{!}}" + name
             first = _format_level(move, 1, 0)
             second = _format_level(move, 2, first['weight'])
             total_weight = _calculate_total_weight([first, second], formatteds)
             formatteds[str(total_weight)] = '{} / {} / {}'.format(name, first['level'], second['level'])
     else:
         for name, move in pre_formatteds.items():
+            if move.alias:
+                name = move.alias + "{{!}}" + name
             first = _format_level(move, 1, 0)
             second = _format_level(move, 2, first['weight'])
             third = _format_level(move, 3, second['weight'])
@@ -238,11 +244,12 @@ def _get_pokemon_level_move_forms(pokemon: Pokemon, generation: Generation, lear
     return forms
 
 
-def _fill_leveling_move(move: LevelUpMove, column: int, name: str, pokemon_move_entity: PokemonMove) -> LevelUpMove:
+def _fill_leveling_move(move: LevelUpMove, column: int, name: str, alias:str, pokemon_move_entity: PokemonMove) -> LevelUpMove:
     """
     Update a LevelUpMove
     """
-    setattr(move, 'name' + str(column), name)
+    move.name = name
+    move.alias = alias
     level = pokemon_move_entity.level
     if level == 1:
         setattr(move, 'on_start' + str(column), True)
