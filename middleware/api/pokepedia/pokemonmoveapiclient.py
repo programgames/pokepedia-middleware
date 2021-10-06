@@ -41,13 +41,11 @@ def get_pokemon_moves(name: str, generation: int, move_type: str, version_group_
 def get_pokemon_move_sections(name: str, generation: int) -> dict:
     if generation < 7:
         page = '{}/G%C3%A9n%C3%A9ration_{}'.format(name.replace('’', '%27').replace('\'', '%27').replace(' ', '_'), generation)
-        sections_url = f'https://www.pokepedia.fr/api.php?action=parse&format=json&page={page}' \
-                       '&prop=sections&errorformat=wikitext&disabletoc=1'
+        sections_url = f'https://www.pokepedia.fr/api.php?action=parse&format=json&page={page}&prop=sections&errorformat=wikitext&disabletoc=1'
 
     else:
         page = '{}'.format(name.replace('’', '%27').replace('\'', '%27').replace(' ', '_'))
-        sections_url = f"https://www.pokepedia.fr/api.php?action=parse&format=json' \
-                       '&page={page}&prop=sections&errorformat=wikitext"
+        sections_url = f"https://www.pokepedia.fr/api.php?action=parse&format=json&page={page}&prop=sections&errorformat=wikitext"
 
     return {
         'sections': pokepedia_client.format_section_by_url(sections_url),

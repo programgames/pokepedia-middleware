@@ -34,6 +34,10 @@ class PokemonMoveAvailability(TableBase):
     pokemon_id = Column(Integer, ForeignKey('pokemon.id'), nullable=False)
     is_default = Column(Boolean, nullable=False, default=True)
     has_pokepedia_page = Column(Boolean, nullable=False, default=True)
+    machine = Column(Boolean, nullable=False, default=True)
+    level = Column(Boolean, nullable=False, default=True)
+    tutor = Column(Boolean, nullable=False, default=True)
+    egg = Column(Boolean, nullable=False, default=True)
     forms = relationship('PokemonMoveAvailability',
                          secondary=pkm_availability_form_table,
                          primaryjoin=and_(id == pkm_availability_form_table.c.parent_id,

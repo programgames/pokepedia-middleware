@@ -171,7 +171,7 @@ def _get_pokemon_machine_move_forms(pokemon: Pokemon, generation: Generation, le
 
     move_forms = availability.forms
 
-    has_multiple_form_for_move_method = False
+    has_multiple_form_for_move_method = move_forms[0].machine
 
 
     if not move_forms or move_forms[0].has_pokepedia_pageor or not has_multiple_form_for_move_method:

@@ -56,64 +56,83 @@ def load_basic_move_availabilities():
 def load_specific_pokemon_move_availabilities():
     # gen 3
     save_pokemon_move_availabilities_with_forms([ruby_sapphir_vg, emerald_vg, firered_leafgreen_vg],
-                                                'deoxys-normal', ['deoxys-attack', 'deoxys-defense', 'deoxys-speed'])
+                                                'deoxys-normal', ['deoxys-attack', 'deoxys-defense', 'deoxys-speed'],
+                                                False, True, False, False, True)
     # gen4
     save_pokemon_move_availabilities_with_forms([diamond_pearl_vg, platinum_vg, heart_gold_soul_silver_vg],
-                                                'deoxys-normal', ['deoxys-attack', 'deoxys-defense', 'deoxys-speed'])
+                                                'deoxys-normal', ['deoxys-attack', 'deoxys-defense', 'deoxys-speed'],
+                                                False, True, False, False, True)
     save_pokemon_move_availabilities_with_forms([diamond_pearl_vg, platinum_vg, heart_gold_soul_silver_vg],
-                                                'wormadam-plant', ['wormadam-sandy', 'wormadam-trash'])
+                                                'wormadam-plant', ['wormadam-sandy', 'wormadam-trash'],
+                                                False, True, True, False, True)
     save_pokemon_move_availabilities_with_forms([platinum_vg, heart_gold_soul_silver_vg, heart_gold_soul_silver_vg],
-                                                'shaymin-land', ['shaymin-sky'])
+                                                'shaymin-land', ['shaymin-sky'],
+                                                False, True, False, False, True)
     # gen 5
     save_pokemon_move_availabilities_with_forms([black_white_vg, black2_white2_vg],
-                                                'deoxys-normal', ['deoxys-attack', 'deoxys-defense', 'deoxys-speed'])
+                                                'deoxys-normal', ['deoxys-attack', 'deoxys-defense', 'deoxys-speed'],
+                                                False, True, False, False, True)
     save_pokemon_move_availabilities_with_forms([black_white_vg, black2_white2_vg],
-                                                'wormadam-plant', ['wormadam-sandy', 'wormadam-trash'])
+                                                'wormadam-plant', ['wormadam-sandy', 'wormadam-trash'],
+                                                False, True, True, False, True)
     save_pokemon_move_availabilities_with_forms([black_white_vg, black2_white2_vg],
-                                                'shaymin-land', ['shaymin-sky'])
+                                                'shaymin-land', ['shaymin-sky'],
+                                                False, True, False, False, True)
     save_pokemon_move_availabilities_with_forms([black2_white2_vg],
                                                 'kyurem', ['kyurem-black', 'kyurem-white'], True)
     # gen6
     # noinspection DuplicatedCode
     save_pokemon_move_availabilities_with_forms([xy_vg, oras_vg],
-                                                'meowstic-male', ['meowstic-female'])
+                                                'meowstic-male', ['meowstic-female'],
+                                                False, True, False, False, False)
     save_pokemon_move_availabilities_with_forms([xy_vg, oras_vg],
-                                                'deoxys-normal', ['deoxys-attack', 'deoxys-defense', 'deoxys-speed'])
+                                                'deoxys-normal', ['deoxys-attack', 'deoxys-defense', 'deoxys-speed'],
+                                                False, True, False, False, True)
     save_pokemon_move_availabilities_with_forms([xy_vg, oras_vg],
-                                                'wormadam-plant', ['wormadam-sandy', 'wormadam-trash'])
+                                                'wormadam-plant', ['wormadam-sandy', 'wormadam-trash'],
+                                                False, True, True, False, True)
     save_pokemon_move_availabilities_with_forms([xy_vg, oras_vg],
-                                                'shaymin-land', ['shaymin-sky'])
+                                                'shaymin-land', ['shaymin-sky'],
+                                                False, True, False, False, True)
     save_pokemon_move_availabilities_with_forms([xy_vg, oras_vg],
                                                 'kyurem', ['kyurem-black', 'kyurem-white'], True)
     save_pokemon_move_availabilities_with_forms([xy_vg, oras_vg],
-                                                'hoopa', ['hoopa-unbound'])
+                                                'hoopa', ['hoopa-unbound'], False, True, False, False, False)
     # gen7
     # noinspection DuplicatedCode
     save_pokemon_move_availabilities_with_forms([sun_moon_vg, ultra_sun_ultra_moon_vg],
-                                                'meowstic-male', ['meowstic-female'])
+                                                'meowstic-male', ['meowstic-female'],
+                                                False, True, False, False, False)
     save_pokemon_move_availabilities_with_forms([sun_moon_vg, ultra_sun_ultra_moon_vg],
-                                                'deoxys-normal', ['deoxys-attack', 'deoxys-defense', 'deoxys-speed'])
+                                                'deoxys-normal', ['deoxys-attack', 'deoxys-defense', 'deoxys-speed'],
+                                                False, True, False, False, True)
     save_pokemon_move_availabilities_with_forms([sun_moon_vg, ultra_sun_ultra_moon_vg],
-                                                'wormadam-plant', ['wormadam-sandy', 'wormadam-trash'])
+                                                'wormadam-plant', ['wormadam-sandy', 'wormadam-trash'],
+                                                False, True, True, False, True)
     save_pokemon_move_availabilities_with_forms([sun_moon_vg, ultra_sun_ultra_moon_vg],
-                                                'shaymin-land', ['shaymin-sky'])
+                                                'shaymin-land', ['shaymin-sky'],
+                                                False, True, False, False, True)
     save_pokemon_move_availabilities_with_forms([sun_moon_vg, ultra_sun_ultra_moon_vg],
                                                 'kyurem', ['kyurem-black', 'kyurem-white'], True)
     save_pokemon_move_availabilities_with_forms([sun_moon_vg, ultra_sun_ultra_moon_vg],
-                                                'hoopa', ['hoopa-unbound'])
+                                                'hoopa', ['hoopa-unbound'], False, True, False, False, False)
     save_pokemon_move_availabilities_with_forms([sun_moon_vg],
-                                                'lycanroc-midday', ['lycanroc-midnight'])
+                                                'lycanroc-midday', ['lycanroc-midnight'],
+                                                False, True, True, False, True)
     save_pokemon_move_availabilities_with_forms([ultra_sun_ultra_moon_vg],
-                                                'lycanroc-midday', ['lycanroc-midnight', 'lycanroc-dusk'])
+                                                'lycanroc-midday', ['lycanroc-midnight', 'lycanroc-dusk'],
+                                                False, True, True, False, True)
     save_pokemon_move_availabilities_with_forms([ultra_sun_ultra_moon_vg],
                                                 'necrozma', ['necrozma-dusk', 'necrozma-dawn'], True)
     # gen 8
     save_pokemon_move_availabilities_with_forms([sword_shield_vg],
-                                                'meowstic-male', ['meowstic-female'])
+                                                'meowstic-male', ['meowstic-female'],
+                                                False, True, False, False, False)
     save_pokemon_move_availabilities_with_forms([sword_shield_vg],
                                                 'indeedee-male', ['indeedee-female'])
     save_pokemon_move_availabilities_with_forms([sword_shield_vg],
-                                                'lycanroc-midday', ['lycanroc-midnight', 'lycanroc-dusk'])
+                                                'lycanroc-midday', ['lycanroc-midnight', 'lycanroc-dusk'],
+                                                False, True, True, False, True)
     save_pokemon_move_availabilities_with_forms([sword_shield_vg],
                                                 'toxtricity-amped', ['toxtricity-low-key'])
     save_pokemon_move_availabilities_with_forms([sword_shield_vg],
@@ -123,7 +142,8 @@ def load_specific_pokemon_move_availabilities():
 
 
 def save_pokemon_move_availabilities_with_forms(version_groups: list, original_name: str, forms: list,
-                                                specific_page_forms=False):
+                                                specific_page_forms=False, level=True, machine=True, egg=True,
+                                                tutor=True):
     with session.no_autoflush:
         for version_group in version_groups:
             original_pokemon_availability = repository.find_availability_by_pkm_and_form(
@@ -135,6 +155,10 @@ def save_pokemon_move_availabilities_with_forms(version_groups: list, original_n
                 availability.pokemon_id = form_pokemon.id
                 availability.has_pokepedia_page = specific_page_forms
                 availability.is_default = False
+                availability.level = level
+                availability.machine = machine
+                availability.egg = egg
+                availability.tutor = tutor
                 session.add(availability)
 
                 original_pokemon_availability.forms.append(availability)

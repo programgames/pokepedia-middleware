@@ -220,7 +220,9 @@ def _get_pokemon_level_move_forms(pokemon: Pokemon, generation: Generation, lear
 
     move_forms = availability.forms
 
-    if not move_forms or move_forms[0].has_pokepedia_page:
+    has_multiple_form_for_move_method = move_forms[0].level
+
+    if not move_forms or move_forms[0].has_pokepedia_page or not has_multiple_form_for_move_method:
         # noinspection PyUnresolvedReferences
         specy = pokemon.species
         specy_name = specy.name_map[languagehelper.french].replace(' ', '_')  # M. Mime
