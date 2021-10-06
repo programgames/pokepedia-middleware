@@ -1,13 +1,20 @@
 from urllib.parse import unquote
 
-class UnrecoverableMessageHandlingError(Exception):
+from requests import HTTPError
+
+
+class UnrecoverableMessageHandlingException(Exception):
 
     def __init__(self, message):
         self.message = message
 
 
-class InvalidResponse(Exception):
+class InvalidResponse(HTTPError):
 
+    def __init__(self, message):
+        self.message = message
+
+class MissingOptionException(RuntimeError):
     def __init__(self, message):
         self.message = message
 
@@ -73,3 +80,11 @@ class SpecificPokemonMachineMoveError(SpecificPokemonMoveError):
     def __init__(self, message, additional_data):
         self.message = message
         self.additional_data = additional_data
+
+class UnsupportedException(RuntimeError):
+    def __init__(self, message):
+        self.message = message
+
+class InvalidConditionException(RuntimeError):
+    def __init__(self, message):
+        self.message = message

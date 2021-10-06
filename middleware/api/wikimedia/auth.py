@@ -34,7 +34,7 @@ class Auth:
         result = wikimedia_session.post(endpoint, data=params)
         json = result.json()
         if json['login']['result'] != 'Success':
-            raise RuntimeError('Connection failed')
+            raise ConnectionError('Connection failed')
 
     def get_crsf_token(self, endpoint: str):
         params = {

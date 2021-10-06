@@ -1,4 +1,5 @@
 from middleware.connection.conn import session
+from middleware.exception import InvalidConditionException
 from pokedex.db.tables import Pokemon, Generation, VersionGroup
 import middleware.db.repository as repository
 
@@ -24,7 +25,7 @@ def gen_int_to_id(integer) -> str:
     elif integer == 8:
         return 'generation-viii'
     else:
-        raise RuntimeError('generation not available for integer ' + integer)
+        raise InvalidConditionException('generation not available for integer ' + integer)
 
 
 def gen_id_to_int(generation: str) -> int:

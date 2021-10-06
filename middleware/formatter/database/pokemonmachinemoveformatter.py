@@ -1,4 +1,5 @@
 from middleware.db.tables import PokemonMoveAvailability
+from middleware.exception import InvalidConditionException
 from middleware.formatter.dto.machinemove import MachineMove
 from middleware.util.helper import generationhelper, machinehelper, languagehelper, pokemonmovehelper, \
     versiongrouphelper, specificcasehelper
@@ -161,7 +162,7 @@ def _get_pokemon_machine_move_forms(pokemon: Pokemon, generation: Generation, le
     elif gen_number == 7 and step == 2:
         version_group = util.get(session, VersionGroup, 'lets-go-pikachu-lets-go-eevee')
     else:
-        raise RuntimeError('Invalid generation/step condition')
+        raise InvalidConditionException(f'Invalid generation/step condition : {gen_number} / {step}')
 
     availability = session.query(PokemonMoveAvailability) \
         .filter(PokemonMoveAvailability.version_group_id == version_group.id) \
@@ -174,7 +175,6 @@ def _get_pokemon_machine_move_forms(pokemon: Pokemon, generation: Generation, le
     has_multiple_form_for_move_method = False
     if move_forms:
         has_multiple_form_for_move_method = move_forms[0].machine
-
 
     if not move_forms or move_forms[0].has_pokepedia_pageor or not has_multiple_form_for_move_method:
         if len(form_order) > 1:

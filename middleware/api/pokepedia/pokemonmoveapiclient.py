@@ -1,6 +1,7 @@
 from middleware.api.pokepedia import pokepedia_client
 from middleware.db import repository
-from middleware.exception.exceptions import NotAvailableError, SectionNotFoundException
+from middleware.exception.exceptions import NotAvailableError, SectionNotFoundException, MissingOptionException, \
+    InvalidConditionException
 from middleware.util.helper.pokemonmovehelper import TUTOR_TYPE, MACHINE_TYPE, LEVELING_UP_TYPE, EGG_TYPE
 
 """Pokepedia client implementation to extract pokemon moves data on respective pokemon page
@@ -10,7 +11,7 @@ from middleware.util.helper.pokemonmovehelper import TUTOR_TYPE, MACHINE_TYPE, L
 def get_pokemon_moves(name: str, generation: int, move_type: str, version_group_identifier=None, dt=None) -> dict:
     if (move_type == TUTOR_TYPE or move_type == MACHINE_TYPE) \
             and not version_group_identifier and generation == 7:
-        raise RuntimeError('argument version_group_name is required for %s type'.format(move_type))
+        raise MissingOptionException('argument version_group_name is required for %s type'.format(move_type))
 
     sections = repository.get_item_from_cache(
         f'pokepedia.section.pokemonmove.{name}.{generation}',
@@ -108,7 +109,8 @@ def get_section_index_by_pokemon_move_type_and_generation(move_type: str, sectio
     elif move_type == TUTOR_TYPE and generation == 8:
         section_name = "Capacités apprises//Par Donneur de capacités//Huitième génération"
     else:
-        raise RuntimeError('Unknow condition')
+        raise InvalidConditionException(f'Impossible to get a section from {move_type} move type and gener'
+                                        f'ation {generation}')
 
     if section_name not in section_paths.keys():
         raise SectionNotFoundException(

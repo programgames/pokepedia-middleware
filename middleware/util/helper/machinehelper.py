@@ -1,3 +1,4 @@
+from middleware.exception import InvalidConditionException
 from pokedex.db.tables import Machine
 
 
@@ -13,4 +14,5 @@ def is_hm(machine: Machine, gen: int) -> bool:
     elif gen == 8:
         return machine.is_hm
     else:
-        raise RuntimeError('Unknow condition')
+        raise InvalidConditionException(f'Impossible to know if machine number {machine.machine_number} is an hm or '
+                                        f'not')

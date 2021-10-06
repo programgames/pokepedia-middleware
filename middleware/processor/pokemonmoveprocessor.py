@@ -33,7 +33,8 @@ def process(generation: Generation, learn_method: PokemonMoveMethod, pokemon: Po
                                                                                                   learn_method,
                                                                                                   form_order, step)
             else:
-                raise RuntimeError(f'invalid learn method {learn_method.identifier}')
+                raise NotImplementedError(f'Can\'t process pokemon move : invalid learn method'
+                                          f' {learn_method.identifier}')
 
             if not pokemonmachinemovecomparator.compare_moves(pokepedia_data['satanized']['forms'], database_moves,
                                                               form_order):
@@ -43,7 +44,7 @@ def process(generation: Generation, learn_method: PokemonMoveMethod, pokemon: Po
                                      form_order, step)
         except SpecificPokemonMachineMoveError as exc:
             print(f'{pokepedia_pokemon_name},  doesnt not learn any moves, check manually')
-            continue #TODO fix
+            continue  # TODO fix
             generated = pokepediapokemonmovegenerator.generate_specific_no_pokemon_machine_move_wikitext(pokemon,
                                                                                                          generation,
                                                                                                          step)

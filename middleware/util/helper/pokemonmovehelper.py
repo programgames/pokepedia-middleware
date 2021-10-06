@@ -1,3 +1,4 @@
+from middleware.exception import InvalidConditionException
 from middleware.util.helper import generationhelper
 from pokedex.db.tables import PokemonMoveMethod, Generation, Pokemon
 
@@ -20,7 +21,7 @@ def get_pokepedia_invoke_learn_method(move_method: PokemonMoveMethod, gen: int, 
         french = 'disque'
 
     if not french:
-        raise RuntimeError('Impossible to translate learn method {} to french'.format(move_method.identifier))
+        raise InvalidConditionException('Impossible to translate learn method {} to french'.format(move_method.identifier))
 
     return french
 
@@ -45,7 +46,8 @@ def get_pokepedia_version_groups_identifiers_for_pkm_machine_by_step(gen: int, s
     elif gen == 8:
         return ['sword-shield']
     else:
-        raise RuntimeError(f'Unknow condition gen : {gen} / step : {step}')
+        raise InvalidConditionException(f'Could not find version primaries version groups : Unknow '
+                                        f'condition gen : {gen} / step : {step}')
 
 
 def get_steps_by_pokemon_method_and_gen(pokemon: Pokemon, generation: Generation, learn_method: PokemonMoveMethod) -> \
@@ -63,4 +65,6 @@ def get_steps_by_pokemon_method_and_gen(pokemon: Pokemon, generation: Generation
     elif learn_method.identifier == MACHINE_TYPE and generationhelper.gen_to_int(generation) == 8:
         return 2
     else:
-        raise RuntimeError('Unknow')  # TODO improve
+        raise NotImplementedError(f'step not implemented for learnmethod {learn_method.identifier} and generation  '
+                                  f'{generationhelper.gen_to_int(generation)}')
+        # TODO improve

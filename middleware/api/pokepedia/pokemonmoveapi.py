@@ -1,7 +1,7 @@
 from middleware.connection.conn import session
 from middleware.api.pokepedia import pokemonmoveapiclient
 from middleware.db import repository
-from middleware.exception.exceptions import TemplateNotFoundError, SpecificPokemonMachineMoveError
+from middleware.exception.exceptions import TemplateNotFoundError, SpecificPokemonMachineMoveError, UnsupportedException
 from middleware.satanizer import pokepediapokemonmovesatanizer
 from middleware.util.helper import databasehelper, machinehelper
 from middleware.util.helper.pokemonmovehelper import LEVELING_UP_TYPE, MACHINE_TYPE
@@ -31,10 +31,11 @@ def get_pokemon_moves(pokemon: Pokemon, name: str, generation: int, method_type:
             moves_data = _get_pokemon_moves_from_cache(step, name, generation, method_type, None, True)
 
         else:
-            raise RuntimeError('Not supported')
+            raise UnsupportedException(f'API for method {method_type} / generation {generation} / step {step} not '
+                                       f'supported')
 
     else:
-        raise RuntimeError(f'learn method not supported {method_type}')
+        raise UnsupportedException(f'learn method not supported {method_type}')
 
     try:
         moves_data['satanized'] = pokepediapokemonmovesatanizer.check_and_sanitize_moves(moves_data['wikitext'],

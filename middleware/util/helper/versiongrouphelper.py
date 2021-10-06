@@ -1,4 +1,5 @@
 from middleware.connection.conn import session
+from middleware.exception import InvalidConditionException
 from middleware.util.helper import generationhelper
 from pokedex.db.tables import Generation, VersionGroup
 
@@ -85,7 +86,7 @@ def vg_id_to_short_name(version_group):
     elif version_group == 'sword-shield':
         return 'EB'
     else:
-        raise RuntimeError('Unknow shortcut')
+        raise InvalidConditionException(f'Unknow version group shortcut for version group {version_group}')
 
 
 def get_vg_string_from_vg_identifiers(specifics_vgs: list) -> str:
@@ -108,4 +109,4 @@ def get_vg_string_from_vg_identifiers(specifics_vgs: list) -> str:
     elif all(vg in ['ultra-sun-ultra-moon'] for vg in specifics_vgs):
         return 'USUL'
     else:
-        raise RuntimeError('Uknow condition')
+        raise InvalidConditionException(f'version group shortcut not found for these version groups :{specifics_vgs}')
