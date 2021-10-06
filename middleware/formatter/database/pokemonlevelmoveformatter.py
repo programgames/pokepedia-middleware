@@ -182,7 +182,7 @@ def _get_formatted_moves_by_pokemons(pokemon: Pokemon, generation: Generation, l
     elif generation in [1, 2, 5, 6] or (generation == 7 and not lgpe_availability):
         for name, move in pre_formatteds.items():
             if move.alias:
-                name = move.alias + "{{!}}" + name
+                name = name + "{{!}}" + move.alias
             first = _format_level(move, 1, 0)
             second = _format_level(move, 2, first['weight'])
             total_weight = _calculate_total_weight([first, second], formatteds)
@@ -190,7 +190,7 @@ def _get_formatted_moves_by_pokemons(pokemon: Pokemon, generation: Generation, l
     else:
         for name, move in pre_formatteds.items():
             if move.alias:
-                name = move.alias + "{{!}}" + name
+                name = name + "{{!}}" + move.alias
             first = _format_level(move, 1, 0)
             second = _format_level(move, 2, first['weight'])
             third = _format_level(move, 3, second['weight'])
@@ -253,7 +253,8 @@ def _get_pokemon_level_move_forms(pokemon: Pokemon, generation: Generation, lear
     return forms
 
 
-def _fill_leveling_move(move: LevelUpMove, column: int, name: str, alias:str, pokemon_move_entity: PokemonMove) -> LevelUpMove:
+def _fill_leveling_move(move: LevelUpMove, column: int, name: str, alias: str,
+                        pokemon_move_entity: PokemonMove) -> LevelUpMove:
     """
     Update a LevelUpMove
     """
