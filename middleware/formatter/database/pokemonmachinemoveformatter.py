@@ -175,6 +175,8 @@ def _get_pokemon_machine_move_forms(pokemon: Pokemon, generation: Generation, le
 
 
     if not move_forms or move_forms[0].has_pokepedia_pageor or not has_multiple_form_for_move_method:
+        if len(form_order) > 1:
+            raise RuntimeError(f'Too much form for this pokemon : {pokemon}')
         # noinspection PyUnresolvedReferences
         specy = pokemon.species
         specy_name = specy.name_map[languagehelper.french].replace(' ', '_')  # M. Mime
@@ -189,6 +191,9 @@ def _get_pokemon_machine_move_forms(pokemon: Pokemon, generation: Generation, le
         # noinspection PyUnresolvedReferences
         specy_name = pokemon.specie.name_map(languagehelper.french)
         return {specy_name: _get_formatted_moves_by_pokemons(pokemon, generation, learn_method, step)}
+
+    if not len(form_order) > 1:
+        raise RuntimeError(f'Not enough form for this pokemon : {pokemon}')
 
     forms = OrderedDict()
     for form_name, form_extra in form_order.items():
