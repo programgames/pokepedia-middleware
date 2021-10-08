@@ -59,7 +59,10 @@ def get_steps_by_pokemon_method_and_gen(pokemon: Pokemon, generation: Generation
     elif learn_method.identifier == MACHINE_TYPE and generationhelper.gen_to_int(generation) == 7:
         lgpe = generationhelper.check_if_pokemon_is_available_in_lgpe(pokemon)
         if lgpe:
-            return 2
+            if pokemon.identifier == 'meltan' or pokemon.identifier == 'melmetal':
+                return 1
+            else:
+                return 2
         else:
             return 1
     elif learn_method.identifier == MACHINE_TYPE and generationhelper.gen_to_int(generation) == 8:

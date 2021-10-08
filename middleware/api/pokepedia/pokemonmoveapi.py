@@ -18,10 +18,10 @@ def get_pokemon_moves(pokemon: Pokemon, name: str, generation: int, method_type:
     elif method_type == MACHINE_TYPE:
         if 1 <= generation <= 6:
             moves_data = _get_pokemon_moves_from_cache(step, name, generation, method_type)
-        elif generation == 7 and step == 1:
+        elif generation == 7 and step == 1 and not (pokemon.identifier == 'meltan' or pokemon.identifier == 'melmetal'):
             vg = databasehelper.get(VersionGroup, 'ultra-sun-ultra-moon')  # or sun-moon
             moves_data = _get_pokemon_moves_from_cache(step, name, generation, method_type, vg)
-        elif generation == 7 and step == 2:
+        elif generation == 7 and (step == 2 or (pokemon.identifier == 'meltan' or pokemon.identifier == 'melmetal')):
             vg = databasehelper.get(VersionGroup, 'lets-go-pikachu-lets-go-eevee')
 
             moves_data = _get_pokemon_moves_from_cache(step, name, generation, method_type, vg)
