@@ -33,7 +33,10 @@ def generate_move_wiki_text(learn_method: PokemonMoveMethod, pokemon: Pokemon, g
 
     for form, moves in forms.items():
         form = form + form_order[form]
-        generated += "===== " + form + " =====" + '\r\n'
+        if 7 <= generationhelper.gen_to_int(generation) <= 8:
+            generated += "===== " + form + " =====" + '\r\n'
+        else:
+            generated += "==== " + form + " ====" + '\r\n'
         for comment in pokepedia_data['forms'][form]['top_comments']:
             generated += comment + "\r\n"
         generated += "{{"f"#invoke:Apprentissage|{pokepedia_learn_method}|type={french_slot1_name}|" \

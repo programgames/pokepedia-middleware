@@ -36,13 +36,13 @@ def check_and_sanitize_moves(moves: list, pokemon_name: str) -> dict:
 
     templates = len(list(filter(r.match, moves)))
     if templates == 0:
-        raise TemplateNotFoundError('no pokemon move template found')
+        raise TemplateNotFoundError('no pokemon move template found', {'wikitext': moves})
 
     forms = OrderedDict()
     if templates == 1:
         forms[pokemon_name] = {
             'top_comments': [],
-            'moves':  [],
+            'moves': [],
             'bot_comments': [],
         }
         for move in moves:
@@ -78,10 +78,10 @@ def check_and_sanitize_moves(moves: list, pokemon_name: str) -> dict:
                 'moves': [],
                 'bot_comments': [],
             }
-        elif template and re.match(r'.*}}.*', move):
+        elif template and re.match(r'^}}$', move):
             template = False
             end = True
-        elif template and form and not re.match(r'.*}}.*', move):
+        elif template and form and not re.match(r'^}}$', move):
             forms[actual_form]['moves'].append(move)
         elif form and not re.match('.*=.*=.*', move) and not template and not end:
             forms[actual_form]['top_comments'].append(move)

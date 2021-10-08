@@ -154,11 +154,14 @@ def _get_pokemon_machine_move_forms(pokemon: Pokemon, generation: Generation, le
     Return a list of  fully formatted pokemon machine move by forms
     """
 
-    if gen_number >= 1 <= 6 or gen_number == 8:
+    if 1 <= gen_number <= 6 or gen_number == 8:
         version_group = repository.find_highest_version_group_by_generation(generation)
-
     elif gen_number == 7 and step == 1:
-        version_group = util.get(session, VersionGroup, 'ultra-sun-ultra-moon')
+        if pokemon.identifier == 'meltan' or pokemon.identifier == 'melmetal':
+            version_group = session.query(VersionGroup).filter(
+                VersionGroup.identifier == 'lets-go-pikachu-lets-go-eevee').one()
+        else:
+            version_group = util.get(session, VersionGroup, 'ultra-sun-ultra-moon')
     elif gen_number == 7 and step == 2:
         version_group = util.get(session, VersionGroup, 'lets-go-pikachu-lets-go-eevee')
     else:
@@ -176,7 +179,7 @@ def _get_pokemon_machine_move_forms(pokemon: Pokemon, generation: Generation, le
     if move_forms:
         has_multiple_form_for_move_method = move_forms[0].machine
 
-    if not move_forms or move_forms[0].has_pokepedia_pageor or not has_multiple_form_for_move_method:
+    if not move_forms or move_forms[0].has_pokepedia_page or not has_multiple_form_for_move_method:
         if len(form_order) > 1:
             raise RuntimeError(f'Too much form for this pokemon : {pokemon}')
         # noinspection PyUnresolvedReferences

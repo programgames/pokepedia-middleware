@@ -54,8 +54,11 @@ class WrongHeaderError(DataFormatError):
 
 
 class TemplateNotFoundError(DataFormatError):
-    def __init__(self, message):
+    additional_data = {}
+
+    def __init__(self, message, additional_data):
         self.message = message
+        self.additional_data = additional_data
 
 
 class SpecificCaseError(RuntimeError):
