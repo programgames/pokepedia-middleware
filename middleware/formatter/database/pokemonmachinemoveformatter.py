@@ -31,8 +31,11 @@ def _get_preformatteds_database_pokemon_machine_moves(pokemon: Pokemon, generati
     gen_number = generationhelper.gen_id_to_int(generation.identifier)
     preformatteds = []
 
-    version_groups = pokemonmovehelper.get_pokepedia_version_groups_identifiers_for_pkm_machine_by_step(
-        gen_number, step)
+    if (pokemon.identifier == 'meltan' or pokemon.identifier == 'melmetal') and gen_number == 7:
+        version_groups = ['lets-go-pikachu-lets-go-eevee']
+    else:
+        version_groups = pokemonmovehelper.get_pokepedia_version_groups_identifiers_for_pkm_machine_by_step(
+            gen_number, step)
 
     moves = repository.find_moves_by_pokemon_move_method_and_version_groups(
         pokemon, learn_method,

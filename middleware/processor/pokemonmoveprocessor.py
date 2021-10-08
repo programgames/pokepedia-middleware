@@ -44,7 +44,6 @@ def process(generation: Generation, learn_method: PokemonMoveMethod, pokemon: Po
                                      form_order, step)
         except SpecificPokemonMachineMoveError as exc:
             print(f'{pokepedia_pokemon_name},  doesnt not learn any moves, check manually')
-            continue  # TODO fix
             generated = pokepediapokemonmovegenerator.generate_specific_no_pokemon_machine_move_wikitext(pokemon,
                                                                                                          generation,
                                                                                                          step)
