@@ -122,6 +122,9 @@ def load_specific_pokemon_move_availabilities():
     save_pokemon_move_availabilities_with_forms([ultra_sun_ultra_moon_vg],
                                                 'lycanroc-midday', ['lycanroc-midnight', 'lycanroc-dusk'],
                                                 False, True, True, False, True)
+    save_pokemon_move_availabilities_with_forms([sun_moon_vg,ultra_sun_ultra_moon_vg],
+                                                'thundurus-incarnate', ['thundurus-therian'],
+                                                False, False, True, False, False)
     save_pokemon_move_availabilities_with_forms([ultra_sun_ultra_moon_vg],
                                                 'necrozma', ['necrozma-dusk', 'necrozma-dawn'], True)
     # gen 8

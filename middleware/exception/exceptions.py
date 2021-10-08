@@ -14,6 +14,7 @@ class InvalidResponse(HTTPError):
     def __init__(self, message):
         self.message = message
 
+
 class MissingOptionException(RuntimeError):
     def __init__(self, message):
         self.message = message
@@ -39,7 +40,7 @@ class SectionNotFoundException(NotAvailableError):
         self.additional_data = additional_data
 
     def __str__(self):
-        return f"Section not found / url : { unquote(self.additional_data['page'])} / section :" \
+        return f"Section not found / url : {unquote(self.additional_data['page'])} / section :" \
                f" {self.additional_data['section_not_found']}"
 
 
@@ -84,9 +85,11 @@ class SpecificPokemonMachineMoveError(SpecificPokemonMoveError):
         self.message = message
         self.additional_data = additional_data
 
+
 class UnsupportedException(RuntimeError):
     def __init__(self, message):
         self.message = message
+
 
 class InvalidConditionException(RuntimeError):
     def __init__(self, message):
