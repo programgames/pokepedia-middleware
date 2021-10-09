@@ -67,6 +67,8 @@ def get_steps_by_pokemon_method_and_gen(pokemon: Pokemon, generation: Generation
             return 1
     elif learn_method.identifier == MACHINE_TYPE and generationhelper.gen_to_int(generation) == 8:
         return 2
+    elif learn_method.identifier == EGG_TYPE:
+        return 1
     else:
         raise NotImplementedError(f'step not implemented for learnmethod {learn_method.identifier} and generation  '
                                   f'{generationhelper.gen_to_int(generation)}')

@@ -1,11 +1,10 @@
 from middleware.exception.exceptions import SpecificPokemonMachineMoveError
 from middleware.generator import pokepediapokemonmovegenerator
+from middleware.provider.database import pokemonmoveprovider
 from pokedex.db.tables import PokemonMoveMethod, Pokemon, Generation
 
 from middleware.util.helper import pokemonhelper, generationhelper, specificcasehelper, pokemonmovehelper
-from middleware.util.helper.pokemonmovehelper import LEVELING_UP_TYPE, MACHINE_TYPE
 from middleware.api.pokepedia import pokemonmoveapi, pokepedia_client
-from middleware.formatter.database import pokemonlevelmoveformatter, pokemonmachinemoveformatter
 from middleware.comparator import pokemonmachinemovecomparator
 
 
@@ -24,17 +23,11 @@ def process(generation: Generation, learn_method: PokemonMoveMethod, pokemon: Po
                                                             generationhelper.gen_id_to_int(
                                                                 generation.identifier), pokepedia_pokemon_name, step)
             form_order = _format_forms(pokepedia_data)
-            if learn_method.identifier == LEVELING_UP_TYPE:
-                database_moves = pokemonlevelmoveformatter.get_formatted_level_up_database_moves(pokemon, generation,
-                                                                                                 learn_method,
-                                                                                                 form_order)
-            elif learn_method.identifier == MACHINE_TYPE:
-                database_moves = pokemonmachinemoveformatter.get_formatted_machine_database_moves(pokemon, generation,
-                                                                                                  learn_method,
-                                                                                                  form_order, step)
-            else:
-                raise NotImplementedError(f'Can\'t process pokemon move : invalid learn method'
-                                          f' {learn_method.identifier}')
+
+            if learn_method.identifier == 'egg':
+                continue
+            database_moves = pokemonmoveprovider.get_database_pokemon_moves(pokemon, generation, learn_method,
+                                                                            form_order, step)
 
             if not pokemonmachinemovecomparator.compare_moves(pokepedia_data['satanized']['forms'], database_moves,
                                                               form_order):
@@ -42,13 +35,15 @@ def process(generation: Generation, learn_method: PokemonMoveMethod, pokemon: Po
                 _generate_and_upload(learn_method, pokemon, generation, database_moves, pokepedia_data,
                                      pokepedia_pokemon_name,
                                      form_order, step)
+
         except SpecificPokemonMachineMoveError as exc:
             print(f'{pokepedia_pokemon_name},  doesnt not learn any moves, check manually')
-            generated = pokepediapokemonmovegenerator.generate_specific_no_pokemon_machine_move_wikitext(pokemon,
-                                                                                                         generation,
-                                                                                                         step)
-            pokepedia_client.upload(exc.additional_data['section'], exc.additional_data['page'], generated,
-                                    'Mis a jour des attaques apprises')
+            raise exc
+            # generated = pokepediapokemonmovegenerator.generate_specific_no_pokemon_machine_move_wikitext(pokemon,
+            #                                                                                              generation,
+            #                                                                                              step)
+            # pokepedia_client.upload(exc.additional_data['section'], exc.additional_data['page'], generated,
+            #                         'Mis a jour des attaques apprises')
 
 
 def _get_pokepedia_moves_by_method(pokemon: Pokemon, learn_method: PokemonMoveMethod, gen: int,

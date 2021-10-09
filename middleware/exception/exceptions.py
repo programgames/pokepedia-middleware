@@ -86,6 +86,14 @@ class SpecificPokemonMachineMoveError(SpecificPokemonMoveError):
         self.additional_data = additional_data
 
 
+class NoMachineMoveLearnAndNoTemplate(SpecificPokemonMachineMoveError):
+    additional_data = {}
+
+    def __init__(self, message, additional_data):
+        self.message = message
+        self.additional_data = additional_data
+
+
 class UnsupportedException(RuntimeError):
     def __init__(self, message):
         self.message = message

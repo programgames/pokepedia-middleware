@@ -25,12 +25,12 @@ def check_and_sanitize_moves(moves: list, pokemon_name: str) -> dict:
     }
     if not re.search(r'(\[\[Septième génération]])|(\[\[Huitième génération]])|'
                      r'(Par montée en \[\[niveau]])|(Par \[\[CT]]\/\[\[CS]])|'
-                     r'\{\{Jeu|SL}} et \{\{Jeu|USUL}}',
+                     r'\{\{Jeu|SL}} et \{\{Jeu|USUL}}|(Par \[\[reproduction]])',
                      moves[0]):
         raise WrongHeaderError('Invalid header: {}'.format(moves[0]))
     section['top_comments'].append(moves[0])
     del moves[0]
-    template_regex = r'.*{{#invoke:Apprentissage\|(niveau|capsule|disque)\|.*'
+    template_regex = r'.*{{#invoke:Apprentissage\|(niveau|capsule|disque|reproduction)\|.*'
 
     r = re.compile(template_regex)
 

@@ -49,6 +49,15 @@ def create_parser():
                                                 help="enable debug")
     cmd_sync_pokemon_machine_moves.set_defaults(func=command_sync_pokemon_machine_moves)
 
+    cmd_sync_pokemon_egg_moves = cmds.add_parser(
+        'syncpokemoneggmoves', help=u'Sync pokemon egg moves',
+        parents=[common_parser])
+    cmd_sync_pokemon_egg_moves.add_argument("--start", help="Pokemon number to start synchro", required=True)
+    cmd_sync_pokemon_egg_moves.add_argument("--gen", help="Specific gen to sync", required=False)
+    cmd_sync_pokemon_egg_moves.add_argument("-d", "--debug", action="store_true",
+                                                help="enable debug")
+    cmd_sync_pokemon_egg_moves.set_defaults(func=command_sync_pokemon_egg_moves)
+
     init_command = cmds.add_parser(
         'init', help=u'init project',
         parents=[common_parser])
@@ -69,6 +78,10 @@ def command_sync_pokemon_level_moves(parser, args):
 
 def command_sync_pokemon_machine_moves(parser, args):
     pokemonmovehandler.process_pokemon_move('machine', int(args.start), int(args.gen) if args.gen else None, args.debug)
+
+
+def command_sync_pokemon_egg_moves(parser, args):
+    pokemonmovehandler.process_pokemon_move('egg', int(args.start), int(args.gen) if args.gen else None, args.debug)
 
 
 def command_clear_cache(parser, args):

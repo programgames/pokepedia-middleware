@@ -1,3 +1,7 @@
+from random import random
+
+from pyuca import Collator
+
 from middleware.db.tables import PokemonMoveAvailability
 from middleware.exception import InvalidConditionException
 from middleware.formatter.dto.machinemove import MachineMove
@@ -109,7 +113,7 @@ def _filter_machine_moves(preformatteds: list, version_groups: list, step: int) 
                     unspecifics.append(preformatted.name)
                     pre_filtered.append(preformatted)
 
-    return list(set(pre_filtered))
+    return pre_filtered
 
 
 def _format_machine(move: MachineMove) -> str:
@@ -123,12 +127,32 @@ def _format_machine(move: MachineMove) -> str:
 
 
 def _sort_pokemon_machine_moves(formatteds: dict) -> list:
+    splitteds = {}
     sorted_moves = []
 
-    sorteds_keys = sorted(formatteds, key=lambda k: float(k))
-    for key in sorteds_keys:
-        sorted_moves.append(formatteds[key])
-    return list(dict.fromkeys(sorted_moves))
+    sorteds = sorted(formatteds, key=lambda k: float(k))
+    pre_sorted = OrderedDict()
+    for value in sorteds:
+        pre_sorted[value] = formatteds[value]
+    for level, formatted in pre_sorted.items():
+        level = float(level)
+
+        if int(level) not in splitteds:
+            splitteds[int(level)] = {}
+        splitteds[int(level)][level] = formatted
+
+    for key, splitteds_moves in splitteds.items():
+        c = Collator()
+
+        splitteds[key] = sorted(splitteds_moves.values(), key=c.sort_key)
+
+    last = None
+    for level, moves in splitteds.items():
+        for move in moves:
+            if move != last:
+                last = move
+                sorted_moves.append(move)
+    return sorted_moves
 
 
 def _get_formatted_moves_by_pokemons(pokemon: Pokemon, generation: Generation, learn_method: PokemonMoveMethod,
@@ -143,7 +167,7 @@ def _get_formatted_moves_by_pokemons(pokemon: Pokemon, generation: Generation, l
         string = _format_machine(move)
         weight = _calculate_weight(move)
         if weight in formatteds.keys():
-            weight += 0.001
+            weight += random()
         formatteds[weight] = string
 
     formatteds = _sort_pokemon_machine_moves(formatteds)

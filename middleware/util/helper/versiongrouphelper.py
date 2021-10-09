@@ -94,6 +94,8 @@ def get_vg_string_from_vg_identifiers(specifics_vgs: list) -> str:
         return 'DPP'
     elif all(vg in ['yellow'] for vg in specifics_vgs):
         return 'J'
+    elif all(vg in ['red-blue'] for vg in specifics_vgs):
+        return 'RB'
     elif all(vg in ['emerald', 'ruby-sapphire'] for vg in specifics_vgs):
         return 'RSE'
     elif all(vg in ['heartgold-soulsilver'] for vg in specifics_vgs):
