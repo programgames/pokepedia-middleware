@@ -1,8 +1,9 @@
 from middleware.connection.conn import session
 from middleware.api.pokepedia import pokemonmoveapiclient
 from middleware.db import repository
-from middleware.exception.exceptions import TemplateNotFoundError, SpecificPokemonMachineMoveError, \
-    UnsupportedException, NoMachineMoveLearnAndNoTemplate
+from middleware.exception.exceptions import TemplateNotFoundError, \
+    UnsupportedException, NoEggMoveLearnAndNoTemplateException, MissingMachineMoveTemplateException, \
+    NoMachineMoveLearnAndNoTemplateException
 from middleware.satanizer import pokepediapokemonmovesatanizer
 from middleware.util.helper import databasehelper, machinehelper
 from middleware.util.helper.pokemonmovehelper import LEVELING_UP_TYPE, MACHINE_TYPE, EGG_TYPE
@@ -62,9 +63,14 @@ def get_pokemon_moves(pokemon: Pokemon, name: str, generation: int, method_type:
                                       .filter(PokemonMove.pokemon_move_method_id == machine_method.id) \
                                       .all())
             if pkmmoves_number == 0:
-                raise NoMachineMoveLearnAndNoTemplate(f'{pokemon.identifier} does not learn any moves my machine',
-                                                      {'section': moves_data['section'], 'page': moves_data['page'],
-                                                       'wikitext': moves_data['wikitext']})
+                raise NoMachineMoveLearnAndNoTemplateException(
+                    f'{pokemon.identifier} does not learn any moves my machine',
+                    {'section': moves_data['section'], 'page': moves_data['page'],
+                     'wikitext': moves_data['wikitext']})
+            else:
+                raise MissingMachineMoveTemplateException(f'{pokemon.identifier} miss machine move template',
+                                                          {'section': moves_data['section'], 'page': moves_data['page'],
+                                                           'wikitext': moves_data['wikitext']})
         elif method_type == EGG_TYPE:
             machine_method = session.query(PokemonMoveMethod).filter(PokemonMoveMethod.identifier == method_type).one()
             version = repository.find_highest_version_group_by_generation(generation)
@@ -75,9 +81,10 @@ def get_pokemon_moves(pokemon: Pokemon, name: str, generation: int, method_type:
                                   .filter(PokemonMove.pokemon_move_method_id == machine_method.id) \
                                   .all())
             if pkmmoves_number == 0:
-                raise NoMachineMoveLearnAndNoTemplate(f'{pokemon.identifier} does not learn any moves my reproduction',
-                                                      {'section': moves_data['section'], 'page': moves_data['page'],
-                                                       'wikitext': moves_data['wikitext']})
+                raise NoEggMoveLearnAndNoTemplateException(
+                    f'{pokemon.identifier} does not learn any moves my reproduction',
+                    {'section': moves_data['section'], 'page': moves_data['page'],
+                     'wikitext': moves_data['wikitext']})
         raise exc
     return moves_data
 

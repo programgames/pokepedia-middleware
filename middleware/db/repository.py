@@ -3,7 +3,7 @@ from pokedex.db.tables import *
 from middleware.db.tables import PokemonMoveAvailability, MoveNameChangelog
 from middleware.connection.conn import session
 from middleware.db.tables import PokemonTypePast, CacheItem
-from middleware.util.helper import languagehelper, generationhelper
+from middleware.util.helper import languagehelper, generationhelper, specificcasehelper
 import functools
 from collections import OrderedDict
 
@@ -297,6 +297,9 @@ def get_item_from_cache(key: str, func):
 
 def find_pokemon_by_french_form_name(original_pokemon: Pokemon, name: str):
     # noinspection PyUnresolvedReferences
+    specific_case = specificcasehelper.is_specific_pokemon_form_name(name)
+    if specific_case:
+        return specific_case
     form_name_table = PokemonForm.names_table
     form_name_entities = session \
         .query(form_name_table) \

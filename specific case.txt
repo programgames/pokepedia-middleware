@@ -1,2 +1,3 @@
-mew pokemon machine moves are not handled yet, as it required too much change for nothing
-in gen 3, dive accessible in lgfr only by cheating, so in pokepedia with hide it
+- mew pokemon machine moves are not handled yet, as it required too much change for nothing
+- in gen 3, dive accessible in lgfr only by cheating, so in pokepedia we hide it
+- in gen 3, default deoxys forms are different between version groups, so there is a specific process for them

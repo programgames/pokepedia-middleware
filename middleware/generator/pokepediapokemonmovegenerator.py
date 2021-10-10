@@ -4,7 +4,7 @@ import middleware.db.repository as repository
 from middleware.util.helper import pokemonmovehelper, generationhelper
 
 
-def generate_move_wiki_text(learn_method: PokemonMoveMethod, pokemon: Pokemon, generation: Generation, forms: dict,
+def generate_move_wiki_text(learn_method: PokemonMoveMethod, pokemon: Pokemon, generation: Generation, database_data: dict,
                             pokepedia_data: dict, pokepedia_pokemon_name: str, form_order: dict, step: int):
     generated = ''
 
@@ -17,21 +17,21 @@ def generate_move_wiki_text(learn_method: PokemonMoveMethod, pokemon: Pokemon, g
                                                                                  generationhelper.gen_to_int(
                                                                                      generation), step)
 
-    if len(forms) == 1:
+    if len(database_data) == 1:
         for comment in pokepedia_data['forms'][pokepedia_pokemon_name]['top_comments']:
             generated += comment + "\r\n"
         generated += "{{"f"#invoke:Apprentissage|{pokepedia_learn_method}|type={french_slot1_name}|" \
                      f"génération={generationhelper.gen_id_to_int(generation.identifier)}|\r\n"
 
         # noinspection PyTypeChecker
-        for move in forms[pokepedia_pokemon_name]:
+        for move in database_data[pokepedia_pokemon_name]:
             generated += move.replace('’', '\'') + '\r\n'
         generated += "}}\r\n"
         for comment in pokepedia_data['forms'][pokepedia_pokemon_name]['bot_comments']:
             generated += comment + "\r\n"
         return generated
 
-    for form, moves in forms.items():
+    for form, moves in database_data.items():
         form = form + form_order[form]
         if 7 <= generationhelper.gen_to_int(generation) <= 8:
             generated += "===== " + form + " =====" + '\r\n'

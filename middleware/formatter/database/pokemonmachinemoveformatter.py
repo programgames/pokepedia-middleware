@@ -41,10 +41,20 @@ def _get_preformatteds_database_pokemon_machine_moves(pokemon: Pokemon, generati
         version_groups = pokemonmovehelper.get_pokepedia_version_groups_identifiers_for_pkm_machine_by_step(
             gen_number, step)
 
-    moves = repository.find_moves_by_pokemon_move_method_and_version_groups(
-        pokemon, learn_method,
-        version_groups
-    )
+    if specificcasehelper.is_specific_pokemon_machine_move(pokemon, generation):
+        moves = session.query(PokemonMove) \
+            .join(PokemonMove.version_group) \
+            .join(PokemonMove.pokemon) \
+            .filter(Pokemon.identifier.in_(['deoxys-normal','deoxys-attack','deoxys-defense','deoxys-speed'])) \
+            .filter(PokemonMove.pokemon_move_method_id == learn_method.id) \
+            .filter(VersionGroup.identifier.in_(version_groups)) \
+            .order_by(VersionGroup.identifier) \
+            .all()
+    else:
+        moves = repository.find_moves_by_pokemon_move_method_and_version_groups(
+            pokemon, learn_method,
+            version_groups
+        )
 
     moves = specificcasehelper.filter_dive_pokemon_move_lgfr(moves)
     for pokemon_move_entity in moves:

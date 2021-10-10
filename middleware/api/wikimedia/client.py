@@ -16,7 +16,9 @@ class WikimediaClient:
         result = content.json()
 
         if 'parse' not in result:
-            raise InvalidResponse('Invalid response from url {}, parse information is missing'.format(url))
+            error = result.errors[0]['code']
+            raise InvalidResponse('Invalid response from url {}, parse information is missing , error : {}'.format(
+                url, error))
 
         return result
 

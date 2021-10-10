@@ -118,11 +118,11 @@ def load_specific_pokemon_move_availabilities():
                                                 'hoopa', ['hoopa-unbound'], False, True, False, False, False)
     save_pokemon_move_availabilities_with_forms([sun_moon_vg],
                                                 'lycanroc-midday', ['lycanroc-midnight'],
-                                                False, True, True, False, True)
+                                                False, True, False, False, True)
     save_pokemon_move_availabilities_with_forms([ultra_sun_ultra_moon_vg],
                                                 'lycanroc-midday', ['lycanroc-midnight', 'lycanroc-dusk'],
-                                                False, True, True, False, True)
-    save_pokemon_move_availabilities_with_forms([sun_moon_vg,ultra_sun_ultra_moon_vg],
+                                                False, True, False, False, True)
+    save_pokemon_move_availabilities_with_forms([sun_moon_vg, ultra_sun_ultra_moon_vg],
                                                 'thundurus-incarnate', ['thundurus-therian'],
                                                 False, False, True, False, False)
     save_pokemon_move_availabilities_with_forms([ultra_sun_ultra_moon_vg],
@@ -130,14 +130,16 @@ def load_specific_pokemon_move_availabilities():
     # gen 8
     save_pokemon_move_availabilities_with_forms([sword_shield_vg],
                                                 'meowstic-male', ['meowstic-female'],
-                                                False, True, False, False, False)
+                                                False, True, True, False, False)
     save_pokemon_move_availabilities_with_forms([sword_shield_vg],
-                                                'indeedee-male', ['indeedee-female'])
+                                                'indeedee-male', ['indeedee-female'],
+                                                False, True, True, True, False)
     save_pokemon_move_availabilities_with_forms([sword_shield_vg],
                                                 'lycanroc-midday', ['lycanroc-midnight', 'lycanroc-dusk'],
                                                 False, True, True, False, True)
     save_pokemon_move_availabilities_with_forms([sword_shield_vg],
-                                                'toxtricity-amped', ['toxtricity-low-key'])
+                                                'toxtricity-amped', ['toxtricity-low-key'],
+                                                False, True, True, False, True)
     save_pokemon_move_availabilities_with_forms([sword_shield_vg],
                                                 'urshifu-single-strike', ['urshifu-rapid-strike'])
     save_pokemon_move_availabilities_with_forms([sword_shield_vg],

@@ -62,7 +62,7 @@ class TemplateNotFoundError(DataFormatError):
         self.additional_data = additional_data
 
 
-class SpecificCaseError(RuntimeError):
+class PokemonMoveException(RuntimeError):
     additional_data = {}
 
     def __init__(self, message, additional_data):
@@ -70,7 +70,14 @@ class SpecificCaseError(RuntimeError):
         self.additional_data = additional_data
 
 
-class SpecificPokemonMoveError(SpecificCaseError):
+class NoMachineMoveLearnAndNoTemplateException(PokemonMoveException):
+    additional_data = {}
+
+    def __init__(self, message, additional_data):
+        self.message = message
+        self.additional_data = additional_data
+
+class NoEggMoveLearnAndNoTemplateException(PokemonMoveException):
     additional_data = {}
 
     def __init__(self, message, additional_data):
@@ -78,15 +85,7 @@ class SpecificPokemonMoveError(SpecificCaseError):
         self.additional_data = additional_data
 
 
-class SpecificPokemonMachineMoveError(SpecificPokemonMoveError):
-    additional_data = {}
-
-    def __init__(self, message, additional_data):
-        self.message = message
-        self.additional_data = additional_data
-
-
-class NoMachineMoveLearnAndNoTemplate(SpecificPokemonMachineMoveError):
+class MissingMachineMoveTemplateException(PokemonMoveException):
     additional_data = {}
 
     def __init__(self, message, additional_data):

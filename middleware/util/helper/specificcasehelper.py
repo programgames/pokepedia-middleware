@@ -1,5 +1,7 @@
+from middleware.connection.conn import session
 from middleware.util.helper import generationhelper
 from middleware.util.helper.pokemonmovehelper import MACHINE_TYPE, EGG_TYPE
+from pokedex.db import util
 from pokedex.db.tables import PokemonMoveMethod, Pokemon, PokemonMove, Generation
 
 
@@ -18,3 +20,17 @@ def filter_dive_pokemon_move_lgfr(moves: list):
         else:
             filtered.append(pkmmove)
     return filtered
+
+
+def is_specific_pokemon_machine_move(pokemon: Pokemon, generation: Generation):
+    if generationhelper.gen_to_int(generation) == 3 and pokemon.identifier == 'deoxys-normal':
+        return True
+    return False
+
+
+def is_specific_pokemon_form_name(name):
+    if name == 'Wimessir mâle':
+        return util.get(session, Pokemon, 'indeedee-male')
+    elif name == 'Wimessir femelle':
+        return util.get(session, Pokemon, 'indeedee-female')
+    return None

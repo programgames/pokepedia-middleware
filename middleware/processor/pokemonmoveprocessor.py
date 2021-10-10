@@ -1,4 +1,5 @@
-from middleware.exception.exceptions import SpecificPokemonMachineMoveError
+from middleware.errorhandler import pokemonmoveerrorhandler
+from middleware.exception.exceptions import PokemonMoveException
 from middleware.generator import pokepediapokemonmovegenerator
 from middleware.provider.database import pokemonmoveprovider
 from pokedex.db.tables import PokemonMoveMethod, Pokemon, Generation
@@ -36,14 +37,8 @@ def process(generation: Generation, learn_method: PokemonMoveMethod, pokemon: Po
                                      pokepedia_pokemon_name,
                                      form_order, step)
 
-        except SpecificPokemonMachineMoveError as exc:
-            print(f'{pokepedia_pokemon_name},  doesnt not learn any moves, check manually')
-            raise exc
-            # generated = pokepediapokemonmovegenerator.generate_specific_no_pokemon_machine_move_wikitext(pokemon,
-            #                                                                                              generation,
-            #                                                                                              step)
-            # pokepedia_client.upload(exc.additional_data['section'], exc.additional_data['page'], generated,
-            #                         'Mis a jour des attaques apprises')
+        except PokemonMoveException as exc:
+            pokemonmoveerrorhandler.handlerpokemonmoveerror(exc, pokemon, generation, step,pokepedia_pokemon_name)
 
 
 def _get_pokepedia_moves_by_method(pokemon: Pokemon, learn_method: PokemonMoveMethod, gen: int,
