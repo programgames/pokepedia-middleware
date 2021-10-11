@@ -1,5 +1,6 @@
-from middleware.formatter.database import pokemonlevelmoveformatter, pokemonmachinemoveformatter
-from middleware.util.helper.pokemonmovehelper import LEVELING_UP_TYPE, MACHINE_TYPE
+from middleware.formatter.database import pokemonlevelmoveformatter, pokemonmachinemoveformatter, \
+    pokemoneggmoveformatter
+from middleware.util.helper.pokemonmovehelper import LEVELING_UP_TYPE, MACHINE_TYPE, EGG_TYPE
 from pokedex.db.tables import Pokemon, Generation, PokemonMoveMethod
 
 
@@ -11,6 +12,10 @@ def get_database_pokemon_moves(pokemon: Pokemon, generation: Generation, learn_m
                                                                                form_order)
     elif learn_method.identifier == MACHINE_TYPE:
         return pokemonmachinemoveformatter.get_formatted_machine_database_moves(pokemon, generation,
+                                                                                learn_method, form_order,
+                                                                                step)
+    elif learn_method.identifier == EGG_TYPE:
+        return pokemoneggmoveformatter.get_formatted_egg_database_moves(pokemon, generation,
                                                                                 learn_method, form_order,
                                                                                 step)
     else:

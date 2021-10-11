@@ -25,8 +25,6 @@ def process(generation: Generation, learn_method: PokemonMoveMethod, pokemon: Po
                                                                 generation.identifier), pokepedia_pokemon_name, step)
             form_order = _format_forms(pokepedia_data)
 
-            if learn_method.identifier == 'egg':
-                continue
             database_moves = pokemonmoveprovider.get_database_pokemon_moves(pokemon, generation, learn_method,
                                                                             form_order, step)
 

@@ -77,7 +77,16 @@ class NoMachineMoveLearnAndNoTemplateException(PokemonMoveException):
         self.message = message
         self.additional_data = additional_data
 
+
 class NoEggMoveLearnAndNoTemplateException(PokemonMoveException):
+    additional_data = {}
+
+    def __init__(self, message, additional_data):
+        self.message = message
+        self.additional_data = additional_data
+
+
+class MissingEggMoveTemplateException(PokemonMoveException):
     additional_data = {}
 
     def __init__(self, message, additional_data):
