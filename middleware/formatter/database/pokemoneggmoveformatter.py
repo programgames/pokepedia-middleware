@@ -4,6 +4,7 @@ from pyuca import Collator
 
 from middleware.db.tables import PokemonMoveAvailability
 from middleware.exception import InvalidConditionException
+from middleware.formatter.dto.eggmove import EggMove
 from middleware.formatter.dto.machinemove import MachineMove
 from middleware.util.helper import generationhelper, machinehelper, languagehelper, pokemonmovehelper, \
     versiongrouphelper, specificcasehelper
@@ -47,72 +48,39 @@ def _get_preformatteds_database_pokemon_egg_moves(pokemon: Pokemon, generation: 
         move_name = repository.get_french_move_by_pokemon_move_and_generation(pokemon_move_entity,
                                                                               generation)
 
-        move = _fill_machine_move(move_name['name'], move_name['alias'], pokemon_move_entity,
-                                  generationhelper.gen_to_int(
-                                      generation))
+        move = _fill_egg_move(move_name['name'], move_name['alias'], pokemon_move_entity,
+                              generationhelper.gen_to_int(
+                                  generation))
 
         preformatteds.append(move)
 
-    return _filter_machine_moves(preformatteds, version_groups, step)
+    return _filter_egg_moves(preformatteds, version_groups, step)
 
 
-def _filter_machine_moves(preformatteds: list, version_groups: list, step: int) -> list:
+def _filter_egg_moves(preformatteds: list, version_groups: list, step: int) -> list:
     pre_filtered = []
     unspecifics = []
-    for preformatted in preformatteds:  # type: MachineMove
-
-        # gen 8 machine moves are in two categories
-        if any(version_group == 'sword-shield' for version_group in
-               version_groups) and preformatted.is_hm and step == 1:
-            continue
-        if any(version_group == 'sword-shield' for version_group in
-               version_groups) and not preformatted.is_hm and step == 2:
-            continue
-
-        different_item = any((machine.name == preformatted.name and machine.item != preformatted.item) for machine in
-                             preformatteds)
-        different_name = any(machine.item == preformatted.item and machine.name != preformatted.name
-                             for machine in
-                             preformatteds)
-        if different_item:
-            vg = preformatted.version_group
-            for dto in preformatteds:
-                if dto.item == preformatted.item and dto.version_group != preformatted.version_group:
-                    preformatted = dto
-            preformatted.different_item = True
-            preformatted.add_vg_if_possible(vg)
-            pre_filtered.append(preformatted)
-        elif different_name:
-            vg = preformatted.version_group
-            for dto in preformatteds:
-                if dto.name == preformatted.name and dto.version_group != preformatted.version_group:
-                    preformatted = dto
-            preformatted.different_name = True
-            preformatted.add_vg_if_possible(vg)
-            pre_filtered.append(preformatted)
-        else:
-            if preformatted.name not in unspecifics:
-                count = 1
-                specific_vgs = [preformatted.version_group]
-                for move_dto in preformatteds:
-                    if move_dto.item == preformatted.item and move_dto.is_hm == preformatted.is_hm \
-                            and move_dto.name == preformatted.name \
-                            and move_dto.version_group != preformatted.version_group:
-                        count += 1
-                        if move_dto.version_group not in specific_vgs:
-                            specific_vgs.append(move_dto.version_group)
-                if count < len(version_groups):
-                    preformatted.specifics_vgs = specific_vgs
-                    preformatted.different_version_group = True
-                    pre_filtered.append(preformatted)
-                else:
-                    unspecifics.append(preformatted.name)
-                    pre_filtered.append(preformatted)
+    for preformatted in preformatteds:  # type: EggMove
+        if preformatted.name not in unspecifics:
+            count = 1
+            specific_vgs = [preformatted.version_group]
+            for move_dto in preformatteds:
+                if move_dto.name == preformatted.name and move_dto.version_group != preformatted.version_group:
+                    count += 1
+                    if move_dto.version_group not in specific_vgs:
+                        specific_vgs.append(move_dto.version_group)
+            if count < len(version_groups):
+                preformatted.specifics_vgs = specific_vgs
+                preformatted.different_version_group = True
+                pre_filtered.append(preformatted)
+            else:
+                unspecifics.append(preformatted.name)
+                pre_filtered.append(preformatted)
 
     return pre_filtered
 
 
-def _format_machine(move: MachineMove) -> str:
+def _format_egg_move(move: EggMove) -> str:
     if move.alias:
         name = f"{move.item[2:]} / " + move.name + "{{!}}" + move.alias
     else:
@@ -122,7 +90,7 @@ def _format_machine(move: MachineMove) -> str:
     return name
 
 
-def _sort_pokemon_machine_moves(formatteds: dict) -> list:
+def _sort_pokemon_egg_moves(formatteds: dict) -> list:
     splitteds = {}
     sorted_moves = []
 
