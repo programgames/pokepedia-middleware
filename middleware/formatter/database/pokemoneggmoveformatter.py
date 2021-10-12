@@ -5,8 +5,7 @@ from pyuca import Collator
 from middleware.db.tables import PokemonMoveAvailability
 from middleware.exception import InvalidConditionException
 from middleware.formatter.dto.eggmove import EggMove
-from middleware.formatter.dto.machinemove import MachineMove
-from middleware.util.helper import generationhelper, machinehelper, languagehelper, pokemonmovehelper, \
+from middleware.util.helper import generationhelper, languagehelper, pokemonmovehelper, \
     versiongrouphelper, specificcasehelper
 from pokedex.db.tables import PokemonMoveMethod, Pokemon, Generation, VersionGroup, PokemonMove
 from middleware.db import repository
@@ -21,7 +20,7 @@ from pokedex.db import util
 
 def get_formatted_egg_database_moves(pokemon: Pokemon, generation: Generation, learn_method: PokemonMoveMethod,
                                      form_order: dict, step: int):
-    return _get_pokemon_machine_move_forms(pokemon, generation, learn_method, form_order, step)
+    return _get_pokemon_egg_move_forms(pokemon, generation, learn_method, form_order, step)
 
 
 def _get_preformatteds_database_pokemon_egg_moves(pokemon: Pokemon, generation: Generation, step: int,
@@ -35,7 +34,7 @@ def _get_preformatteds_database_pokemon_egg_moves(pokemon: Pokemon, generation: 
     if (pokemon.identifier == 'meltan' or pokemon.identifier == 'melmetal') and gen_number == 7:
         version_groups = ['lets-go-pikachu-lets-go-eevee']
     else:
-        version_groups = pokemonmovehelper.get_pokepedia_version_groups_identifiers_for_pkm_machine_by_step(
+        version_groups = pokemonmovehelper.get_pokepedia_version_groups_identifiers_for_pkm_egg_by_step(
             gen_number, step)
 
     moves = repository.find_moves_by_pokemon_move_method_and_version_groups(
@@ -82,11 +81,11 @@ def _filter_egg_moves(preformatteds: list, version_groups: list, step: int) -> l
 
 def _format_egg_move(move: EggMove) -> str:
     if move.alias:
-        name = f"{move.item[2:]} / " + move.name + "{{!}}" + move.alias
+        name = f"{move.name}" + "{{!}}" + move.alias
     else:
-        name = f"{move.item[2:]} / {move.name}"
-    if move.different_name or move.different_item or move.different_version_group:
-        name += f" / {versiongrouphelper.get_vg_string_from_vg_identifiers(move.specifics_vgs)}"
+        name = f"{move.name}"
+    if len(move.specifics_vgs) > 1 and move.different_version_group:
+        name += f"{name}{versiongrouphelper.get_vg_string_from_vg_identifiers(move.specifics_vgs)}"
     return name
 
 
@@ -128,7 +127,7 @@ def _get_formatted_moves_by_pokemons(pokemon: Pokemon, generation: Generation, l
     formatteds = {}
 
     for move in pre_formatteds:
-        string = _format_machine(move)
+        string = _format_egg_move(move)
         weight = _calculate_weight(move)
         if weight in formatteds.keys():
             weight += random()
@@ -138,11 +137,11 @@ def _get_formatted_moves_by_pokemons(pokemon: Pokemon, generation: Generation, l
     return formatteds
 
 
-def _get_pokemon_machine_move_forms(pokemon: Pokemon, generation: Generation, learn_method: PokemonMoveMethod,
+def _get_pokemon_egg_move_forms(pokemon: Pokemon, generation: Generation, learn_method: PokemonMoveMethod,
                                     form_order: dict, step):
     gen_number = generationhelper.gen_to_int(generation)
     """
-    Return a list of  fully formatted pokemon machine move by forms
+    Return a list of  fully formatted pokemon egg move by forms
     """
 
     if 1 <= gen_number <= 6 or gen_number == 8:
@@ -168,7 +167,7 @@ def _get_pokemon_machine_move_forms(pokemon: Pokemon, generation: Generation, le
 
     has_multiple_form_for_move_method = False
     if move_forms:
-        has_multiple_form_for_move_method = move_forms[0].machine
+        has_multiple_form_for_move_method = move_forms[0].egg
 
     if not move_forms or move_forms[0].has_pokepedia_page or not has_multiple_form_for_move_method:
         if len(form_order) > 1:
@@ -200,19 +199,10 @@ def _get_pokemon_machine_move_forms(pokemon: Pokemon, generation: Generation, le
 
 
 # noinspection PyUnresolvedReferences
-def _fill_machine_move(name: str, alias: str, pokemon_move_entity: PokemonMove,
-                       generation: int) -> MachineMove:
-    move = MachineMove()
+def _fill_egg_move(name: str, alias: str, pokemon_move_entity: PokemonMove,
+                       generation: int) -> EggMove:
+    move = EggMove()
     move.name = name
     move.alias = alias
-    move.is_hm = machinehelper.is_hm(pokemon_move_entity.machine, generation)
-    move.item = pokemon_move_entity.machine.item.name_map[languagehelper.french]
     move.version_group = pokemon_move_entity.version_group.identifier
     return move
-
-
-def _calculate_weight(move: MachineMove):
-    """
-    Sort by no hm , then hm
-    """
-    return int(re.search(r'\d+', move.item).group(0)) * (1000 if move.is_hm else 1)
