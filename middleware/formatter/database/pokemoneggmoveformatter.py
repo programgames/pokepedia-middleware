@@ -37,7 +37,7 @@ def _get_preformatteds_database_pokemon_egg_moves(pokemon: Pokemon, generation: 
         version_groups = pokemonmovehelper.get_pokepedia_version_groups_identifiers_for_pkm_egg_by_step(
             gen_number, step)
 
-    moves = repository.find_moves_by_pokemon_move_method_and_version_groups(
+    moves = repository.find_moves_by_pokemon_move_method_and_version_groups_with_concat(
         pokemon, learn_method,
         version_groups
     )

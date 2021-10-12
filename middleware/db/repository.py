@@ -6,7 +6,7 @@ from middleware.db.tables import PokemonTypePast, CacheItem
 from middleware.util.helper import languagehelper, generationhelper, specificcasehelper
 import functools
 from collections import OrderedDict
-
+from sqlalchemy import func
 """Contains functions using the repository pattern to encapsulate database requests
 """
 
@@ -209,16 +209,17 @@ def find_moves_by_pokemon_move_method_and_version_groups(pkm: Pokemon, pkm_move_
 # noinspection PyUnresolvedReferences
 def find_moves_by_pokemon_move_method_and_version_groups_with_concat(pkm: Pokemon, pkm_move_method: PokemonMoveMethod,
                                                          vgs_identifier: list):
-    return session.query(PokemonMove) \
+    test =  session.query(PokemonMove,func.group_concat(VersionGroup.identifier,',')) \
         .join(PokemonMove.version_group) \
         .join(PokemonMove.pokemon) \
+        .join(PokemonMove.move) \
         .filter(Pokemon.id == pkm.id) \
         .filter(PokemonMove.pokemon_move_method_id == pkm_move_method.id) \
         .filter(VersionGroup.identifier.in_(vgs_identifier)) \
-        .order_by(VersionGroup.identifier) \
+        .group_by(Move.identifier) \
         .all()
 
-
+    return  test
 def get_french_move_by_pokemon_move_and_generation(pokemon_move: PokemonMove, gen: Generation):
     move = session.query(Move) \
         .filter(Move.id == pokemon_move.move_id).one()
