@@ -212,7 +212,7 @@ def find_moves_by_pokemon_move_method_and_version_groups(pkm: Pokemon, pkm_move_
 def find_moves_by_pokemon_move_method_and_version_groups_with_concat(pkm: Pokemon, pkm_move_method: PokemonMoveMethod,
                                                                      vgs_identifier: list):
 
-    test =  session.query(Move, sqlite.group_concat_sqlite(VersionGroup.identifier, '/')) \
+    return session.query(Move, sqlite.group_concat_sqlite(VersionGroup.identifier, '/')) \
         .join(PokemonMove.version_group) \
         .join(PokemonMove.pokemon) \
         .join(PokemonMove.move) \
@@ -222,12 +222,25 @@ def find_moves_by_pokemon_move_method_and_version_groups_with_concat(pkm: Pokemo
         .group_by(Move.identifier) \
         .all()
 
-    return test
-
 
 def get_french_move_by_pokemon_move_and_generation(pokemon_move: PokemonMove, gen: Generation):
     move = session.query(Move) \
         .filter(Move.id == pokemon_move.move_id).one()
+
+    alias = session.query(MoveNameChangelog) \
+        .join(MoveNameChangelog.language) \
+        .join(MoveNameChangelog.generation) \
+        .join(MoveNameChangelog.move) \
+        .filter(Language.iso639 == 'fr') \
+        .filter(move.id == Move.id) \
+        .filter(Generation.identifier == gen.identifier).first()  # type: MoveNameChangelog
+
+    return {
+        'name': move.name_map[languagehelper.french],
+        'alias': alias.name if alias else None
+    }
+
+def get_french_move_name_by_move_and_generation(move: Move, gen: Generation):
 
     alias = session.query(MoveNameChangelog) \
         .join(MoveNameChangelog.language) \

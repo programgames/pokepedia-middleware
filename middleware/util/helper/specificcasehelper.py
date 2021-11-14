@@ -2,7 +2,7 @@ from middleware.connection.conn import session
 from middleware.util.helper import generationhelper
 from middleware.util.helper.pokemonmovehelper import MACHINE_TYPE, EGG_TYPE
 from pokedex.db import util
-from pokedex.db.tables import PokemonMoveMethod, Pokemon, PokemonMove, Generation
+from pokedex.db.tables import PokemonMoveMethod, Pokemon, Generation
 
 
 def is_specific_pokemon_move_case(method: PokemonMoveMethod, pkm: Pokemon, gen: Generation):
@@ -13,9 +13,19 @@ def is_specific_pokemon_move_case(method: PokemonMoveMethod, pkm: Pokemon, gen: 
 
 
 def filter_dive_pokemon_move_lgfr(moves: list):
+    # deprecated : use remove_dive_move_lgfr instead()
     filtered = []
     for pkmmove in moves:
         if pkmmove.move.identifier == 'dive' and pkmmove.version_group.identifier == 'firered-leafgreen':
+            continue
+        else:
+            filtered.append(pkmmove)
+    return filtered
+
+def remove_dive_move_lgfr(moves: list):
+    filtered = []
+    for pkmmove in moves:
+        if pkmmove.Move.identifier == 'dive' and pkmmove.Move.identifier == 'firered-leafgreen':
             continue
         else:
             filtered.append(pkmmove)

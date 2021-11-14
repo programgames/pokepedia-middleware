@@ -42,16 +42,16 @@ def _get_preformatteds_database_pokemon_egg_moves(pokemon: Pokemon, generation: 
         version_groups
     )
 
-    moves = specificcasehelper.filter_dive_pokemon_move_lgfr(moves)
-    for pokemon_move_entity in moves:
-        move_name = repository.get_french_move_by_pokemon_move_and_generation(pokemon_move_entity,
+    moves = specificcasehelper.remove_dive_move_lgfr(moves)
+    for move_with_vg in moves:
+        move_name = repository.get_french_move_name_by_move_and_generation(move_with_vg.Move,
                                                                               generation)
 
-        move = _fill_egg_move(move_name['name'], move_name['alias'], pokemon_move_entity,
+        move_dto = _fill_egg_move(move_name['name'], move_name['alias'], move_with_vg,
                               generationhelper.gen_to_int(
                                   generation))
 
-        preformatteds.append(move)
+        preformatteds.append(move_dto)
 
     return _filter_egg_moves(preformatteds, version_groups, step)
 
@@ -133,7 +133,7 @@ def _get_formatted_moves_by_pokemons(pokemon: Pokemon, generation: Generation, l
             weight += random()
         formatteds[weight] = string
 
-    formatteds = _sort_pokemon_machine_moves(formatteds)
+    formatteds = _sort_pokemon_egg_moves(formatteds)
     return formatteds
 
 
@@ -199,10 +199,15 @@ def _get_pokemon_egg_move_forms(pokemon: Pokemon, generation: Generation, learn_
 
 
 # noinspection PyUnresolvedReferences
-def _fill_egg_move(name: str, alias: str, pokemon_move_entity: PokemonMove,
+def _fill_egg_move(name: str, alias: str, move_with_vg,
                        generation: int) -> EggMove:
     move = EggMove()
     move.name = name
     move.alias = alias
-    move.version_group = pokemon_move_entity.version_group.identifier
+    move.version_group = move_with_vg[1]
+    if '/' in move.version_group:
+        move.different_version_group = True
+        vgs = move.version_group.split('/')
+        for vg in vgs:
+            move.add_vg_if_possible(vg)
     return move
