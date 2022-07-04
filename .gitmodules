@@ -1,0 +1,3 @@
+[submodule "pokedex"]
+	path = pokedex
+	url = git@github.com:PokeAPI/pokedex.git
