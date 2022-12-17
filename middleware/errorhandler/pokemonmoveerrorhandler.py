@@ -3,7 +3,7 @@ from middleware.connection.conn import session
 from middleware.db import repository
 from middleware.db.tables import PokemonMoveAvailability
 from middleware.exception import PokemonMoveException, NoMachineMoveLearnAndNoTemplateException, \
-    MissingMachineMoveTemplateException, InvalidConditionException
+    MissingMachineMoveTemplateException, InvalidConditionException, MissingEggMoveTemplateException
 from middleware.generator import pokepediapokemonmovegenerator
 from middleware.provider.database import pokemonmoveprovider
 from middleware.util.helper import generationhelper, languagehelper
@@ -50,7 +50,36 @@ def handlerpokemonmoveerror(exc: PokemonMoveException, pokemon: Pokemon, generat
                 pokepedia_client.upload(exc.additional_data['section'], exc.additional_data['page'], generated,
                                         'Mis a jour des attaques apprises')
                 return
-    raise exc
+    elif isinstance(exc, MissingEggMoveTemplateException):
+        if not exc.additional_data['wikitext']:
+            specy = pokemon.species
+            specy_name = specy.name_map[languagehelper.french].replace(' ', '_')  # M. Mime
+            egg = util.get(session, PokemonMoveMethod, 'egg')
+
+            form_order = {specy_name: ''}
+            if generationhelper.gen_to_int(generation) > 6:
+                raise exc
+            pokepedia_data = {
+                'top_comments': ['=== Par [[reproduction]] ==='],
+                'forms': {
+                    pokepedia_pokemon_name: {
+                        'top_comments': [],
+                        'bot_comments': []
+                    },
+                },
+                'bot_comments': []
+            }
+            database_moves = pokemonmoveprovider.get_database_pokemon_moves(pokemon, generation, egg,
+                                                                            form_order, step)
+            generated = pokepediapokemonmovegenerator.generate_move_wiki_text(egg, pokemon, generation,
+                                                                              database_moves, pokepedia_data,
+                                                                              pokepedia_pokemon_name, form_order,
+                                                                              step)
+            print('Uploading correction')
+            pokepedia_client.upload(exc.additional_data['section'], exc.additional_data['page'], generated,
+                                    'Mis a jour des attaques apprises')
+            return
+
 
 def _has_multiple_forms_for_machine_moves(generation: Generation, step: int, pokemon: Pokemon):
     gen_number = generationhelper.gen_to_int(generation)

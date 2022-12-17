@@ -19,6 +19,8 @@ def get_pokepedia_invoke_learn_method(move_method: PokemonMoveMethod, gen: int, 
         french = 'capsule'
     elif move_method.identifier == MACHINE_TYPE and (gen == 8 and step == 2):
         french = 'disque'
+    elif move_method.identifier == EGG_TYPE and gen >= 2:
+        french = 'reproduction'
 
     if not french:
         raise InvalidConditionException('Impossible to translate learn method {} to french'.format(move_method.identifier))

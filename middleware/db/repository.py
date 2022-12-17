@@ -211,7 +211,6 @@ def find_moves_by_pokemon_move_method_and_version_groups(pkm: Pokemon, pkm_move_
 
 def find_moves_by_pokemon_move_method_and_version_groups_with_concat(pkm: Pokemon, pkm_move_method: PokemonMoveMethod,
                                                                      vgs_identifier: list):
-
     return session.query(Move, sqlite.group_concat_sqlite(VersionGroup.identifier, '/')) \
         .join(PokemonMove.version_group) \
         .join(PokemonMove.pokemon) \
@@ -240,8 +239,8 @@ def get_french_move_by_pokemon_move_and_generation(pokemon_move: PokemonMove, ge
         'alias': alias.name if alias else None
     }
 
-def get_french_move_name_by_move_and_generation(move: Move, gen: Generation):
 
+def get_french_move_name_by_move_and_generation(move: Move, gen: Generation):
     alias = session.query(MoveNameChangelog) \
         .join(MoveNameChangelog.language) \
         .join(MoveNameChangelog.generation) \
@@ -288,6 +287,27 @@ def find_highest_version_group_by_generation(generation) -> VersionGroup:
         return version_groups[0]
 
     return functools.reduce(lambda a, b: a if a.order > b.order else b, version_groups)
+
+
+def find_version_group_identifier_by_generation(generation, step: int) -> list:
+    if isinstance(generation, int):
+        generation = session.query(Generation).filter(Generation.identifier == generationhelper.gen_int_to_id(
+            generation)).one()
+    filter = ['colosseum', 'xd']
+    if generationhelper.gen_to_int(generation) == 7 and step == 1:
+        filter.append('lets-go-pikachu-lets-go-eevee')
+    if generationhelper.gen_to_int(generation) == 7 and step == 2:
+        filter.append('sun-moon')
+        filter.append('ultra-sun-ultra-moon')
+    version_groups = session.query(VersionGroup.identifier) \
+        .filter(VersionGroup.identifier.notin_(filter)) \
+        .filter(VersionGroup.generation_id == generation.id) \
+        .all()  # type: list
+
+    vgs = []
+    for vg in version_groups:
+        vgs.append(vg.identifier)
+    return vgs
 
 
 def find_french_slot1_name_by_gen(pokemon: Pokemon, generation: Generation) -> str:
@@ -360,3 +380,149 @@ def find_pokemon_by_french_form_name(original_pokemon: Pokemon, name: str):
                 # noinspection PyUnresolvedReferences
                 return form_entity.pokemon
     raise RuntimeError('form not found for name {}'.format(name))
+
+
+def find_minimal_pokemon_in_evolution_chain(pkm: Pokemon, gen: Generation):
+    if pkm.species.evolves_from_species_id == None:
+        return pkm
+
+    evolution_chain_species = pkm.species.evolution_chain.species
+
+    for specy in evolution_chain_species:
+        if specy.generation_id <= gen.id and specy.evolves_from_species_id == None:
+            return specy.default_pokemon
+
+    raise RuntimeError(f'No specy in evol chain found for pokemon : {pkm.identifier}')
+
+def find_pokemon_learning_move_by_egg_groups(pokemon: Pokemon, move: Move, generation: int, step: int):
+    filtersvg = []
+    if generation == 7 and step == 1:
+        filtersvg.append('lets-go-pikachu-lets-go-eevee')
+    if generation == 7 and step == 2:
+        filtersvg.append('sun-moon')
+        filtersvg.append('ultra-sun-ultra-moon')
+    pkmmoves = session.query(PokemonMove) \
+        .join(Pokemon) \
+        .join(VersionGroup) \
+        .join(PokemonSpecies, Pokemon.species_id == PokemonSpecies.id) \
+        .filter(PokemonMove.move_id == move.id) \
+        .filter(PokemonSpecies.generation_id <= generation) \
+        .filter(VersionGroup.generation_id == generation) \
+        .filter(VersionGroup.identifier.notin_(filtersvg)) \
+        .all()
+
+    return _build_pkm_parent_tree(pokemon, pkmmoves)
+
+def _is_breedable(specy: PokemonSpecies):
+    return specy.egg_groups[0].identifier not in ['no-eggs', 'indeterminate']
+
+
+
+
+def _build_pkm_parent_tree(pokemon: Pokemon, pkmmoves: dict):
+
+    egggroups = pokemon.species.egg_groups
+    egggroupidentifiers = []
+    for group in egggroups:
+        egggroupidentifiers.append(group.identifier)
+
+    pkmsandvgs = \
+        {
+            'machine': {},
+            'egg': {},
+            'level-up': {},
+            'tutor': {}
+        }
+
+    for pokemonmove in pkmmoves:
+        # if specy order in not present if the list create an entry
+        if pokemonmove.pokemon.species.order not in pkmsandvgs[pokemonmove.method.identifier]:
+            pkmsandvgs[pokemonmove.method.identifier][pokemonmove.pokemon.species.order] = {}
+        # init the skip variable
+        skip = False
+        evoltrigger = False
+        # remove unwanted parent in the list ( mega ... )
+        if pokemonmove.pokemon.id > 10000 and not (
+                pokemonmove.pokemon.forms[0].form_identifier == 'alola'
+                or pokemonmove.pokemon.forms[0].form_identifier == 'galar'
+                or pokemonmove.pokemon.forms[0].form_identifier == 'hisui'):
+            continue
+
+        # if pokemon.species in pokemonmove.pokemon.species.evolution_chain.species:
+        #     skip = True
+        # remove pokemon not in egg groups
+        if not any(x in pokemonmove.pokemon.species.egg_groups for x in egggroups):
+            skip = True
+        if pokemonmove.pokemon.identifier not in pkmsandvgs[pokemonmove.method.identifier][
+            pokemonmove.pokemon.species.order] and not skip:
+
+            # add all the evolution family in case of egg method
+            if pokemonmove.method.identifier == 'egg':
+                for specy in pokemonmove.pokemon.species.evolution_chain.species:
+                    if not _is_actual_specy_or_evolution(specy,
+                                                         pokemonmove.pokemon.species,
+                                                         pokemonmove.pokemon.species.evolution_chain.species):
+                        continue
+                    if specy.order not in pkmsandvgs[pokemonmove.method.identifier]:
+                        pkmsandvgs[pokemonmove.method.identifier][specy.order] = {}
+                    if not _is_breedable(specy):
+                        continue
+                    pkmsandvgs['egg'][specy.order][specy.default_pokemon.identifier] = \
+                        {
+                            "pokemon": specy.default_pokemon,
+                            "version_groups": [pokemonmove.version_group]
+                        }
+                evoltrigger = False
+            # if pokemon is allowed to be a parent
+            elif _is_breedable(pokemonmove.pokemon.species):
+                pkmsandvgs[pokemonmove.method.identifier][pokemonmove.pokemon.species.order][
+                    pokemonmove.pokemon.identifier] = \
+                    {
+                        "pokemon": pokemonmove.pokemon,
+                        "version_groups": [pokemonmove.version_group]
+                    }
+        # if the entry order exist + pokemon exist we must add the new version group
+        elif not skip:
+            # add the whole family if not present cause its egg method
+            if pokemonmove.method.identifier == 'egg':
+                for specy in pokemonmove.pokemon.species.evolution_chain.species:
+                    if not _is_actual_specy_or_evolution(specy,pokemonmove.pokemon.species,
+                                                         pokemonmove.pokemon.species.evolution_chain.species):
+                        continue
+                    if specy.order not in pkmsandvgs[pokemonmove.method.identifier]:
+                        pkmsandvgs[pokemonmove.method.identifier][specy.order] = {}
+                    if not _is_breedable(specy):
+                        continue
+                    if pokemonmove.version_group not in pkmsandvgs['egg'][specy.order][
+                        specy.default_pokemon.identifier]['version_groups'] and _is_breedable(specy):
+                        pkmsandvgs['egg'][specy.order][specy.default_pokemon.identifier]['version_groups'].append(
+                            pokemonmove.version_group)
+                evoltrigger = False
+            else:
+                if pokemonmove.version_group not in \
+                        pkmsandvgs[pokemonmove.method.identifier][pokemonmove.pokemon.species.order][
+                            pokemonmove.pokemon.identifier]['version_groups'] and _is_breedable(
+                    pokemonmove.pokemon.species):
+                    pkmsandvgs[pokemonmove.method.identifier][pokemonmove.pokemon.species.order][
+                        pokemonmove.pokemon.identifier]['version_groups'].append(
+                        pokemonmove.version_group)
+        skip = False
+        #delete empty entries if no condition where met to add a pokemon in the specy order
+        if len(pkmsandvgs[pokemonmove.method.identifier][pokemonmove.pokemon.species.order]) == 0:
+            del pkmsandvgs[pokemonmove.method.identifier][pokemonmove.pokemon.species.order]
+
+    # clear
+    for methodname, parentbymethod in pkmsandvgs.items():
+        copy = {}
+        for order, parent in parentbymethod.items():
+            if len(parent) != 0:
+                copy[order] = parent
+        pkmsandvgs[methodname] = copy
+    return pkmsandvgs
+
+def _is_actual_specy_or_evolution(specy, mainspecy, species):
+    speciesIdentifiers = [element.identifier for element in species]
+    if specy.identifier in speciesIdentifiers[speciesIdentifiers.index(mainspecy.identifier):]:
+        return True
+    else:
+        return False

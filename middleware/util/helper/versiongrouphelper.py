@@ -89,13 +89,17 @@ def vg_id_to_short_name(version_group):
         raise InvalidConditionException(f'Unknow version group shortcut for version group {version_group}')
 
 
+# https://www.pokepedia.fr/Mod%C3%A8le:Abr%C3%A9viation
 def get_vg_string_from_vg_identifiers(specifics_vgs: list) -> str:
+
     if all(vg in ['diamond-pearl', 'platinum'] for vg in specifics_vgs):
         return 'DPP'
     elif all(vg in ['yellow'] for vg in specifics_vgs):
         return 'J'
     elif all(vg in ['red-blue'] for vg in specifics_vgs):
         return 'RB'
+    elif all(vg in ['gold-silver'] for vg in specifics_vgs):
+        return 'OA'
     elif all(vg in ['emerald', 'ruby-sapphire'] for vg in specifics_vgs):
         return 'RSE'
     elif all(vg in ['heartgold-soulsilver'] for vg in specifics_vgs):

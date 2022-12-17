@@ -44,3 +44,37 @@ def is_specific_pokemon_form_name(name):
     elif name == 'Wimessir femelle':
         return util.get(session, Pokemon, 'indeedee-female')
     return None
+
+# https://bulbapedia.bulbagarden.net/wiki/Smoochum_(Pok%C3%A9mon)/Generation_II_learnset#By_leveling_up
+def remove_egg_move_exceptions(gen: Generation,pkm: Pokemon,moves: list):
+    filtered = []
+    for pkmmove in moves:
+        if generationhelper.gen_to_int(gen) == 2:
+            if pkmmove.Move.identifier == 'charm' and pkm.identifier == 'bulbasaur':
+                continue
+            elif pkmmove.Move.identifier == 'charm' and pkm.identifier == 'snorlax':
+                continue
+            elif pkmmove.Move.identifier == 'charm' and pkm.identifier == 'oddish':
+                continue
+            elif pkmmove.Move.identifier == 'lovely-kiss' and pkm.identifier == 'smoochum':
+                continue
+            else:
+                filtered.append(pkmmove)
+        elif generationhelper.gen_to_int(gen) == 4:
+            if pkmmove.Move.identifier == 'head-smash' and pkm.identifier == 'nosepass':
+                continue
+            else:
+                filtered.append(pkmmove)
+        elif generationhelper.gen_to_int(gen) == 6:
+            if pkmmove.Move.identifier == 'ally-switch' and pkm.identifier == 'tyrogue':
+                continue
+            else:
+                filtered.append(pkmmove)
+        elif generationhelper.gen_to_int(gen) == 7:
+            if pkmmove.Move.identifier == 'punishment' and pkm.identifier == 'murkrow':
+                continue
+            else:
+                filtered.append(pkmmove)
+        else:
+            filtered.append(pkmmove)
+    return filtered

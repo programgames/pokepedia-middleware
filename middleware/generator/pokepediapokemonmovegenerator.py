@@ -4,7 +4,8 @@ import middleware.db.repository as repository
 from middleware.util.helper import pokemonmovehelper, generationhelper
 
 
-def generate_move_wiki_text(learn_method: PokemonMoveMethod, pokemon: Pokemon, generation: Generation, database_data: dict,
+def generate_move_wiki_text(learn_method: PokemonMoveMethod, pokemon: Pokemon, generation: Generation,
+                            database_data: dict,
                             pokepedia_data: dict, pokepedia_pokemon_name: str, form_order: dict, step: int):
     generated = ''
 
@@ -21,13 +22,16 @@ def generate_move_wiki_text(learn_method: PokemonMoveMethod, pokemon: Pokemon, g
         for comment in pokepedia_data['forms'][pokepedia_pokemon_name]['top_comments']:
             generated += comment + "\r\n"
         generated += "{{"f"#invoke:Apprentissage|{pokepedia_learn_method}|type={french_slot1_name}|" \
-                     f"génération={generationhelper.gen_id_to_int(generation.identifier)}|\r\n"
-
+                     f"génération={generationhelper.gen_id_to_int(generation.identifier)}|"
+        if learn_method.identifier == 'egg' and any(group.identifier == 'monster' for group in \
+                pokemon.species.egg_groups):
+            generated += 'queulorior|'
+        generated += "\r\n"
         # noinspection PyTypeChecker
         for move in database_data[pokepedia_pokemon_name]:
             generated += move.replace('’', '\'') + '\r\n'
         generated += "}}\r\n"
-        for comment in pokepedia_data['forms'][pokepedia_pokemon_name]['bot_comments']:
+        for comment in pokepedia_data['bot_comments']:
             generated += comment + "\r\n"
         return generated
 
@@ -40,13 +44,18 @@ def generate_move_wiki_text(learn_method: PokemonMoveMethod, pokemon: Pokemon, g
         for comment in pokepedia_data['forms'][form]['top_comments']:
             generated += comment + "\r\n"
         generated += "{{"f"#invoke:Apprentissage|{pokepedia_learn_method}|type={french_slot1_name}|" \
-                     f"génération={generationhelper.gen_id_to_int(generation.identifier)}|\r\n"
-
+                     f"génération={generationhelper.gen_id_to_int(generation.identifier)}|"
+        if learn_method.identifier == 'egg' and any(group.identifier == 'monster' for group in form.species.egg_groups):
+            generated += 'queulorior|'
+        generated += "\r\n"
         for move in moves:
             generated += move.replace('’', '\'') + '\r\n'
         generated += "}}\r\n"
         for comment in pokepedia_data['forms'][form]['bot_comments']:
             generated += comment + "\r\n"
+
+    for comment in pokepedia_data['forms'][form]['bot_comments']:
+        generated += comment + "\r\n"
     return generated
 
 

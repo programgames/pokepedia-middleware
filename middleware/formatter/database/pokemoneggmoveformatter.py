@@ -7,7 +7,7 @@ from middleware.exception import InvalidConditionException
 from middleware.formatter.dto.eggmove import EggMove
 from middleware.util.helper import generationhelper, languagehelper, pokemonmovehelper, \
     versiongrouphelper, specificcasehelper
-from pokedex.db.tables import PokemonMoveMethod, Pokemon, Generation, VersionGroup, PokemonMove
+from pokedex.db.tables import PokemonMoveMethod, Pokemon, Generation, VersionGroup, PokemonMove, Move
 from middleware.db import repository
 from collections import OrderedDict
 from middleware.connection.conn import session
@@ -37,23 +37,26 @@ def _get_preformatteds_database_pokemon_egg_moves(pokemon: Pokemon, generation: 
         version_groups = pokemonmovehelper.get_pokepedia_version_groups_identifiers_for_pkm_egg_by_step(
             gen_number, step)
 
+    original_pokemon = pokemon
+    pokemon = repository.find_minimal_pokemon_in_evolution_chain(pokemon, generation)
     moves = repository.find_moves_by_pokemon_move_method_and_version_groups_with_concat(
         pokemon, learn_method,
         version_groups
     )
 
     moves = specificcasehelper.remove_dive_move_lgfr(moves)
+    moves = specificcasehelper.remove_egg_move_exceptions(generation, pokemon, moves)
     for move_with_vg in moves:
         move_name = repository.get_french_move_name_by_move_and_generation(move_with_vg.Move,
-                                                                              generation)
+                                                                           generation)
 
-        move_dto = _fill_egg_move(move_name['name'], move_name['alias'], move_with_vg,
-                              generationhelper.gen_to_int(
-                                  generation))
+        move_dto = _fill_egg_move(original_pokemon, learn_method, move_name['name'], move_name['alias'], move_with_vg,
+                                  generationhelper.gen_to_int(
+                                      generation), move_with_vg.Move, step)
 
         preformatteds.append(move_dto)
 
-    return _filter_egg_moves(preformatteds, version_groups, step)
+    return preformatteds
 
 
 def _filter_egg_moves(preformatteds: list, version_groups: list, step: int) -> list:
@@ -79,13 +82,44 @@ def _filter_egg_moves(preformatteds: list, version_groups: list, step: int) -> l
     return pre_filtered
 
 
-def _format_egg_move(move: EggMove) -> str:
-    if move.alias:
-        name = f"{move.name}" + "{{!}}" + move.alias
-    else:
-        name = f"{move.name}"
-    if len(move.specifics_vgs) > 1 and move.different_version_group:
-        name += f"{name}{versiongrouphelper.get_vg_string_from_vg_identifiers(move.specifics_vgs)}"
+def _get_pokemon_eggmoove_name(parent: dict, gen: Generation, step: int):
+    pokemon = parent['pokemon']
+    vgs = parent['version_groups']
+
+    pkmname = pokemon.species.name_map[languagehelper.french].replace(' ', '_')  # M.mime
+    if pokemon.forms[0].form_identifier == 'alola':
+        pkmname += 'forme(Alola)'
+    if pokemon.forms[0].form_identifier == 'galar':
+        pkmname += 'forme(Galar)'
+
+    genvgs = repository.find_version_group_identifier_by_generation(gen, step)
+    if len(vgs) != len(genvgs):
+        pkmname += f" jeu({versiongrouphelper.get_vg_string_from_vg_identifiers([vg.identifier for vg in vgs])})"
+
+
+    pkmname += ', '
+
+    return pkmname
+
+
+def _format_egg_move(move: EggMove, gen: Generation, step: int) -> str:
+    name = f"{move.name}"
+    if len(move.specifics_vgs) > 0:
+        name = f"{name} jeu(" \
+               f"{versiongrouphelper.get_vg_string_from_vg_identifiers(move.specifics_vgs)})"
+    name += ' / '
+    if len(move.parents['level-up']) != 0:
+        for order, parents in move.parents['level-up'].items():
+            for pokemon in parents.values():
+                name += f"{_get_pokemon_eggmoove_name(pokemon, gen, step)}"
+        name = name[:len(name) - 2]
+    name += ' / '
+    if len(move.parents['egg']) != 0:
+        for order, parents in move.parents['egg'].items():
+            for pokemon in parents.values():
+                name += f"{_get_pokemon_eggmoove_name(pokemon, gen, step)}"
+        name = name[:len(name) - 2]
+
     return name
 
 
@@ -127,7 +161,7 @@ def _get_formatted_moves_by_pokemons(pokemon: Pokemon, generation: Generation, l
     formatteds = {}
 
     for move in pre_formatteds:
-        string = _format_egg_move(move)
+        string = _format_egg_move(move, generation, step)
         weight = _calculate_weight(move)
         if weight in formatteds.keys():
             weight += random()
@@ -138,7 +172,7 @@ def _get_formatted_moves_by_pokemons(pokemon: Pokemon, generation: Generation, l
 
 
 def _get_pokemon_egg_move_forms(pokemon: Pokemon, generation: Generation, learn_method: PokemonMoveMethod,
-                                    form_order: dict, step):
+                                form_order: dict, step):
     gen_number = generationhelper.gen_to_int(generation)
     """
     Return a list of  fully formatted pokemon egg move by forms
@@ -199,15 +233,36 @@ def _get_pokemon_egg_move_forms(pokemon: Pokemon, generation: Generation, learn_
 
 
 # noinspection PyUnresolvedReferences
-def _fill_egg_move(name: str, alias: str, move_with_vg,
-                       generation: int) -> EggMove:
+def _fill_egg_move(pokemon: Pokemon, learn_method: PokemonMoveMethod, name: str, alias: str, move_with_vg,
+                   generation: int, eggmove: Move, step: int) -> EggMove:
     move = EggMove()
-    move.name = name
+    move.name = alias if alias else name
     move.alias = alias
-    move.version_group = move_with_vg[1]
-    if '/' in move.version_group:
-        move.different_version_group = True
-        vgs = move.version_group.split('/')
-        for vg in vgs:
+    move.move = eggmove
+    move.version_groups = move_with_vg[1].split('/')
+
+    vgs = repository.find_version_group_identifier_by_generation(generation, step)
+
+    if len(move.version_groups) != len(vgs):
+        for vg in move.version_groups:
             move.add_vg_if_possible(vg)
+
+    _fill_parents(pokemon, move, generation, step)
     return move
+
+
+def _calculate_weight(move: EggMove):
+    """
+    Sort by name
+    """
+    weight = 0
+    divisor = 10
+    for char in move.name:
+        weight += (ord(char) / divisor) / 100
+        divisor *= 10
+
+    return weight
+
+
+def _fill_parents(pokemon: Pokemon, move: EggMove, gen: int, step: int):
+    move.parents = repository.find_pokemon_learning_move_by_egg_groups(pokemon, move.move, gen, step)
