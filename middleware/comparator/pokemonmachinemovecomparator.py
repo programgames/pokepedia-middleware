@@ -16,9 +16,11 @@ def compare_moves(pokepedia_moves: dict, database_moves: dict, form_order: dict)
         clean_database_moves = list(map(_clean_string, moves))
         clean_pokepedia_moves = filter(None,list(map(_clean_string, pokepedia_moves[form + form_order[form]]['moves'])))
 
-        # TODO: remove
-        collator = Collator.createInstance(icu.Locale('fr_FR.UTF-8'))
-        clean_pokepedia_moves = sorted(clean_pokepedia_moves, key=collator.getSortKey)
+        # # TODO: remove
+        # collator = Collator.createInstance(icu.Locale('fr_FR.UTF-8'))
+        # clean_pokepedia_moves = sorted(clean_pokepedia_moves, key=collator.getSortKey)
+
+        clean_pokepedia_moves = list(clean_pokepedia_moves)
 
         count = len(clean_database_moves)
         if count != len(clean_pokepedia_moves):

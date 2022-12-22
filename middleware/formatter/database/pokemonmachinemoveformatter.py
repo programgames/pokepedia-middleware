@@ -127,8 +127,10 @@ def _filter_machine_moves(preformatteds: list, version_groups: list, step: int) 
 
 
 def _format_machine(move: MachineMove) -> str:
+    # https://www.pokepedia.fr/index.php?title=Bulbizarre/G%C3%A9n%C3%A9ration_1&diff=2144912&oldid=2128431
     if move.alias:
-        name = f"{move.item[2:]} / " + move.name + "{{!}}" + move.alias
+        # name = f"{move.item[2:]} / " + move.name + "{{!}}" + move.alias
+         name = f"{move.item[2:]} / " + move.alias
     else:
         name = f"{move.item[2:]} / {move.name}"
     if move.different_name or move.different_item or move.different_version_group:
@@ -191,7 +193,7 @@ def _get_pokemon_machine_move_forms(pokemon: Pokemon, generation: Generation, le
     Return a list of  fully formatted pokemon machine move by forms
     """
 
-    if 1 <= gen_number <= 6 or gen_number == 8:
+    if 1 <= gen_number <= 6:
         version_group = repository.find_highest_version_group_by_generation(generation)
     elif gen_number == 7 and step == 1:
         if pokemon.identifier == 'meltan' or pokemon.identifier == 'melmetal':
@@ -200,6 +202,8 @@ def _get_pokemon_machine_move_forms(pokemon: Pokemon, generation: Generation, le
         else:
             version_group = util.get(session, VersionGroup, 'ultra-sun-ultra-moon')
     elif gen_number == 7 and step == 2:
+        version_group = util.get(session, VersionGroup, 'lets-go-pikachu-lets-go-eevee')
+    elif gen_number == 8 and step == 2:
         version_group = util.get(session, VersionGroup, 'lets-go-pikachu-lets-go-eevee')
     else:
         raise InvalidConditionException(f'Invalid generation/step condition : {gen_number} / {step}')

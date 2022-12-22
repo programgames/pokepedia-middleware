@@ -1,3 +1,6 @@
 [submodule "pokedex"]
 	path = pokedex
-	url = git@github.com:PokeAPI/pokedex.git
+	url = https://github.com/programgames/pokeapipokedexfork
+[submodule "pokeapipokedexfork"]
+	path = pokeapipokedexfork
+	url = https://github.com/programgames/pokeapipokedexfork
