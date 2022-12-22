@@ -1,48 +1,50 @@
-from pokedex.db.tables import Pokemon
-import re
+from middleware.util.helper.languagehelper import get_pokemon_specy_french_name
+from pokeapi.pokemon_v2.models import Pokemon
 
-from middleware.util.helper import languagehelper
-
-""" Provide tools to deal with pokemons
+""" Provide tools to deal with Pokémon
 """
 
+SPECIFIC_NAMES = {
+    'kyurem-black': 'Kyurem_Noir',
+    'kyurem-white': 'Kyurem_Blanc',
+    'necrozma-dusk': 'Necrozma_Crinière_du_Couchant',
+    'necrozma-dawn': 'Necrozma_Ailes_de_l\'Aurore',
+    'necrozma-ultra': 'Ultra-Necrozma',
+    'calyrex-ice': 'Sylveroy_Cavalier_du_Froid',
+    'calyrex-shadow': 'Sylveroy_Cavalier_d\'Effroi',
+}
+
+SPECIFIC_FORM_NAME = {
+    'Fulguris': 'Fulguris Avatar',
+}
 
 def find_pokepedia_pokemon_url_name(pokemon: Pokemon) -> str:
     specific = find_pokepedia_pokemon_page_specific_name_if_available(pokemon)
-
     if specific:
         return specific
 
-    # noinspection PyUnresolvedReferences
-    specy_name = pokemon.species.name_map[languagehelper.french]
+    # Assuming languagehelper.french is the identifier for the French language
+    species_name = get_pokemon_specy_french_name(pokemon.pokemon_species).replace(' ', '_')
 
-    if not specy_name:
-        raise RuntimeError('SpecyName not found for pokemon:   {}'.format(pokemon.identifier))
+    if not species_name:
+        raise RuntimeError(f'Species name not found for Pokémon: {pokemon.name}')
 
-    if re.match(r'.*alola.*', pokemon.identifier):
-        name = '{}_{}'.format(specy_name, 'd\'Alola')
-    elif re.match(r'.*galar.*', pokemon.identifier):
-        name = '{}_{}'.format(specy_name, 'de_Galar')
+    # Handle regional forms
+    if 'alola' in pokemon.name:
+        name = f'{species_name}_d\'Alola'
+    elif 'galar' in pokemon.name:
+        name = f'{species_name}_de_Galar'
     else:
-        name = specy_name
+        name = species_name
 
     return name.replace(' ', '_')
 
 
 def find_pokepedia_pokemon_page_specific_name_if_available(pokemon: Pokemon) -> str:
-    if pokemon.identifier == 'kyurem-black':
-        return 'Kyurem_Noir'
-    elif pokemon.identifier == 'kyurem-white':
-        return 'Kyurem_Blanc'
-    elif pokemon.identifier == 'necrozma-dusk':
-        return 'Necrozma_Crinière_du_Couchant'
-    elif pokemon.identifier == 'necrozma-dawn':
-        return 'Necrozma_Ailes_de_l\'Aurore'
-    elif pokemon.identifier == 'necrozma-ultra':
-        return 'Ultra-Necrozma'
-    elif pokemon.identifier == 'calyrex-ice':
-        return 'Sylveroy_Cavalier_du_Froid'
-    elif pokemon.identifier == 'calyrex-shadow':
-        return 'Sylveroy Cavalier d\'Effroi'
+    return SPECIFIC_NAMES.get(pokemon.name, '')
 
-    return ''
+def get_default_pokemon_form_name_from_database(pokemon_name: str):
+    if pokemon_name in SPECIFIC_FORM_NAME:
+        return SPECIFIC_FORM_NAME[pokemon_name]
+    else:
+        return  pokemon_name

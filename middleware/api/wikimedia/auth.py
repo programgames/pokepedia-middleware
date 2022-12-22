@@ -1,6 +1,6 @@
 from middleware.api.wikimedia import wikimedia_session
 
-""" Base Client class to make basic request to pokepedia
+""" Base Client class to make basic request to config
 """
 
 

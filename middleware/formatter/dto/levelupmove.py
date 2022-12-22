@@ -1,17 +1,22 @@
 class LevelUpMove:
-    name = None
-    alias = None
-    level1 = None
-    level1Extra = None
-    on_evolution1 = None
-    on_start1 = None
+    def __init__(self, name=None, alias=None):
+        self.name = name
+        self.alias = alias
 
-    level2 = None
-    level2Extra = None
-    on_evolution2 = None
-    on_start2 = None
+        # Attributes for the first column
+        self.level1 = None
+        self.level1Extra = None
+        self.on_evolution1 = None
+        self.on_start1 = None
 
-    level3 = None
-    level3Extra = None
-    on_evolution3 = None
-    on_start3 = None
+        # Attributes for the second column
+        self.level2 = None
+        self.level2Extra = None
+        self.on_evolution2 = None
+        self.on_start2 = None
+
+        # Attributes for the third column
+        self.level3 = None
+        self.level3Extra = None
+        self.on_evolution3 = None
+        self.on_start3 = None

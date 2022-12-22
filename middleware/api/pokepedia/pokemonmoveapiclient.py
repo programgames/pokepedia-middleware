@@ -1,36 +1,31 @@
 from middleware.api.pokepedia import pokepedia_client
 from middleware.db import repository
-from middleware.exception.exceptions import NotAvailableError, SectionNotFoundException, MissingOptionException, \
-    InvalidConditionException
+from middleware.exception.exceptions import (
+    NotAvailableError, SectionNotFoundException, MissingOptionException
+)
 from middleware.util.helper.pokemonmovehelper import TUTOR_TYPE, MACHINE_TYPE, LEVELING_UP_TYPE, EGG_TYPE
 
-"""Pokepedia client implementation to extract pokemon moves data on respective pokemon page
-"""
-
+""" Pokepedia client implementation to extract Pokémon moves data from respective Pokémon pages. """
 
 def get_pokemon_moves(name: str, generation: int, move_type: str, version_group_identifier=None, dt=None) -> dict:
-    if (move_type == TUTOR_TYPE or move_type == MACHINE_TYPE) \
-            and not version_group_identifier and generation == 7:
-        raise MissingOptionException('argument version_group_name is required for %s type'.format(move_type))
+    if (move_type in {TUTOR_TYPE, MACHINE_TYPE}) and not version_group_identifier and generation == 7:
+        raise MissingOptionException('Argument version_group_name is required for {} type'.format(move_type))
 
     sections = repository.get_item_from_cache(
-        f'pokepedia.section.pokemonmove.{name}.{generation}',
+        'config.section.pokemonmove.{}.{}'.format(name, generation),
         lambda: get_pokemon_move_sections(name, generation)
     )
     section = get_section_index_by_pokemon_move_type_and_generation(move_type, sections, generation,
                                                                     version_group_identifier, dt)
-    if generation < 7:
-        page = '{}/Génération_{}'.format(
-            name.replace('’', '%27').replace('\'', '%27').replace(' ', '_'), generation)
-        url = f'https://www.pokepedia.fr/api.php?action=parse&format=json&page={page}' \
-              f'&prop=wikitext&errorformat=wikitext&section={section}&disabletoc=1'
-    else:
-        page = name.replace('’', '%27')
-        url = f'https://www.pokepedia.fr/api.php?action=parse&format=json&page={page}' \
-              f'&prop=wikitext&errorformat=wikitext&section={section}&disabletoc=1'
+
+    page = name.replace("’", "%27").replace("'", "%27").replace(" ", "_")
+    if generation < 8:
+        page = '{}/Génération_{}'.format(page, generation)
+
+    url = ('https://www.pokepedia.fr/api.php?action=parse&format=json&page={page}&prop=wikitext&'
+           'errorformat=wikitext&section={section}&disabletoc=1').format(page=page, section=section)
     content = pokepedia_client.parse(url)
-    wikitext = content['parse']['wikitext']['*']
-    wikitext = wikitext.split('\n')
+    wikitext = content['parse']['wikitext']['*'].split('\n')
 
     return {
         'wikitext': wikitext,
@@ -40,105 +35,78 @@ def get_pokemon_moves(name: str, generation: int, move_type: str, version_group_
 
 
 def get_pokemon_move_sections(name: str, generation: int) -> dict:
-    if generation < 7:
-        page = '{}/G%C3%A9n%C3%A9ration_{}'.format(name.replace('’', '%27').replace('\'', '%27').replace(' ', '_'), generation)
-        sections_url = f'https://www.pokepedia.fr/api.php?action=parse&format=json&page={page}&prop=sections&errorformat=wikitext&disabletoc=1'
+    page = name.replace("’", "%27").replace("'", "%27").replace(" ", "_")
+    if generation < 8:
+        page = '{}/G%C3%A9n%C3%A9ration_{}'.format(page, generation)
 
-    else:
-        page = '{}'.format(name.replace('’', '%27').replace('\'', '%27').replace(' ', '_'))
-        sections_url = f"https://www.pokepedia.fr/api.php?action=parse&format=json&page={page}&prop=sections&errorformat=wikitext"
-
+    sections_url = ('https://www.pokepedia.fr/api.php?action=parse&format=json&page={}&prop=sections&'
+                    'errorformat=wikitext&disabletoc=1').format(page)
     return {
         'sections': pokepedia_client.format_section_by_url(sections_url),
         'page': page
     }
 
 
-def get_section_index_by_pokemon_move_type_and_generation(move_type: str, sections: dict, generation: int,
-                                                          version_group_identifier: str,
-                                                          dt: bool) -> int:
-    section_paths = sections['sections']
-    if move_type == LEVELING_UP_TYPE and generation <= 6:
-        section_name = 'Capacités apprises//Par montée en niveau'
-    elif move_type == LEVELING_UP_TYPE and generation == 7:
-        section_name = 'Capacités apprises//Par montée en niveau//Septième génération'
-    elif move_type == LEVELING_UP_TYPE and generation == 8:
-        section_name = 'Capacités apprises//Par montée en niveau//Huitième génération'
-    elif move_type == MACHINE_TYPE and generation <= 6:
-        section_name = 'Capacités apprises//Par CT/CS'
-    elif move_type == MACHINE_TYPE and generation == 7 and (
-            version_group_identifier == "ultra-sun-ultra-moon" or version_group_identifier == "sun-moon"):
-        if 'Capacités apprises//Par CT/CS//Septième génération//Pokémon Soleil et Lune et Pokémon Ultra-Soleil et ' \
-           'Ultra-Lune' not in section_paths.keys():
-            section_name = 'Capacités apprises//Par CT/CS//Septième génération'  # pokemon not available in lgpe or
-            # without moves
-        else:
-            section_name = 'Capacités apprises//Par CT/CS//Septième génération//Pokémon Soleil et Lune et Pokémon Ultra-Soleil et Ultra-Lune'
-    elif move_type == MACHINE_TYPE and generation == 7 and version_group_identifier == "lets-go-pikachu-lets-go-eevee":
-        if 'Capacités apprises//Par CT/CS//Septième génération//Pokémon : Let\'s Go, Pikachu et Let\'s Go, ' \
-           'Évoli' not in section_paths.keys():
-            section_name = 'Capacités apprises//Par CT/CS//Septième génération'  # pokemon not available in lgpe or
-            # without moves
-        else:
-            section_name = "Capacités apprises//Par CT/CS//Septième génération//Pokémon : Let's Go, Pikachu et Let's Go, Évoli"
-    elif move_type == MACHINE_TYPE and generation == 8 and not dt:
-        section_name = "Capacités apprises//Par CT/CS//Huitième génération"
-    elif move_type == MACHINE_TYPE and generation == 8 and dt:
-        section_name = "Capacités apprises//Par DT//Huitième génération"
-    elif move_type == EGG_TYPE and generation == 1:
-        raise NotAvailableError("egg mooves are not available in gen 1")
-    elif move_type == EGG_TYPE and 2 <= generation <= 6:
-        section_name = "Capacités apprises//Par reproduction"
-    elif move_type == EGG_TYPE and generation == 7:
-        section_name = "Capacités apprises//Par reproduction//Septième génération"
-    elif move_type == EGG_TYPE and generation == 8:
-        section_name = "Capacités apprises//Par reproduction//Huitième génération"
-    elif move_type == TUTOR_TYPE and generation == 1:
-        raise NotAvailableError("tutor mooves are not available in gen 1")
-    elif move_type == TUTOR_TYPE and generation == 2 and version_group_identifier != 'crystal':
-        raise NotAvailableError("tutor mooves are only available in crystal version for gen 2")
-    elif move_type == TUTOR_TYPE and generation == 2 and version_group_identifier == 'crystal':
-        section_name = "Capacités apprises//Par Donneur de capacités//Pokémon Cristal"
-    elif move_type == TUTOR_TYPE and generation == 3 and version_group_identifier == 'ruby-sapphire':
-        raise NotAvailableError("tutor mooves are not available in ruby/sapphir")
-    elif move_type == TUTOR_TYPE and 3 <= generation <= 6:
-        section_name = "Capacités apprises//Par Donneur de capacités//{}".format(
-            _get_version_group_name(version_group_identifier))
-    elif move_type == TUTOR_TYPE and generation == 7:
-        section_name = "Capacités apprises//Par Donneur de capacités//Septième génération"
-    elif move_type == TUTOR_TYPE and generation == 8:
-        section_name = "Capacités apprises//Par Donneur de capacités//Huitième génération"
-    else:
-        raise InvalidConditionException(f'Impossible to get a section from {move_type} move type and gener'
-                                        f'ation {generation}')
 
-    if section_name not in section_paths.keys():
+def get_section_index_by_pokemon_move_type_and_generation(move_type: str, sections: dict, generation: int,
+                                                          version_group_identifier: str = None,
+                                                          dt: bool = None) -> int:
+    section_paths = sections['sections']
+
+    section_name_mapping = {
+        (LEVELING_UP_TYPE, generation <= 7): 'Capacités apprises//Par montée en niveau',
+        (LEVELING_UP_TYPE, generation == 8): 'Capacités apprises//Par montée en niveau//Huitième génération',
+        (LEVELING_UP_TYPE, generation == 9): 'Capacités apprises//Par montée en niveau//Neuvième génération',
+        (MACHINE_TYPE, generation <= 6): 'Capacités apprises//Par CT/CS',
+        (MACHINE_TYPE, generation == 7 and version_group_identifier in {'ultra-sun-ultra-moon', 'sun-moon'}):
+            'Capacités apprises//Par CT//Pokémon Soleil et Lune et Pokémon Ultra-Soleil et Ultra-Lune',
+        (MACHINE_TYPE, generation == 7 and version_group_identifier == 'lets-go-pikachu-lets-go-eevee'):
+            "Capacités apprises//Par CT//Pokémon : Let's Go, Pikachu et Let's Go, Évoli",
+        (MACHINE_TYPE, generation == 8 and not dt and version_group_identifier in {'sword-shield','the-isle-of-armor','the-crown-tundra'}): "Capacités apprises//Par CT//Huitième génération//Pokémon Épée et Bouclier",
+        (MACHINE_TYPE, generation == 9 and not dt and version_group_identifier in {'brilliant-diamond-and-shining-pearl'}): "Capacités apprises//Par CT//Neuvième génération",
+        (MACHINE_TYPE, generation == 8 and dt and version_group_identifier in {'sword-shield','the-isle-of-armor','the-crown-tundra'}): "Capacités apprises//Par DT//Huitième génération//Pokémon Épée et Bouclier",
+        (MACHINE_TYPE, generation == 8 and dt and version_group_identifier in {'brilliant-diamond-and-shining-pearl'}): "Capacités apprises//Par DT//Huitième génération//Pokémon Diamant Étincelant et Perle Scintillante",
+        (EGG_TYPE, 2 <= generation <= 7): "Capacités apprises//Par reproduction",
+        (EGG_TYPE, generation == 8 and version_group_identifier in {'sword-shield','the-isle-of-armor','the-crown-tundra'} ): "Capacités apprises//Par reproduction//Huitième génération//Pokémon Épée et Bouclier",
+        (EGG_TYPE, generation == 8 and version_group_identifier in {'brilliant-diamond-and-shining-pearl'} ): "Capacités apprises//Par reproduction//Huitième génération//Pokémon Diamant Étincelant et Perle Scintillante",
+        (EGG_TYPE, generation == 9 and version_group_identifier in {'brilliant-diamond-and-shining-pearl'} ): "Capacités apprises//Par capacité Œuf//Neuvième génération//Par reproduction",
+        (TUTOR_TYPE, generation == 2 and version_group_identifier == 'crystal'): "Capacités apprises//Par Donneur de capacités//Pokémon Cristal",
+        (TUTOR_TYPE, 3 <= generation <= 7): "Capacités apprises//Par Donneur de capacités//{}".format(
+            _get_version_group_name(version_group_identifier)),
+        (TUTOR_TYPE, generation == 8): "Capacités apprises//Par Donneur de capacités//Huitième génération",
+        (TUTOR_TYPE, generation == 9): "Capacités apprises//Par Donneur de capacités//Neuvième génération"
+    }
+
+    if (move_type == EGG_TYPE and generation == 1) or (move_type == TUTOR_TYPE and generation == 1):
+        raise NotAvailableError("{} moves are not available in generation {}".format(move_type, generation))
+    if move_type == TUTOR_TYPE and generation == 2 and version_group_identifier != 'crystal':
+        raise NotAvailableError("Tutor moves are only available in Crystal version for generation 2")
+    if move_type == TUTOR_TYPE and generation == 3 and version_group_identifier == 'ruby-sapphire':
+        raise NotAvailableError("Tutor moves are not available in Ruby/Sapphire")
+
+    section_name = section_name_mapping.get((move_type, True))
+    if not section_name or section_name not in section_paths.keys():
         raise SectionNotFoundException(
-            f'Section not found {section_name} / generation {generation} / vg : {version_group_identifier}', {
+            'Section not found {} / generation {} / vg : {}'.format(section_name, generation, version_group_identifier), {
                 'section_not_found': section_name,
                 'generation': generation,
                 'version_group': version_group_identifier,
                 'sections': section_paths,
-                'page': f"https://www.pokepedia.fr/{sections['page']}"
+                'page': "https://www.pokepedia.fr/{}".format(sections['page'])
             })
 
-    return sections['sections'][section_name]
+    return section_paths[section_name]
 
 
 def _get_version_group_name(version_group_identifier):
-    if version_group_identifier == 'firered-leafgreen':
-        return 'Pokémon Rouge Feu et Vert Feuille'
-    elif version_group_identifier == 'emerald':
-        return 'Pokémon Émeraude'
-    elif version_group_identifier == 'platinum':
-        return 'Pokémon Platine'
-    elif version_group_identifier == 'heartgold-soulsilver':
-        return 'Pokémon Or HeartGold et Argent SoulSilver'
-    elif version_group_identifier == 'black-white':
-        return 'Pokémon Noir et Blanc'
-    elif version_group_identifier == 'black-2-white-2':
-        return 'Pokémon Noir 2 et Blanc 2'
-    elif version_group_identifier == 'x-y':
-        return 'Pokémon X et Y'
-    elif version_group_identifier == 'omega-ruby-alpha-sapphire':
-        return 'Pokémon Rubis Oméga et Saphir Alpha'
+    version_group_names = {
+        'firered-leafgreen': 'Pokémon Rouge Feu et Vert Feuille',
+        'emerald': 'Pokémon Émeraude',
+        'platinum': 'Pokémon Platine',
+        'heartgold-soulsilver': 'Pokémon Or HeartGold et Argent SoulSilver',
+        'black-white': 'Pokémon Noir et Blanc',
+        'black-2-white-2': 'Pokémon Noir 2 et Blanc 2',
+        'x-y': 'Pokémon X et Y',
+        'omega-ruby-alpha-sapphire': 'Pokémon Rubis Oméga et Saphir Alpha'
+    }
+    return version_group_names.get(version_group_identifier, 'Unknown Version Group')

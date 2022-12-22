@@ -1,128 +1,111 @@
-from middleware.db.tables import PokemonMoveAvailability
-from middleware.util.helper import generationhelper, versiongrouphelper, languagehelper
-from pokedex.db.tables import PokemonMoveMethod, Pokemon, Generation, VersionGroup, PokemonMove
-from middleware.db import repository
-from middleware.formatter.dto.levelupmove import LevelUpMove
 from collections import OrderedDict
-from middleware.connection.conn import session
 from pyuca import Collator
 import re
 
-"""Format pokemon level moves from database into a pretty format
-"""
+from middleware.models import PokemonMoveAvailability
+from middleware.util.helper import generationhelper, versiongrouphelper
+from middleware.db import repository
+from middleware.formatter.dto.levelupmove import LevelUpMove
+from middleware.util.helper.languagehelper import get_pokemon_specy_french_name
+from pokeapi.pokemon_v2.models import Pokemon, Generation, VersionGroup, PokemonMove, MoveLearnMethod
+
+"""Format Pokemon level moves from database into a pretty format"""
 
 
-def get_formatted_level_up_database_moves(pokemon: Pokemon, generation: Generation, learn_method: PokemonMoveMethod,
+def get_formatted_level_up_database_moves(pokemon: Pokemon, generation: Generation, learn_method: MoveLearnMethod,
                                           form_order: dict):
     """
-     Get pokemon moves from database
+    Get Pokémon moves from the database and format them.
     """
     return _get_pokemon_level_move_forms(pokemon, generation, learn_method, form_order)
 
 
 def _get_preformatteds_database_pokemon_moves(pokemon: Pokemon, generation: Generation,
-                                              learn_method: PokemonMoveMethod) -> dict:
+                                              learn_method: MoveLearnMethod) -> dict:
     """
-    return a dict containing a list of LevelUpMove to ease future formatting/sorting
+    Return a dict containing a list of LevelUpMove to ease future formatting/sorting.
     """
-    gen_number = generationhelper.gen_id_to_int(generation.identifier)
     preformatteds = {}
-    if gen_number == 7:
-        lgpe = session.query(VersionGroup) \
-            .filter(VersionGroup.identifier == 'lets-go-pikachu-lets-go-eevee') \
-            .one()
-        availability = repository.get_availability_by_pokemon_and_version_group(pokemon, lgpe)
-        if availability:
-            columns = 3
-        else:
-            columns = 2
-    elif gen_number in [3, 4]:
-        columns = 3
-    elif gen_number in [1, 2, 5, 6]:
-        columns = 2
-    else:
-        columns = 1
+    columns = _determine_columns(generation.id, pokemon)
 
     for column in range(1, columns + 1):
-        moves = repository.find_moves_by_pokemon_move_method_and_version_group(
-            pokemon, learn_method,
-            versiongrouphelper.get_version_group_by_gen_and_column(generation, column)
-        )
+        version_group = versiongrouphelper.get_version_group_by_gen_and_column(generation, column)
+        moves = repository.find_moves_by_pokemon_move_method_and_version_group(pokemon, learn_method, version_group)
+
         for pokemon_move_entity in moves:
-            french_move = repository.get_french_move_by_pokemon_move_and_generation(pokemon_move_entity,
-                                                                                    generation)
-            if french_move['name'] in preformatteds:
-                move = preformatteds[french_move['name']]
-            else:
-                move = LevelUpMove()
-
-            move = _fill_leveling_move(move, column, french_move['name'], french_move['alias'], pokemon_move_entity)
-
+            french_move = repository.get_french_move_by_pokemon_move_and_generation(pokemon_move_entity, generation)
+            move = preformatteds.get(french_move['name'], LevelUpMove())
+            move = _fill_leveling_move(move, column, french_move['name'], french_move['alias'], pokemon_move_entity,
+                                       generation.id)
             preformatteds[french_move['name']] = move
 
     return preformatteds
 
 
+def _determine_columns(gen_number: int, pokemon: Pokemon) -> int:
+    """
+    Determine the number of columns based on the generation and Pokémon availability.
+    """
+    if gen_number == 7:
+        lgpe = VersionGroup.objects.get(name='lets-go-pikachu-lets-go-eevee')
+        availability = repository.get_availability_by_pokemon_and_version_group(pokemon, lgpe)
+        return 3 if availability else 2
+    elif gen_number in {3, 4}:
+        return 3
+    elif gen_number in {1, 2, 5, 6}:
+        return 2
+    else:
+        return 1
+
+
 def _format_level(move: LevelUpMove, column: int, previous_weight: int) -> dict:
     """
-    Tranform a LevelUpMove object to a dict containing his weight and the pokepedia formatted string
+    Transform a LevelUpMove object to a dict containing its weight and the formatted string.
     """
     level = ''
     weight = 0
 
-    if not getattr(move, 'level' + str(column)) and not getattr(move, 'on_evolution' + str(column)) and not getattr(
-            move, 'on_start' + str(column)):
-        return {
-            'level': '-',
-            'weight': previous_weight
-        }
+    if not any(getattr(move, attr + str(column)) for attr in ['level', 'on_evolution', 'on_start']):
+        return {'level': '-', 'weight': previous_weight}
 
     if getattr(move, 'on_start' + str(column)):
-        level += 'Départ'
+        level = 'Départ'
         weight = 0
 
     if getattr(move, 'on_evolution' + str(column)):
-        if not level:
-            level = 'Évolution'
-        else:
-            level += ', Évolution'
+        level = level + ', ' if level else ''
+        level += 'Évolution'
         weight = 0
 
     if getattr(move, 'level' + str(column)):
-        if getattr(move, 'on_start' + str(column)) or \
-                getattr(move, 'on_evolution' + str(column)) \
-                or getattr(move, 'level' + str(column) + 'Extra'):
-            if not level:
-                level += 'N.' + str(getattr(move, 'level' + str(column)))
-                weight = getattr(move, 'level' + str(column))
-            else:
-                level += ', N.' + str(getattr(move, 'level' + str(column)))
-                weight = getattr(move, 'level' + str(column))
+        level_str = str(getattr(move, 'level' + str(column)))
+        if any(getattr(move, attr + str(column), None) for attr in ['on_start', 'on_evolution', 'levelExtra']):
+            level = level + ', ' + level_str if level else 'N.' + level_str
         else:
-            level += str(getattr(move, 'level' + str(column)))
-            weight = getattr(move, 'level' + str(column))
+            level = level_str
+        weight = getattr(move, 'level' + str(column))
 
     if getattr(move, 'level' + str(column) + 'Extra'):
-        level += ', N.' + str(getattr(move, 'level' + str(column) + 'Extra'))
-        weight = min(int(re.search(r'\d+', getattr(move, 'level' + str(column) + 'Extra')).group()),
-                     getattr(move, 'level' + str(column))) if getattr(move,
-                                                                      'level' + str(column) + 'Extra') else getattr(
-            move, 'level' + str(column))
+        extra_level = str(getattr(move, 'level' + str(column) + 'Extra'))
+        level += ', ' + extra_level
+        weight = min(int(re.search(r'\d+', extra_level).group()), weight) if extra_level else weight
 
-    return {
-        'level': level,
-        'weight': max(previous_weight, weight if isinstance(weight, int) else int(re.search(r'\d+', weight).group()))
-    }
+    return {'level': level, 'weight': max(previous_weight, weight)}
 
 
-def _calculate_total_weight(weights: list, formatteds: dict):
+def _calculate_total_weight(weights: list, formatteds: dict) -> str:
     """
-    Calculate the position the pokemon level move should have in the list
+    Calculate the position the Pokémon level move should have in the list.
     """
-    total = 0
-    for weigh in weights:
-        if total == 0 or weigh['weight'] < total:
-            total = weigh['weight']
+    filtered_weights = []
+    for weight in weights:
+        if weight is not None and weight['weight'] is not None and weight['level'] != '-' and weight[
+            'level'] != 'Départ':
+            filtered_weights.append(weight)
+    if not filtered_weights:
+        total = 0
+    else:
+        total = min(weight['weight'] for weight in filtered_weights)
 
     while True:
         if str(total) in formatteds:
@@ -131,136 +114,108 @@ def _calculate_total_weight(weights: list, formatteds: dict):
             return str(total)
 
 
+# noinspection DuplicatedCode
 def _sort_level_moves(formatteds: dict) -> list:
     """
-    Sort pokemon level moves , fitst by their weights and then alphabetically
+    Sort Pokémon level moves, first by their weights and then alphabetically.
     """
     splitteds = {}
     sorted_moves = []
 
     sorteds = sorted(formatteds, key=lambda k: float(k))
-    pre_sorted = OrderedDict()
-    for value in sorteds:
-        pre_sorted[value] = formatteds[value]
+    pre_sorted = OrderedDict((k, formatteds[k]) for k in sorteds)
+
     for level, formatted in pre_sorted.items():
         level = float(level)
+        splitteds.setdefault(int(level), {})[level] = formatted
 
-        if int(level) not in splitteds:
-            splitteds[int(level)] = {}
-        splitteds[int(level)][level] = formatted
-
-    for key, splitteds_moves in splitteds.items():
-        c = Collator()
-
-        splitteds[key] = sorted(splitteds_moves.values(), key=c.sort_key)
-
-    for level, moves in splitteds.items():
-        for move in moves:
-            sorted_moves.append(move)
+    collator = Collator()
+    for key, moves in splitteds.items():
+        sorted_moves.extend(sorted(moves.values(), key=collator.sort_key))
 
     return sorted_moves
 
 
-def _get_formatted_moves_by_pokemons(pokemon: Pokemon, generation: Generation, learn_method: PokemonMoveMethod):
+def _get_formatted_moves_by_pokemons(pokemon: Pokemon, generation: Generation, learn_method: MoveLearnMethod):
     """
-    Return the fully formatted list of pokemon level move for a specific pokemon
+    Return the fully formatted list of Pokémon level move for a specific Pokémon.
     """
     pre_formatteds = _get_preformatteds_database_pokemon_moves(pokemon, generation, learn_method)
     formatteds = {}
-    generation = generationhelper.gen_id_to_int(generation.identifier)
-    lgpe_vg = session.query(VersionGroup) \
-        .filter(VersionGroup.identifier == 'lets-go-pikachu-lets-go-eevee') \
-        .one()
-    lgpe_availability = repository.get_availability_by_pokemon_and_version_group(pokemon, lgpe_vg)
-    if generation == 8:
-        for name, move in pre_formatteds.items():
-            if move.alias:
-                name = name + "{{!}}" + move.alias
-            first = _format_level(move, 1, 0)
-            total_weight = _calculate_total_weight([first], formatteds)
-            formatteds[str(total_weight)] = '{} / {}'.format(name, first['level'])
-    elif generation in [1, 2, 5, 6] or (generation == 7 and not lgpe_availability):
-        for name, move in pre_formatteds.items():
-            if move.alias:
-                name = name + "{{!}}" + move.alias
-            first = _format_level(move, 1, 0)
-            second = _format_level(move, 2, first['weight'])
-            total_weight = _calculate_total_weight([first, second], formatteds)
-            formatteds[str(total_weight)] = '{} / {} / {}'.format(name, first['level'], second['level'])
-    else:
-        for name, move in pre_formatteds.items():
-            if move.alias:
-                name = name + "{{!}}" + move.alias
-            first = _format_level(move, 1, 0)
-            second = _format_level(move, 2, first['weight'])
-            third = _format_level(move, 3, second['weight'])
-            total_weight = _calculate_total_weight([first, second, third], formatteds)
-            formatteds[total_weight] = '{} / {} / {} / {}'.format(name, first['level'], second['level'], third['level'])
 
-    formatteds = _sort_level_moves(formatteds)
-    return formatteds
+    lgpe = VersionGroup.objects.get(name='lets-go-pikachu-lets-go-eevee')
+    lgpe_availability = repository.get_availability_by_pokemon_and_version_group(pokemon, lgpe)
+
+    for name, move in pre_formatteds.items():
+        name = move.alias if move.alias else name
+
+        first_weight = _format_level(move, 1, 0)
+
+        # On crée la liste de weights en utilisant d'abord le premier poids
+        weights = [
+            first_weight,
+            _format_level(move, 2, first_weight['weight']),
+            _format_level(move, 3, _format_level(move, 2, first_weight['weight'])['weight'])
+            if generation.id in {3,4,} or (generation.id == 7 and lgpe_availability) else None
+        ]
+
+        total_weight = _calculate_total_weight(weights, formatteds)
+        formatteds[total_weight] = ' / '.join([name] + [w['level'] for w in weights if w])
+
+    return _sort_level_moves(formatteds)
 
 
-def _get_pokemon_level_move_forms(pokemon: Pokemon, generation: Generation, learn_method: PokemonMoveMethod,
+def _get_pokemon_level_move_forms(pokemon: Pokemon, generation: Generation, learn_method: MoveLearnMethod,
                                   form_order: dict):
     """
-    Return a list of  fully formatted pokemon level move by forms
+    Return a list of fully formatted Pokémon level move by forms.
     """
-    generation = session.query(Generation).filter(Generation.identifier == generation.identifier).one()
-
+    generation = Generation.objects.get(name=generation.name)
     version_group = repository.find_highest_version_group_by_generation(generation)
-    if pokemon.identifier == 'meltan' or pokemon.identifier == 'melmetal':
-        version_group = session.query(VersionGroup).filter(
-            VersionGroup.identifier == 'lets-go-pikachu-lets-go-eevee').one()
-    availability = session.query(PokemonMoveAvailability) \
-        .filter(PokemonMoveAvailability.version_group_id == version_group.id) \
-        .filter(PokemonMoveAvailability.pokemon_id == pokemon.id) \
-        .filter(PokemonMoveAvailability.has_pokepedia_page.is_(True)) \
-        .one()
 
-    move_forms = availability.forms
+    if pokemon.name in {'meltan', 'melmetal'}:
+        version_group = VersionGroup.objects.get(name='lets-go-pikachu-lets-go-eevee')
 
-    has_multiple_form_for_move_method = False
-    if move_forms:
-        has_multiple_form_for_move_method = move_forms[0].level
+    availability = PokemonMoveAvailability.objects.filter(
+        version_group=version_group, pokemon=pokemon, has_pokepedia_page=True
+    ).first()
 
-    if not move_forms or move_forms[0].has_pokepedia_page or not has_multiple_form_for_move_method:
+    if not availability or not availability.forms or not availability.forms.all().first() or availability.forms.all().first().has_pokepedia_page:
         if len(form_order) > 1:
-            raise RuntimeError(f'Too much form for this pokemon : {pokemon}')
-        # noinspection PyUnresolvedReferences
-        specy = pokemon.species
-        specy_name = specy.name_map[languagehelper.french].replace(' ', '_')  # M. Mime
+            raise RuntimeError(f'Too many forms for this Pokemon: {pokemon}')
+
+        specy_name = get_pokemon_specy_french_name(pokemon.pokemon_species).replace(' ', '_')
         form_order_name = next(iter(form_order))
-        if specy_name != form_order_name:  # handle case of pokemon with forms on different page like Sylveroy
+
+        if specy_name != form_order_name:  # handle case of Pokémon with forms on different pages like Sylveroy
             specy_name = form_order_name
+
         return {specy_name: _get_formatted_moves_by_pokemons(pokemon, generation, learn_method)}
 
-    custom = move_forms[0].has_pokepedia_page
+    if availability.forms.first().has_pokepedia_page:
+        specy_name = get_pokemon_specy_french_name(pokemon.pokemon_species).replace(' ', '_')
+        return {specy_name: _get_formatted_moves_by_pokemons(pokemon, generation, learn_method)}
 
-    if custom:
-        # noinspection PyUnresolvedReferences
-        specy_name = pokemon.specie.name_map(languagehelper.french)
-        return {specy_name: _get_formatted_moves_by_pokemons(pokemon, generation.identifier, learn_method)}
-
-    if not len(form_order) > 1:
-        raise RuntimeError(f'Not enough form for this pokemon : {pokemon}')
+    if not form_order:
+        raise RuntimeError(f'Not enough forms for this Pokemon: {pokemon}')
 
     forms = OrderedDict()
-    for form_name, form_extra in form_order.items():
-        pokemon = repository.find_pokemon_by_french_form_name(pokemon, form_name)
-        forms[form_name] = _get_formatted_moves_by_pokemons(pokemon, generation, learn_method)
+    for form_name in form_order:
+        form_pokemon = repository.find_pokemon_by_french_form_name(pokemon, form_name)
+        forms[form_name] = _get_formatted_moves_by_pokemons(form_pokemon, generation, learn_method)
 
     return forms
 
 
 def _fill_leveling_move(move: LevelUpMove, column: int, name: str, alias: str,
-                        pokemon_move_entity: PokemonMove) -> LevelUpMove:
+                        pokemon_move_entity: PokemonMove, gen_number) -> LevelUpMove:
     """
-    Update a LevelUpMove
+    Update a LevelUpMove with level information.
     """
     move.name = name
     move.alias = alias
     level = pokemon_move_entity.level
+
     if level == 1:
         setattr(move, 'on_start' + str(column), True)
     elif level == 0:
@@ -271,6 +226,6 @@ def _fill_leveling_move(move: LevelUpMove, column: int, name: str, alias: str,
         setattr(move, 'level' + str(column) + 'Extra', str(level))
     else:
         level_extra = getattr(move, 'level' + str(column) + 'Extra')
-        setattr(move, 'level' + str(column) + 'Extra', str(level_extra) + ', ' + str(level))  # Queulorior
+        setattr(move, 'level' + str(column) + 'Extra', f"{level_extra}, {level}")
 
     return move

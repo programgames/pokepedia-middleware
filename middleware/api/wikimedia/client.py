@@ -24,6 +24,13 @@ class WikimediaClient:
 
     def edit(self, endpoint: str, parameters: dict):
 
+        nom_fichier = './mon_fichier.txt'
+
+
+        # Ouverture du fichier en mode 'write' (écriture avec suppression du contenu existant)
+        with open(nom_fichier, 'w', encoding='utf-8') as fichier:
+            fichier.write(parameters['text'])
+
         content = wikimedia_session.post(endpoint, data=parameters)
 
         result = json.loads(content.content)
@@ -41,7 +48,7 @@ class WikimediaClient:
 
         for section in content['parse']['sections']:
             level = int(section['level'])
-            line = section['line'].replace('<i>', ' ', ).replace('</i>', ' ').replace('  ', ' ').strip()
+            line = section['line'].replace('<i>', ' ', ).replace('</i>', ' ').replace('  ', ' ').replace(' =','').strip()
 
             if not section_title:
                 section_title = line

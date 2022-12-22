@@ -4,16 +4,37 @@
 
 # Install :
 
+## Middleware setup 
 - git clone git@github.com:programgames/pokepedia-middleware.git
 - cd pokepedia-middleware
 - git submodule init
 - git submodule update
 - pip install -r requirements.txt
-- cd pokedex 
-- sudo python setup.py develop
+
+## Pokeapi setup
+- cd pokeapi
+- make install
+
+[//]: # (### Without docker)
+
+[//]: # (- make setup)
+
+[//]: # (- make serve &#40; optionnal , it start a server for the API&#41;)
+
+[//]: # (- make build-db)
+
+[//]: # (- cd ..)
+
+[//]: # (- python manage.py migrate &#40; for app migrations &#41;)
+
+### With docker
+- make docker-setup
+- make docker-build-db
+- make hasura-apply
+
+## Middleware starting
 - cd ..
-- sudo pip install -e pokedex
-- pokedex load -e sqlite:///run/db.sqlite 
+- make migrate
+- python manage.py init
 - cp .env.dist .env
 - setup your env variables
-- python middleware.py init
