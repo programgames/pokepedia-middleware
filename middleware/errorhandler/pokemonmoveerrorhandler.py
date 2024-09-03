@@ -7,8 +7,8 @@ from middleware.exception import PokemonMoveException, NoMachineMoveLearnAndNoTe
 from middleware.generator import pokepediapokemonmovegenerator
 from middleware.provider.database import pokemonmoveprovider
 from middleware.util.helper import generationhelper, languagehelper
-from pokedex.db import util
-from pokedex.db.tables import Generation, Pokemon, PokemonMoveMethod, VersionGroup
+from pokeapi.db import util
+from pokeapi.db.tables import Generation, Pokemon, PokemonMoveMethod, VersionGroup
 
 
 def handlerpokemonmoveerror(exc: PokemonMoveException, pokemon: Pokemon, generation: Generation, step: int,

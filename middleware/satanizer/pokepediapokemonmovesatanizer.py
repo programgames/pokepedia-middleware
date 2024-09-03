@@ -5,14 +5,14 @@ from collections import OrderedDict
 
 from middleware.exception.exceptions import TemplateNotFoundError
 
-""" Parse , check , and satanize data from a pokepedia pokemon level move section
+""" Parse , check , and satanize data from a config pokemon level move section
 """
 
 
 def check_and_sanitize_moves(moves: list, pokemon_name: str) -> dict:
     """
     Split section into arrays ( forms ) , with top_comments,moves and bot_comments as a normalized
-    reprensation of pokepedia pokemon level move section
+    reprensation of config pokemon level move section
     """
     template = None
     end = None

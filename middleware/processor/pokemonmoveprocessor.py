@@ -2,7 +2,7 @@ from middleware.errorhandler import pokemonmoveerrorhandler
 from middleware.exception.exceptions import PokemonMoveException
 from middleware.generator import pokepediapokemonmovegenerator
 from middleware.provider.database import pokemonmoveprovider
-from pokedex.db.tables import PokemonMoveMethod, Pokemon, Generation
+from pokeapi.db.tables import PokemonMoveMethod, Pokemon, Generation
 
 from middleware.util.helper import pokemonhelper, generationhelper, specificcasehelper, pokemonmovehelper
 from middleware.api.pokepedia import pokemonmoveapi, pokepedia_client

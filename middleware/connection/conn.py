@@ -1,6 +1,6 @@
 from middleware.util.helper import filesystemhelper
-from pokedex.db.multilang import MultilangSession
-from pokedex.db import connect
+from pokeapi.db.multilang import MultilangSession
+from pokeapi.db import connect
 import os
 from dotenv import load_dotenv
 

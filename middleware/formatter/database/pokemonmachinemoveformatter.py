@@ -7,12 +7,12 @@ from middleware.exception import InvalidConditionException
 from middleware.formatter.dto.machinemove import MachineMove
 from middleware.util.helper import generationhelper, machinehelper, languagehelper, pokemonmovehelper, \
     versiongrouphelper, specificcasehelper
-from pokedex.db.tables import PokemonMoveMethod, Pokemon, Generation, VersionGroup, PokemonMove
+from pokeapi.db.tables import PokemonMoveMethod, Pokemon, Generation, VersionGroup, PokemonMove
 from middleware.db import repository
 from collections import OrderedDict
 from middleware.connection.conn import session
 import re
-from pokedex.db import util
+from pokeapi.db import util
 
 """Format pokemon level moves from database into a pretty format
 """

@@ -1,6 +1,6 @@
 from middleware.db.tables import PokemonMoveAvailability
 from middleware.util.helper import generationhelper, versiongrouphelper, languagehelper
-from pokedex.db.tables import PokemonMoveMethod, Pokemon, Generation, VersionGroup, PokemonMove
+from pokeapi.db.tables import PokemonMoveMethod, Pokemon, Generation, VersionGroup, PokemonMove
 from middleware.db import repository
 from middleware.formatter.dto.levelupmove import LevelUpMove
 from collections import OrderedDict
@@ -65,7 +65,7 @@ def _get_preformatteds_database_pokemon_moves(pokemon: Pokemon, generation: Gene
 
 def _format_level(move: LevelUpMove, column: int, previous_weight: int) -> dict:
     """
-    Tranform a LevelUpMove object to a dict containing his weight and the pokepedia formatted string
+    Tranform a LevelUpMove object to a dict containing his weight and the config formatted string
     """
     level = ''
     weight = 0

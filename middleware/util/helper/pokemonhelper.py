@@ -1,4 +1,4 @@
-from pokedex.db.tables import Pokemon
+from pokeapi.db.tables import Pokemon
 import re
 
 from middleware.util.helper import languagehelper

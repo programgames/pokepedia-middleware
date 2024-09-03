@@ -1,5 +1,5 @@
 from middleware.connection import sqlite
-from pokedex.db.tables import *
+from pokeapi.db.tables import *
 
 from middleware.db.tables import PokemonMoveAvailability, MoveNameChangelog
 from middleware.connection.conn import session

@@ -1,4 +1,4 @@
-from pokedex.db.tables import PokemonMoveMethod, Pokemon, Generation
+from pokeapi.db.tables import PokemonMoveMethod, Pokemon, Generation
 
 import middleware.db.repository as repository
 from middleware.util.helper import pokemonmovehelper, generationhelper

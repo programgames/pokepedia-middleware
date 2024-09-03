@@ -1,4 +1,4 @@
-from pokedex.db import util
+from pokeapi.db import util
 from middleware.connection.conn import session
 
 

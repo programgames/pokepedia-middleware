@@ -1,7 +1,7 @@
 from middleware.connection.conn import session
 from middleware.exception import InvalidConditionException
 from middleware.util.helper import generationhelper
-from pokedex.db.tables import Generation, VersionGroup
+from pokeapi.db.tables import Generation, VersionGroup
 
 """ Provide tools to deal with version groups
 """

@@ -3,7 +3,7 @@ from middleware.api.wikimedia.client import WikimediaClient
 
 
 class PokepediaClient(WikimediaClient):
-    """ Basic class to make basic request to pokepedia
+    """ Basic class to make basic request to config
     """
     ENDPOINT = "https://www.pokepedia.fr/api.php"
 

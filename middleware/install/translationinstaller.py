@@ -6,7 +6,7 @@ import csv
 from middleware.connection.conn import session
 from middleware.db.tables import MoveNameChangelog
 from middleware.util.helper import generationhelper
-from pokedex.db.tables import Language, Generation, Move
+from pokeapi.db.tables import Language, Generation, Move
 
 
 def load_french_aliases():
@@ -17,7 +17,7 @@ def load_french_aliases():
         line = csv.reader(csvfile, delimiter=',')
         french = session.query(Language).filter(Language.identifier == 'fr').one()
         for row in line:
-            if header:
+            if header:&
                 header = False
                 continue
             gens = re.findall(r'\d', row[2])

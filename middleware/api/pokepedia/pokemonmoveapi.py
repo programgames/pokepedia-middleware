@@ -7,7 +7,7 @@ from middleware.exception.exceptions import TemplateNotFoundError, \
 from middleware.satanizer import pokepediapokemonmovesatanizer
 from middleware.util.helper import databasehelper, machinehelper
 from middleware.util.helper.pokemonmovehelper import LEVELING_UP_TYPE, MACHINE_TYPE, EGG_TYPE
-from pokedex.db.tables import VersionGroup, PokemonMove, Pokemon, PokemonMoveMethod
+from pokeapi.db.tables import VersionGroup, PokemonMove, Pokemon, PokemonMoveMethod
 
 """Abstraction of a Pokepedia client to extract pokemon moves data on respective pokemon page
 """
@@ -52,7 +52,7 @@ def get_pokemon_moves(pokemon: Pokemon, name: str, generation: int, method_type:
 def _get_pokemon_moves_from_cache(step: int, name: str, generation: int, method_type: str, version_group=None,
                                   dt=None) -> dict:
     return repository.get_item_from_cache(
-        f'pokepedia.wikitext.pokemonmove.step.{step}.{name}.{generation}.{method_type}',
+        f'config.wikitext.pokemonmove.step.{step}.{name}.{generation}.{method_type}',
         lambda: pokemonmoveapiclient.get_pokemon_moves(name, generation, method_type, version_group.identifier
         if version_group else None, dt))
 

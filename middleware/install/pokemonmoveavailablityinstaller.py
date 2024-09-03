@@ -1,7 +1,7 @@
 from middleware.db import repository
 from middleware.connection.conn import session
 from middleware.db.tables import PokemonMoveAvailability
-from pokedex.db.tables import VersionGroup
+from pokeapi.db.tables import VersionGroup
 
 red_blue_vg = session.query(VersionGroup).filter(VersionGroup.identifier == 'red-blue').one()
 yellow_vg = session.query(VersionGroup).filter(VersionGroup.identifier == 'yellow').one()

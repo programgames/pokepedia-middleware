@@ -1,5 +1,5 @@
 from middleware.exception import InvalidConditionException
-from pokedex.db.tables import Machine
+from pokeapi.db.tables import Machine
 
 
 def is_hm(machine: Machine, gen: int) -> bool:

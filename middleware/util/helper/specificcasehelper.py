@@ -1,8 +1,8 @@
 from middleware.connection.conn import session
 from middleware.util.helper import generationhelper
 from middleware.util.helper.pokemonmovehelper import MACHINE_TYPE, EGG_TYPE
-from pokedex.db import util
-from pokedex.db.tables import PokemonMoveMethod, Pokemon, Generation
+from pokeapi.db import util
+from pokeapi.db.tables import PokemonMoveMethod, Pokemon, Generation
 
 
 def is_specific_pokemon_move_case(method: PokemonMoveMethod, pkm: Pokemon, gen: Generation):

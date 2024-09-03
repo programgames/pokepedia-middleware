@@ -14,7 +14,7 @@ def get_pokemon_moves(name: str, generation: int, move_type: str, version_group_
         raise MissingOptionException('argument version_group_name is required for %s type'.format(move_type))
 
     sections = repository.get_item_from_cache(
-        f'pokepedia.section.pokemonmove.{name}.{generation}',
+        f'config.section.pokemonmove.{name}.{generation}',
         lambda: get_pokemon_move_sections(name, generation)
     )
     section = get_section_index_by_pokemon_move_type_and_generation(move_type, sections, generation,
