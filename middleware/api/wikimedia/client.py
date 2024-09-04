@@ -24,6 +24,7 @@ class WikimediaClient:
 
     def edit(self, endpoint: str, parameters: dict):
 
+        return
         content = wikimedia_session.post(endpoint, data=parameters)
 
         result = json.loads(content.content)

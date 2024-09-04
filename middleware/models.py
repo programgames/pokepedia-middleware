@@ -79,12 +79,10 @@ class PokemonMoveAvailability(models.Model):
     level = models.BooleanField(default=True)
     tutor = models.BooleanField(default=True)
     egg = models.BooleanField(default=True)
-    forms = models.ForeignKey(
-        "PkmAvailabilityForm",
+    forms = models.ManyToManyField(
+        "PokemonMoveAvailability",
         blank=True,
-        null=True,
         related_name="%(class)s",
-        on_delete=models.CASCADE,
     )
 
     def __str__(self):
