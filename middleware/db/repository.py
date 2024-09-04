@@ -97,7 +97,7 @@ def find_pokemon_with_specific_page(start_at: int) -> OrderedDict:
     ).values_list('pokemon_species_id', flat=True)
 
     availabilities = PokemonMoveAvailability.objects.filter(
-        pokemon__species_id__in=species_ids,
+        pokemon__pokemon_species__id__in=species_ids,
         has_pokepedia_page=True
     ).select_related('pokemon').order_by('-pokemon_id')
 
