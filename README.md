@@ -19,6 +19,8 @@
 - make setup
 - make serve ( optionnal , it start a server for the API)
 - make build-db
+- cd ..
+- python manage.py migrate ( for app migrations )
 
 ### With docker
 - make docker-setup

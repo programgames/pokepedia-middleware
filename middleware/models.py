@@ -47,7 +47,7 @@ class PkmAvailabilityForm(models.Model):
 
 class HasMachine(models.Model):
     machine = models.ForeignKey(
-        "pokemon_v2.Move",
+        "pokemon_v2.Machine",
         blank=True,
         null=True,
         related_name="%(class)s",
