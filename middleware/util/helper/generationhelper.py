@@ -1,10 +1,11 @@
-from middleware.connection.conn import session
+from django.core.exceptions import ObjectDoesNotExist
 from middleware.exception import InvalidConditionException
-from pokeapi.db.tables import Pokemon, Generation, VersionGroup
 import middleware.db.repository as repository
+from pokemon_v2.models import Generation, VersionGroup, Pokemon
 
 """ Provide tools to deal with generations
 """
+
 
 
 def gen_int_to_id(integer) -> str:
@@ -55,23 +56,20 @@ def gen_to_int(generation: Generation) -> int:
         'generation-viii': 8,
     }
 
-    return mapping[generation.identifier]
+    return mapping[generation.name]
 
 
 def check_if_pokemon_has_move_availability_in_generation(pokemon: Pokemon, generation: Generation) -> bool:
-    version_groups = session.query(VersionGroup).filter(VersionGroup.generation_id == generation.id).all()
-
-    availabilities = repository.is_pokemon_available_in_version_groups(pokemon,
-                                                                       version_groups)
-
-    return len(availabilities) > 0
+    version_groups = VersionGroup.objects.filter(generation=generation)
+    availabilities = repository.is_pokemon_available_in_version_groups(pokemon, version_groups)
+    return availabilities.exists()
 
 
 def check_if_pokemon_is_available_in_lgpe(pokemon: Pokemon) -> bool:
-    version_group = session.query(VersionGroup).filter(VersionGroup.identifier ==
-                                                       'lets-go-pikachu-lets-go-eevee').one()
+    try:
+        version_group = VersionGroup.objects.get(identifier='lets-go-pikachu-lets-go-eevee')
+    except ObjectDoesNotExist:
+        return False
 
-    availabilities = repository.is_pokemon_available_in_version_groups(pokemon,
-                                                                       [version_group])
-
-    return len(availabilities) > 0
+    availabilities = repository.is_pokemon_available_in_version_groups(pokemon, [version_group])
+    return availabilities.exists()

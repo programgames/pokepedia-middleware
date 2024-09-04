@@ -3,21 +3,30 @@ from middleware.api.wikimedia.client import WikimediaClient
 
 
 class PokepediaClient(WikimediaClient):
-    """ Basic class to make basic request to config
+    """
+    Basic class to make requests to Poképédia's API.
+    Handles authentication and editing pages.
     """
     ENDPOINT = "https://www.pokepedia.fr/api.php"
 
-    token = None
-
     def __init__(self, auth: Auth):
         self.auth = auth
+        self.token = None
 
     def login(self):
-        login_token = self.auth.get_login_token(self.ENDPOINT)
-        self.auth.login_request(login_token, self.ENDPOINT)
-        self.token = self.auth.get_crsf_token(self.ENDPOINT)
+        try:
+            login_token = self.auth.get_login_token(self.ENDPOINT)
+            self.auth.login_request(login_token, self.ENDPOINT)
+            self.token = self.auth.get_crsf_token(self.ENDPOINT)
+            if not self.token:
+                raise RuntimeError("Failed to retrieve CSRF token.")
+        except Exception as e:
+            raise RuntimeError(f"Login failed: {e}")
 
     def upload(self, section: int, page: str, wikitext: str, summary: str):
+        if not self.token:
+            raise RuntimeError("Upload failed: No valid CSRF token found. Please login first.")
+
         parameters = {
             'action': 'edit',
             'section': section,
@@ -29,4 +38,8 @@ class PokepediaClient(WikimediaClient):
             'token': self.token,
             'summary': summary
         }
-        WikimediaClient.edit(self, self.ENDPOINT, parameters)
+
+        try:
+            super().edit(self.ENDPOINT, parameters)
+        except Exception as e:
+            raise RuntimeError(f"Upload failed: {e}")

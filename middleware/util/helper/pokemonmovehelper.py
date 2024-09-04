@@ -1,96 +1,76 @@
 from middleware.exception import InvalidConditionException
 from middleware.util.helper import generationhelper
-from pokeapi.db.tables import PokemonMoveMethod, Generation, Pokemon
+from pokemon_v2.models import Pokemon, Generation, MoveLearnMethod
 
 LEVELING_UP_TYPE = 'level-up'
 MACHINE_TYPE = 'machine'
 EGG_TYPE = 'egg'
 TUTOR_TYPE = 'tutor'
 
-""" Provide tools to deal with pokemon moves
+""" Provide tools to deal with Pokémon moves
 """
 
 
-def get_pokepedia_invoke_learn_method(move_method: PokemonMoveMethod, gen: int, step: int) -> str:
-    french = None
-    if move_method.identifier == LEVELING_UP_TYPE:
-        french = 'niveau'
-    elif move_method.identifier == MACHINE_TYPE and not (gen == 8 and step == 2):
-        french = 'capsule'
-    elif move_method.identifier == MACHINE_TYPE and (gen == 8 and step == 2):
-        french = 'disque'
-    elif move_method.identifier == EGG_TYPE and gen >= 2:
-        french = 'reproduction'
+def get_pokepedia_invoke_learn_method(move_method: MoveLearnMethod, gen: int, step: int) -> str:
+    if move_method.name == LEVELING_UP_TYPE:
+        return 'niveau'
+    elif move_method.name == MACHINE_TYPE:
+        if gen == 8 and step == 2:
+            return 'disque'
+        return 'capsule'
+    elif move_method.name == EGG_TYPE and gen >= 2:
+        return 'reproduction'
 
-    if not french:
-        raise InvalidConditionException('Impossible to translate learn method {} to french'.format(move_method.identifier))
-
-    return french
+    raise InvalidConditionException(f'Impossible to translate learn method {move_method.name} to French')
 
 
-def get_pokepedia_version_groups_identifiers_for_pkm_machine_by_step(gen: int, step: int):
-    if gen == 1:
-        return ['red-blue', 'yellow']
-    elif gen == 2:
-        return ['gold-silver', 'crystal']
-    elif gen == 3:
-        return ['ruby-sapphire', 'emerald', 'firered-leafgreen']
-    elif gen == 4:
-        return ['diamond-pearl', 'platinum', 'heartgold-soulsilver']
-    elif gen == 5:
-        return ['black-white', 'black-2-white-2']
-    elif gen == 6:
-        return ['x-y', 'omega-ruby-alpha-sapphire']
-    elif gen == 7 and step == 1:
-        return ['sun-moon', 'ultra-sun-ultra-moon']
-    elif gen == 7 and step == 2:
-        return ['lets-go-pikachu-lets-go-eevee']
-    elif gen == 8:
-        return ['sword-shield']
-    else:
-        raise InvalidConditionException(f'Could not find version primaries version groups : Unknow '
-                                        f'condition gen : {gen} / step : {step}')
+def get_pokepedia_version_groups_identifiers(gen: int, step: int, method_type: str) -> list:
+    groups_by_gen = {
+        1: ['red-blue', 'yellow'],
+        2: ['gold-silver', 'crystal'],
+        3: ['ruby-sapphire', 'emerald', 'firered-leafgreen'],
+        4: ['diamond-pearl', 'platinum', 'heartgold-soulsilver'],
+        5: ['black-white', 'black-2-white-2'],
+        6: ['x-y', 'omega-ruby-alpha-sapphire'],
+        7: {1: ['sun-moon', 'ultra-sun-ultra-moon'], 2: ['lets-go-pikachu-lets-go-eevee']},
+        8: ['sword-shield'],
+    }
 
-def get_pokepedia_version_groups_identifiers_for_pkm_egg_by_step(gen: int, step: int):
-    if gen == 2:
-        return ['gold-silver', 'crystal']
-    elif gen == 3:
-        return ['ruby-sapphire', 'emerald', 'firered-leafgreen']
-    elif gen == 4:
-        return ['diamond-pearl', 'platinum', 'heartgold-soulsilver']
-    elif gen == 5:
-        return ['black-white', 'black-2-white-2']
-    elif gen == 6:
-        return ['x-y', 'omega-ruby-alpha-sapphire']
-    elif gen == 7 and step == 1:
-        return ['sun-moon', 'ultra-sun-ultra-moon']
-    elif gen == 8:
-        return ['sword-shield']
-    else:
-        raise InvalidConditionException(f'Could not find version primaries version groups : Unknow '
-                                        f'condition gen : {gen} / step : {step}')
+    if gen not in groups_by_gen:
+        raise InvalidConditionException(f'Unknown condition for gen: {gen} / step: {step}')
+
+    if gen == 7:
+        return groups_by_gen[gen].get(step, [])
+
+    return groups_by_gen[gen]
 
 
-def get_steps_by_pokemon_method_and_gen(pokemon: Pokemon, generation: Generation, learn_method: PokemonMoveMethod) -> \
-        int:
-    if learn_method.identifier == LEVELING_UP_TYPE:
+def get_pokepedia_version_groups_identifiers_for_pkm_machine_by_step(gen: int, step: int) -> list:
+    return get_pokepedia_version_groups_identifiers(gen, step, MACHINE_TYPE)
+
+
+def get_pokepedia_version_groups_identifiers_for_pkm_egg_by_step(gen: int, step: int) -> list:
+    return get_pokepedia_version_groups_identifiers(gen, step, EGG_TYPE)
+
+
+def get_steps_by_pokemon_method_and_gen(pokemon: Pokemon, generation: Generation,
+                                        learn_method: MoveLearnMethod) -> int:
+    gen_int = generationhelper.gen_to_int(generation)
+
+    if learn_method.name == LEVELING_UP_TYPE:
         return 1
-    elif learn_method.identifier == MACHINE_TYPE and 1 <= generationhelper.gen_to_int(generation) <= 6:
-        return 1
-    elif learn_method.identifier == MACHINE_TYPE and generationhelper.gen_to_int(generation) == 7:
-        lgpe = generationhelper.check_if_pokemon_is_available_in_lgpe(pokemon)
-        if lgpe:
-            if pokemon.identifier == 'meltan' or pokemon.identifier == 'melmetal':
-                return 1
-            else:
-                return 2
-        else:
+    elif learn_method.name == MACHINE_TYPE:
+        if gen_int <= 6:
             return 1
-    elif learn_method.identifier == MACHINE_TYPE and generationhelper.gen_to_int(generation) == 8:
-        return 2
-    elif learn_method.identifier == EGG_TYPE:
+        elif gen_int == 7:
+            if generationhelper.check_if_pokemon_is_available_in_lgpe(pokemon):
+                return 1 if pokemon.name in {'meltan', 'melmetal'} else 2
+            return 1
+        elif gen_int == 8:
+            return 2
+    elif learn_method.name == EGG_TYPE:
         return 1
-    else:
-        raise NotImplementedError(f'step not implemented for learnmethod {learn_method.identifier} and generation  '
-                                  f'{generationhelper.gen_to_int(generation)}')
-        # TODO improve
+
+    raise NotImplementedError(
+        f'Step not implemented for learn method {learn_method.name} and generation {gen_int}')
+

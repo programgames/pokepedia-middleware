@@ -1,34 +1,49 @@
-from middleware.db.repository import *
+import logging
+import os
+
+from dotenv import load_dotenv
+from middleware.db.repository import find_pokemon_with_specific_page
 import middleware.processor.pokemonmoveprocessor as pokemonmoveprocessor
 from middleware.util.helper import generationhelper
-import logging
-from dotenv import load_dotenv
-import os
+from django.db import transaction
+
+from pokemon_v2.models import Generation, MoveLearnMethod
 
 load_dotenv()
 
 
-def process_pokemon_move(move_method_type: str, start: int, gen: int, debug: bool):
-    logging.basicConfig(filename=os.getenv('LOG_PATH'))
+def process_pokemon_move(move_method_type: str, start: int, gen: int = None, debug: bool = False):
+    logging.basicConfig(filename=os.getenv('LOG_PATH'), level=logging.INFO)
+
+    # Fetch the list of Pokémon with specific pages
     pokemons = find_pokemon_with_specific_page(start)
 
-    learnmethod = session.query(PokemonMoveMethod).filter(PokemonMoveMethod.identifier == move_method_type).one()
-    if gen:
-        generations = session.query(Generation).filter(
-            Generation.identifier == generationhelper.gen_int_to_id(gen)).all()
-    else:
-        generations = session.query(Generation).all()
+    # Retrieve the learning method
+    try:
+        learnmethod = MoveLearnMethod.objects.get(identifier=move_method_type)
+    except MoveLearnMethod.DoesNotExist:
+        logging.error(f"Move method {move_method_type} not found.")
+        return
 
-    # noinspection PyShadowingBuiltins
-    for id, pokemon in pokemons.items():
+    # Retrieve the relevant generations
+    if gen:
+        generations = Generation.objects.filter(identifier=generationhelper.gen_int_to_id(gen))
+    else:
+        generations = Generation.objects.all()
+
+    for pokemon_id, pokemon in pokemons.items():
         for generation in generations:
             try:
-                print('processing ' + pokemon.identifier + ' for generation ' + str(
-                    generation.id) + f" with id {pokemon.id} for method : {move_method_type}")
-                pokemonmoveprocessor.process(generation, learnmethod, pokemon)
+                logging.info(f'Processing {pokemon.name} for generation {generation.identifier} '
+                             f'with ID {pokemon_id} using method {move_method_type}')
+
+                # Wrap the processing in a transaction to ensure atomicity
+                with transaction.atomic():
+                    pokemonmoveprocessor.process(generation, learnmethod, pokemon)
 
             except Exception as exc:
+                logging.error(f"Error processing {pokemon.identifier} for generation {generation.identifier}. "
+                              f"Error: {str(exc)}")
                 if debug:
-                    raise exc
-                logging.error(f"Error happened for {pokemon.identifier} generation {generation.identifier} , "
-                              f"error {str(exc)}")
+                    raise
+
