@@ -12,7 +12,7 @@ from middleware.exception.exceptions import (
 from middleware.satanizer import pokepediapokemonmovesatanizer
 from middleware.util.helper import machinehelper, ormhelper
 from middleware.util.helper.pokemonmovehelper import LEVELING_UP_TYPE, MACHINE_TYPE, EGG_TYPE
-from pokemon_v2.models import VersionGroup, PokemonMove, MoveLearnMethod
+from pokeapi.pokemon_v2.models import VersionGroup, PokemonMove, MoveLearnMethod
 
 """ Abstraction of a Pokepedia client to extract Pokémon moves data on respective Pokémon pages. """
 

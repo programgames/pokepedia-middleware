@@ -2,7 +2,7 @@ from django.db import transaction
 
 from middleware.db import repository
 from middleware.models import PokemonMoveAvailability
-from pokemon_v2.models import VersionGroup
+from pokeapi.pokemon_v2.models import VersionGroup
 
 red_blue_vg = VersionGroup.objects.get(identifier='red-blue')
 yellow_vg = VersionGroup.objects.get(identifier='yellow')
@@ -54,6 +54,7 @@ def load_basic_move_availabilities():
     save_alola_pokemons(lgpe_vg)
 
 
+# noinspection DuplicatedCode
 def load_specific_pokemon_move_availabilities():
     # gen 3
     save_pokemon_move_availabilities_with_forms([ruby_sapphir_vg, emerald_vg, firered_leafgreen_vg],

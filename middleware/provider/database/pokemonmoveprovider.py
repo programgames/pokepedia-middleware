@@ -4,7 +4,7 @@ from middleware.formatter.database import (
     pokemoneggmoveformatter
 )
 from middleware.util.helper.pokemonmovehelper import LEVELING_UP_TYPE, MACHINE_TYPE, EGG_TYPE
-from pokemon_v2.models import Pokemon, Generation, MoveLearnMethod
+from pokeapi.pokemon_v2.models import Pokemon, Generation, MoveLearnMethod
 
 
 def get_database_pokemon_moves(pokemon: Pokemon, generation: Generation, learn_method: MoveLearnMethod,

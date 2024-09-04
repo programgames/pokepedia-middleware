@@ -12,7 +12,7 @@ from middleware.models import PokemonMoveAvailability
 from middleware.provider.database import pokemonmoveprovider
 from middleware.util.helper import generationhelper
 from middleware.util.helper.languagehelper import get_pokemon_specy_french_name
-from pokemon_v2.models import Pokemon, Generation, VersionGroup, MoveLearnMethod
+from pokeapi.pokemon_v2.models import Pokemon, Generation, VersionGroup, MoveLearnMethod
 
 
 # noinspection DuplicatedCode

@@ -1,6 +1,6 @@
 from middleware.exception import InvalidConditionException
 from middleware.util.helper import generationhelper
-from pokemon_v2.models import Pokemon, Generation, MoveLearnMethod
+from pokeapi.pokemon_v2.models import Pokemon, Generation, MoveLearnMethod
 
 LEVELING_UP_TYPE = 'level-up'
 MACHINE_TYPE = 'machine'

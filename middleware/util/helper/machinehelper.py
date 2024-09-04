@@ -1,5 +1,5 @@
 from middleware.exception import InvalidConditionException
-from pokemon_v2.models import Machine
+from pokeapi.pokemon_v2.models import Machine
 
 
 def is_hm(machine: Machine, gen: int) -> bool:

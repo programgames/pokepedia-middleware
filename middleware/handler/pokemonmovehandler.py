@@ -7,7 +7,7 @@ import middleware.processor.pokemonmoveprocessor as pokemonmoveprocessor
 from middleware.util.helper import generationhelper
 from django.db import transaction
 
-from pokemon_v2.models import Generation, MoveLearnMethod
+from pokeapi.pokemon_v2.models import Generation, MoveLearnMethod
 
 load_dotenv()
 

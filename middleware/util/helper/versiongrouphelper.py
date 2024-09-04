@@ -1,7 +1,7 @@
 from django.core.exceptions import ObjectDoesNotExist
 from middleware.exception import InvalidConditionException
 from middleware.util.helper import generationhelper
-from pokemon_v2.models import VersionGroup
+from pokeapi.pokemon_v2.models import VersionGroup
 
 """ Provide tools to deal with version groups
 """
@@ -47,7 +47,7 @@ def get_version_group_by_gen_and_column(generation, column: int) -> VersionGroup
         }
     }
 
-    gen_int = generationhelper.gen_id_to_int(generation.identifier)
+    gen_int = generationhelper.gen_name_to_gen_number(generation.identifier)
     try:
         version_group_identifier = mappings[gen_int][column]
         return VersionGroup.objects.get(identifier=version_group_identifier)

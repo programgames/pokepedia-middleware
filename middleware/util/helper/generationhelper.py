@@ -1,7 +1,7 @@
 from django.core.exceptions import ObjectDoesNotExist
 from middleware.exception import InvalidConditionException
 import middleware.db.repository as repository
-from pokemon_v2.models import Generation, VersionGroup, Pokemon
+from pokeapi.pokemon_v2.models import Generation, VersionGroup, Pokemon
 
 """ Provide tools to deal with generations
 """
@@ -29,7 +29,7 @@ def gen_int_to_id(integer) -> str:
         raise InvalidConditionException('generation not available for integer ' + integer)
 
 
-def gen_id_to_int(generation: str) -> int:
+def gen_name_to_gen_number(generation: str) -> int:
     mapping = {
         'generation-i': 1,
         'generation-ii': 2,

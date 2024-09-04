@@ -4,8 +4,9 @@ from collections import OrderedDict, defaultdict
 from django.db.models import F, Func
 
 from middleware.util.helper.languagehelper import get_move_french_name, get_type_french_name
-from pokemon_v2.models import Pokedex, PokemonDexNumber, Pokemon, VersionGroup, PokemonMove, Move, Generation, \
-    PokemonForm, PokemonTypePast, PokemonType, PokemonSpecies, MoveLearnMethod
+from pokeapi.pokemon_v2.models import Pokedex, PokemonDexNumber, Pokemon, VersionGroup, PokemonMove, Move, Generation, \
+    PokemonForm, PokemonTypePast, PokemonType, PokemonSpecies, MoveLearnMethod, PokemonFormName, EggGroup, \
+    PokemonEggGroup
 
 """
 Contains functions using the repository pattern to encapsulate database requests
@@ -279,10 +280,10 @@ def find_pokemon_by_french_form_name(original_pokemon: Pokemon, name: str):
     if specific_case:
         return specific_case
 
-    form_name_entities = PokemonForm.names_table.objects.filter(form_name=name)
+    form_name_entities = PokemonFormName.objects.filter(form_name=name)
 
     if not form_name_entities.exists():
-        form_name_entity = PokemonForm.names_table.objects.filter(pokemon_name=name.title()).first()
+        form_name_entity = PokemonFormName.objects.filter(pokemon_name=name.title()).first()
         if not form_name_entity:
             raise RuntimeError(f'Form not found for name {name}')
         return PokemonForm.objects.get(id=form_name_entity.pokemon_form_id).pokemon
@@ -292,7 +293,7 @@ def find_pokemon_by_french_form_name(original_pokemon: Pokemon, name: str):
 
     for form_name_entity in form_name_entities:
         form_entity = PokemonForm.objects.get(id=form_name_entity.pokemon_form_id)
-        if form_entity.pokemon.species_id == original_pokemon.species_id:
+        if form_entity.pokemon.species_id == original_pokemon.pokemon_species.id:
             return form_entity.pokemon
 
     raise RuntimeError(f'Form not found for name {name}')
@@ -303,7 +304,7 @@ def find_minimal_pokemon_in_evolution_chain(pkm: Pokemon, gen: Generation) -> Po
     if pkm.pokemon_species.evolves_from_species_id is None:
         return pkm
 
-    minimal_species = pkm.pokemon_species.evolution_chain.species.filter(
+    minimal_species = pkm.pokemon_species.evolves_from_species.objects.get(
         generation_id__lte=gen.id,
         evolves_from_species_id__isnull=True
     ).first()
@@ -331,11 +332,14 @@ def find_pokemon_learning_move_by_egg_groups(pokemon: Pokemon, move: Move, gener
 
 
 def _is_breedable(specy: PokemonSpecies) -> bool:
-    return specy.egg_groups.exclude(identifier__in=['no-eggs', 'indeterminate']).exists()
+    egg_groups = PokemonEggGroup.objects.get(pokemon_species=specy)
+    return egg_groups[0].name in ['no-eggs', 'indeterminate']
+
+
 
 
 def _build_pkm_parent_tree(pokemon: Pokemon, pkmmoves):
-    egg_groups = pokemon.species.egg_groups.values_list('identifier', flat=True)
+    egg_groups = PokemonEggGroup.objects.get(pokemon_species=pokemon.pokemon_species)
 
     pkmsandvgs = defaultdict(lambda: defaultdict(dict))
 

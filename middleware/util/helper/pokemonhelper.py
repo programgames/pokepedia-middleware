@@ -1,5 +1,5 @@
 from middleware.util.helper.languagehelper import get_pokemon_specy_french_name
-from pokemon_v2.models import Pokemon
+from pokeapi.pokemon_v2.models import Pokemon
 
 """ Provide tools to deal with Pokémon
 """

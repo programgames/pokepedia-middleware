@@ -3,30 +3,29 @@ from pyuca import Collator
 import re
 
 from middleware.models import PokemonMoveAvailability
-from middleware.util.helper import generationhelper, versiongrouphelper, languagehelper
+from middleware.util.helper import generationhelper, versiongrouphelper
 from middleware.db import repository
 from middleware.formatter.dto.levelupmove import LevelUpMove
 from middleware.util.helper.languagehelper import get_pokemon_specy_french_name
-from middleware.util.helper.pokemonmovehelper import PokemonMoveMethod
-from pokemon_v2.models import Pokemon, Generation, VersionGroup, PokemonMove
+from pokeapi.pokemon_v2.models import Pokemon, Generation, VersionGroup, PokemonMove, MoveLearnMethod
 
 """Format Pokemon level moves from database into a pretty format"""
 
 
-def get_formatted_level_up_database_moves(pokemon: Pokemon, generation: Generation, learn_method: PokemonMoveMethod,
+def get_formatted_level_up_database_moves(pokemon: Pokemon, generation: Generation, learn_method: MoveLearnMethod,
                                           form_order: dict):
     """
-    Get Pokemon moves from the database and format them.
+    Get Pokémon moves from the database and format them.
     """
     return _get_pokemon_level_move_forms(pokemon, generation, learn_method, form_order)
 
 
 def _get_preformatteds_database_pokemon_moves(pokemon: Pokemon, generation: Generation,
-                                              learn_method: PokemonMoveMethod) -> dict:
+                                              learn_method: MoveLearnMethod) -> dict:
     """
     Return a dict containing a list of LevelUpMove to ease future formatting/sorting.
     """
-    gen_number = generationhelper.gen_id_to_int(generation.id)
+    gen_number = generationhelper.gen_name_to_gen_number(generation.name)
     preformatteds = {}
     columns = _determine_columns(gen_number, pokemon)
 
@@ -45,7 +44,7 @@ def _get_preformatteds_database_pokemon_moves(pokemon: Pokemon, generation: Gene
 
 def _determine_columns(gen_number: int, pokemon: Pokemon) -> int:
     """
-    Determine the number of columns based on the generation and Pokemon availability.
+    Determine the number of columns based on the generation and Pokémon availability.
     """
     if gen_number == 7:
         lgpe = VersionGroup.objects.get(identifier='lets-go-pikachu-lets-go-eevee')
@@ -96,7 +95,7 @@ def _format_level(move: LevelUpMove, column: int, previous_weight: int) -> dict:
 
 def _calculate_total_weight(weights: list, formatteds: dict) -> str:
     """
-    Calculate the position the Pokemon level move should have in the list.
+    Calculate the position the Pokémon level move should have in the list.
     """
     total = min(weight['weight'] for weight in weights if weight['weight'] is not None)
 
@@ -107,6 +106,7 @@ def _calculate_total_weight(weights: list, formatteds: dict) -> str:
             return str(total)
 
 
+# noinspection DuplicatedCode
 def _sort_level_moves(formatteds: dict) -> list:
     """
     Sort Pokémon level moves, first by their weights and then alphabetically.
@@ -130,11 +130,11 @@ def _sort_level_moves(formatteds: dict) -> list:
 
 def _get_formatted_moves_by_pokemons(pokemon: Pokemon, generation: Generation, learn_method: PokemonMoveMethod):
     """
-    Return the fully formatted list of Pokemon level move for a specific Pokemon.
+    Return the fully formatted list of Pokémon level move for a specific Pokémon.
     """
     pre_formatteds = _get_preformatteds_database_pokemon_moves(pokemon, generation, learn_method)
     formatteds = {}
-    generation_number = generationhelper.gen_id_to_int(generation.identifier)
+    generation_number = generationhelper.gen_name_to_gen_number(generation.name)
 
     for name, move in pre_formatteds.items():
         name_alias = f"{name}{{{{!}}}}{move.alias}" if move.alias else name
@@ -150,15 +150,15 @@ def _get_formatted_moves_by_pokemons(pokemon: Pokemon, generation: Generation, l
     return _sort_level_moves(formatteds)
 
 
-def _get_pokemon_level_move_forms(pokemon: Pokemon, generation: Generation, learn_method: PokemonMoveMethod,
+def _get_pokemon_level_move_forms(pokemon: Pokemon, generation: Generation, learn_method: MoveLearnMethod,
                                   form_order: dict):
     """
-    Return a list of fully formatted Pokemon level move by forms.
+    Return a list of fully formatted Pokémon level move by forms.
     """
-    generation = Generation.objects.get(identifier=generation.identifier)
+    generation = Generation.objects.get(identifier=generation.name)
     version_group = repository.find_highest_version_group_by_generation(generation)
 
-    if pokemon.identifier in {'meltan', 'melmetal'}:
+    if pokemon.name in {'meltan', 'melmetal'}:
         version_group = VersionGroup.objects.get(identifier='lets-go-pikachu-lets-go-eevee')
 
     availability = PokemonMoveAvailability.objects.filter(
@@ -172,7 +172,7 @@ def _get_pokemon_level_move_forms(pokemon: Pokemon, generation: Generation, lear
         specy_name = get_pokemon_specy_french_name(pokemon.pokemon_species).replace(' ', '_')
         form_order_name = next(iter(form_order))
 
-        if specy_name != form_order_name:  # handle case of Pokemon with forms on different pages like Sylveroy
+        if specy_name != form_order_name:  # handle case of Pokémon with forms on different pages like Sylveroy
             specy_name = form_order_name
 
         return {specy_name: _get_formatted_moves_by_pokemons(pokemon, generation, learn_method)}

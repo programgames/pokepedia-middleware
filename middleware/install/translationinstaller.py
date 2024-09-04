@@ -5,7 +5,7 @@ import csv
 
 from middleware.models import MoveNameChangelog
 from middleware.util.helper import generationhelper
-from pokemon_v2.models import Language, Move, Generation
+from pokeapi.pokemon_v2.models import Language, Move, Generation
 
 
 def load_french_aliases():

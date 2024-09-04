@@ -11,7 +11,7 @@ from middleware.util.helper import (
 )
 from middleware.db import repository
 from middleware.util.helper.languagehelper import get_pokemon_specy_french_name
-from pokemon_v2.models import Pokemon, Generation, VersionGroup, Move, MoveLearnMethod
+from pokeapi.pokemon_v2.models import Pokemon, Generation, VersionGroup, Move, MoveLearnMethod
 
 """Format pokemon egg moves from database into a pretty format"""
 
@@ -23,7 +23,7 @@ def get_formatted_egg_database_moves(pokemon: Pokemon, generation: Generation, l
 
 def _get_preformatteds_database_pokemon_egg_moves(pokemon: Pokemon, generation: Generation, step: int,
                                                   learn_method: MoveLearnMethod) -> list:
-    gen_number = generationhelper.gen_id_to_int(generation.name)
+    gen_number = generationhelper.gen_name_to_gen_number(generation.name)
     preformatteds = []
 
     version_groups = _get_version_groups_for_pokemon(pokemon, gen_number, step)
@@ -134,10 +134,10 @@ def _sort_pokemon_egg_moves(formatteds: dict) -> list:
     return sorted_moves
 
 
-def _get_formatted_moves_by_pokemons(pokemon: Pokemon, generation: Generation, learn_method: PokemonMoveMethod,
+def _get_formatted_moves_by_pokemons(pokemon: Pokemon, generation: Generation, learn_method: MoveLearnMethod,
                                      step: int):
     """
-    Return the fully formatted list of Pokémon machine move for a specific pokemon
+    Return the fully formatted list of Pokémon machine move for a specific Pokémon
     """
     pre_formatteds = _get_preformatteds_database_pokemon_egg_moves(pokemon, generation, step, learn_method)
     formatteds = {}
@@ -152,7 +152,7 @@ def _get_formatted_moves_by_pokemons(pokemon: Pokemon, generation: Generation, l
     return _sort_pokemon_egg_moves(formatteds)
 
 
-def _get_pokemon_egg_move_forms(pokemon: Pokemon, generation: Generation, learn_method: PokemonMoveMethod,
+def _get_pokemon_egg_move_forms(pokemon: Pokemon, generation: Generation, learn_method: MoveLearnMethod,
                                 form_order: dict, step):
     gen_number = generationhelper.gen_to_int(generation)
 
@@ -194,12 +194,12 @@ def _get_pokemon_egg_move_forms(pokemon: Pokemon, generation: Generation, learn_
 
 
 def _get_version_group_for_gen7(pokemon, step):
-    if step == 1 and pokemon.identifier not in ['meltan', 'melmetal']:
+    if step == 1 and pokemon.name not in ['meltan', 'melmetal']:
         return VersionGroup.objects.get(identifier='ultra-sun-ultra-moon')
     return VersionGroup.objects.get(identifier='lets-go-pikachu-lets-go-eevee')
 
 
-def _fill_egg_move(pokemon: Pokemon, learn_method: PokemonMoveMethod, name: str, alias: str, move_with_vg,
+def _fill_egg_move(pokemon: Pokemon, learn_method: MoveLearnMethod, name: str, alias: str, move_with_vg,
                    generation: int, eggmove: Move, step: int) -> EggMove:
     move = EggMove()
     move.name = alias or name

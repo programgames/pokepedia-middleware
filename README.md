@@ -14,11 +14,16 @@
 ## Pokeapi setup
 - cd pokeapi
 - make install
+
+### Without docker
 - make setup
-- make serve ( optionnal )
+- make serve ( optionnal , it start a server for the API)
 - make build-db
+
+### With docker
 - make docker-setup
 - make docker-build-db
+- make hasura-apply
 
 ## Middleware starting
 - cp .env.dist .env

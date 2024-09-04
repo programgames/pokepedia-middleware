@@ -1,6 +1,6 @@
 import middleware.db.repository as repository
 from middleware.util.helper import pokemonmovehelper, generationhelper
-from pokemon_v2.models import Pokemon, Generation, MoveLearnMethod
+from pokeapi.pokemon_v2.models import Pokemon, Generation, MoveLearnMethod
 
 
 def generate_move_wiki_text(learn_method: MoveLearnMethod, pokemon: Pokemon, generation: Generation,
@@ -45,7 +45,7 @@ def _generate_single_form_text(pokemon, pokepedia_pokemon_name, pokepedia_data, 
 
     # Begin the learn method block
     generated.append(f"{{{{#invoke:Apprentissage|{pokepedia_learn_method}|type={french_slot1_name}|"
-                     f"génération={generationhelper.gen_id_to_int(generation.name)}|")
+                     f"génération={generationhelper.gen_name_to_gen_number(generation.name)}|")
 
     # Special case for Queulorior
     if learn_method.name == 'egg' and any(group.identifier == 'monster' for group in pokemon.pokemon_species.egg_groups):
@@ -76,7 +76,7 @@ def _generate_multiple_forms_text(database_data, form_order, generation, learn_m
 
         # Begin the learn method block
         generated.append(f"{{{{#invoke:Apprentissage|{pokepedia_learn_method}|type={french_slot1_name}|"
-                         f"génération={generationhelper.gen_id_to_int(generation.name)}|")
+                         f"génération={generationhelper.gen_name_to_gen_number(generation.name)}|")
 
         # Special case for Queulorior
         if learn_method.name == 'egg' and any(group.identifier == 'monster' for group in form.species.egg_groups):
@@ -95,4 +95,4 @@ def generate_specific_no_pokemon_machine_move_wikitext(pokemon: Pokemon, generat
     french_slot1_name = repository.find_french_slot1_name_by_gen(pokemon, generation)
     pokepedia_learn_method = 'capsule' if generationhelper.gen_to_int(generation) == 8 and step == 2 else 'disque'
 
-    return f"{{{{#invoke:Apprentissage|{pokepedia_learn_method}|type={french_slot1_name}|génération={generationhelper.gen_id_to_int(generation.identifier)}|Aucune|}}}}"
+    return f"{{{{#invoke:Apprentissage|{pokepedia_learn_method}|type={french_slot1_name}|génération={generationhelper.gen_name_to_gen_number(generation.name)}|Aucune|}}}}"

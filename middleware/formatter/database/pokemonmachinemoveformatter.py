@@ -3,12 +3,13 @@ import re
 
 from middleware.db import repository
 from middleware.exception import InvalidConditionException
+from middleware.formatter.database.pokemoneggmoveformatter import _get_formatted_moves_by_pokemons
 from middleware.formatter.dto.machinemove import MachineMove
 from middleware.models import PokemonMoveAvailability
 from middleware.util.helper import pokemonmovehelper, specificcasehelper, versiongrouphelper, machinehelper, \
-    generationhelper
+    generationhelper, languagehelper
 from middleware.util.helper.languagehelper import get_pokemon_specy_french_name
-from pokemon_v2.models import Pokemon, Generation, MoveLearnMethod, PokemonMove, VersionGroup
+from pokeapi.pokemon_v2.models import Pokemon, Generation, MoveLearnMethod, PokemonMove, VersionGroup
 
 
 # Importe les modèles Django appropriés
@@ -172,12 +173,13 @@ def _get_pokemon_machine_move_forms(pokemon: Pokemon, generation: Generation, le
         return {specy_name: _get_formatted_moves_by_pokemons(pokemon, generation, learn_method, step)}
 
     if availability.forms[0].has_pokepedia_page:
-        specy_name = pokemon.species.name_map(languagehelper.french)
+        specy_name = get_pokemon_specy_french_name(pokemon.pokemon_species)
+
         return {specy_name: _get_formatted_moves_by_pokemons(pokemon, generation, learn_method, step)}
 
     forms = OrderedDict()
     for form_name, form_extra in form_order.items():
-        pokemon = pokemonmovehelper.find_pokemon_by_french_form_name(pokemon, form_name)
+        pokemon = repository.find_pokemon_by_french_form_name(pokemon, form_name)
         forms[form_name] = _get_formatted_moves_by_pokemons(pokemon, generation, learn_method, step)
 
     return forms
@@ -188,7 +190,7 @@ def _fill_machine_move(name: str, alias: str, pokemon_move_entity: PokemonMove, 
     move.name = name
     move.alias = alias
     move.is_hm = machinehelper.is_hm(pokemon_move_entity.machine, generation)
-    move.item = pokemon_move_entity.machine.item.name_map[languagehelper.french]
+    move.item = languagehelper.get_item_french_name(pokemon_move_entity.machine.item)
     move.version_group = pokemon_move_entity.version_group.name
     return move
 
