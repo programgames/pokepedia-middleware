@@ -58,7 +58,7 @@ class HasMachine(models.Model):
         abstract = True
 
 
-class PokemonMoveAvailability(HasMachine):
+class PokemonMoveAvailability(models.Model):
     pokemon = models.ForeignKey(
         "pokemon_v2.Pokemon",
         blank=True,
@@ -75,6 +75,7 @@ class PokemonMoveAvailability(HasMachine):
     )
     is_default = models.BooleanField(default=True)
     has_pokepedia_page = models.BooleanField(default=True)
+    machine = models.BooleanField(default=True)
     level = models.BooleanField(default=True)
     tutor = models.BooleanField(default=True)
     egg = models.BooleanField(default=True)
