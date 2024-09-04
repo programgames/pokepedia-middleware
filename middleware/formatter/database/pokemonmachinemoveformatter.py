@@ -155,9 +155,9 @@ def _get_pokemon_machine_move_forms(pokemon: Pokemon, generation: Generation, le
     if 1 <= gen_number <= 6:
         version_group = repository.find_highest_version_group_by_generation(generation)
     elif gen_number == 7 and step == 1:
-        version_group = VersionGroup.objects.get(identifier='ultra-sun-ultra-moon')
+        version_group = VersionGroup.objects.get(name='ultra-sun-ultra-moon')
     elif gen_number == 7 and step == 2 or gen_number == 8 and step == 2:
-        version_group = VersionGroup.objects.get(identifier='lets-go-pikachu-lets-go-eevee')
+        version_group = VersionGroup.objects.get(name='lets-go-pikachu-lets-go-eevee')
     else:
         raise InvalidConditionException(f'Invalid generation/step condition: {gen_number} / {step}')
 

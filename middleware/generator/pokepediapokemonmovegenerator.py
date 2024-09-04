@@ -48,7 +48,7 @@ def _generate_single_form_text(pokemon, pokepedia_pokemon_name, pokepedia_data, 
                      f"génération={generationhelper.gen_name_to_gen_number(generation.name)}|")
 
     # Special case for Queulorior
-    if learn_method.name == 'egg' and any(group.identifier == 'monster' for group in pokemon.pokemon_species.egg_groups):
+    if learn_method.name == 'egg' and any(group.name == 'monster' for group in pokemon.pokemon_species.egg_groups):
         generated.append('queulorior|')
 
     # Add moves
@@ -79,7 +79,7 @@ def _generate_multiple_forms_text(database_data, form_order, generation, learn_m
                          f"génération={generationhelper.gen_name_to_gen_number(generation.name)}|")
 
         # Special case for Queulorior
-        if learn_method.name == 'egg' and any(group.identifier == 'monster' for group in form.species.egg_groups):
+        if learn_method.name == 'egg' and any(group.name == 'monster' for group in form.species.egg_groups):
             generated.append('queulorior|')
 
         # Add moves

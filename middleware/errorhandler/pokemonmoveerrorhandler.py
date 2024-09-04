@@ -32,7 +32,7 @@ def handlerpokemonmoveerror(exc: PokemonMoveException, pokemon: Pokemon, generat
 
     elif isinstance(exc, MissingMachineMoveTemplateException):
         if not exc.additional_data['wikitext']:
-            machine = MoveLearnMethod.objects.get(identifier='machine')
+            machine = MoveLearnMethod.objects.get(name='machine')
             if not _has_multiple_forms_for_machine_moves(generation, step, pokemon):
                 specy_name = get_pokemon_specy_french_name(pokemon.pokemon_species).replace(' ', '_')
                 if generationhelper.gen_to_int(generation) > 6:
@@ -62,7 +62,7 @@ def handlerpokemonmoveerror(exc: PokemonMoveException, pokemon: Pokemon, generat
 
     elif isinstance(exc, MissingEggMoveTemplateException):
         if not exc.additional_data['wikitext']:
-            egg = MoveLearnMethod.objects.get(identifier='egg')
+            egg = MoveLearnMethod.objects.get(name='egg')
             specy_name = get_pokemon_specy_french_name(pokemon.pokemon_species).replace(' ', '_')
             if generationhelper.gen_to_int(generation) > 6:
                 raise exc
@@ -98,9 +98,9 @@ def _has_multiple_forms_for_machine_moves(generation: Generation, step: int, pok
         version_group = repository.find_highest_version_group_by_generation(generation)
     elif gen_number == 7:
         if step == 1 and pokemon.name not in ['meltan', 'melmetal']:
-            version_group = VersionGroup.objects.get(identifier='ultra-sun-ultra-moon')
+            version_group = VersionGroup.objects.get(name='ultra-sun-ultra-moon')
         else:
-            version_group = VersionGroup.objects.get(identifier='lets-go-pikachu-lets-go-eevee')
+            version_group = VersionGroup.objects.get(name='lets-go-pikachu-lets-go-eevee')
     else:
         raise InvalidConditionException(f'Invalid generation/step condition: {gen_number} / {step}')
 

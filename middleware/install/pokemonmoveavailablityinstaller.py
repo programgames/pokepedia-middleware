@@ -4,25 +4,25 @@ from middleware.db import repository
 from middleware.models import PokemonMoveAvailability
 from pokeapi.pokemon_v2.models import VersionGroup
 
-red_blue_vg = VersionGroup.objects.get(identifier='red-blue')
-yellow_vg = VersionGroup.objects.get(identifier='yellow')
-gold_silver_vg = VersionGroup.objects.get(identifier='gold-silver')
-crystal_vg = VersionGroup.objects.get(identifier='crystal')
-ruby_sapphir_vg = VersionGroup.objects.get(identifier='ruby-sapphire')
-firered_leafgreen_vg = VersionGroup.objects.get(identifier='firered-leafgreen')
-emerald_vg = VersionGroup.objects.get(identifier='emerald')
-fire_red_leaf_green_vg = VersionGroup.objects.get(identifier='firered-leafgreen')
-diamond_pearl_vg = VersionGroup.objects.get(identifier='diamond-pearl')
-platinum_vg = VersionGroup.objects.get(identifier='platinum')
-heart_gold_soul_silver_vg = VersionGroup.objects.get(identifier='heartgold-soulsilver')
-black_white_vg = VersionGroup.objects.get(identifier='black-white')
-black2_white2_vg = VersionGroup.objects.get(identifier='black-2-white-2')
-xy_vg = VersionGroup.objects.get(identifier='x-y')
-oras_vg = VersionGroup.objects.get(identifier='omega-ruby-alpha-sapphire')
-sun_moon_vg = VersionGroup.objects.get(identifier='sun-moon')
-ultra_sun_ultra_moon_vg = VersionGroup.objects.get(identifier='ultra-sun-ultra-moon')
-lgpe_vg = VersionGroup.objects.get(identifier='lets-go-pikachu-lets-go-eevee')
-sword_shield_vg = VersionGroup.objects.get(identifier='sword-shield')
+red_blue_vg = VersionGroup.objects.get(name='red-blue')
+yellow_vg = VersionGroup.objects.get(name='yellow')
+gold_silver_vg = VersionGroup.objects.get(name='gold-silver')
+crystal_vg = VersionGroup.objects.get(name='crystal')
+ruby_sapphir_vg = VersionGroup.objects.get(name='ruby-sapphire')
+firered_leafgreen_vg = VersionGroup.objects.get(name='firered-leafgreen')
+emerald_vg = VersionGroup.objects.get(name='emerald')
+fire_red_leaf_green_vg = VersionGroup.objects.get(name='firered-leafgreen')
+diamond_pearl_vg = VersionGroup.objects.get(name='diamond-pearl')
+platinum_vg = VersionGroup.objects.get(name='platinum')
+heart_gold_soul_silver_vg = VersionGroup.objects.get(name='heartgold-soulsilver')
+black_white_vg = VersionGroup.objects.get(name='black-white')
+black2_white2_vg = VersionGroup.objects.get(name='black-2-white-2')
+xy_vg = VersionGroup.objects.get(name='x-y')
+oras_vg = VersionGroup.objects.get(name='omega-ruby-alpha-sapphire')
+sun_moon_vg = VersionGroup.objects.get(name='sun-moon')
+ultra_sun_ultra_moon_vg = VersionGroup.objects.get(name='ultra-sun-ultra-moon')
+lgpe_vg = VersionGroup.objects.get(name='lets-go-pikachu-lets-go-eevee')
+sword_shield_vg = VersionGroup.objects.get(name='sword-shield')
 
 
 
@@ -198,7 +198,7 @@ def save_alola_pokemons(version_group, gen8=False):
     pokemons = repository.find_alola_pokemons()
     with transaction.atomic():
         for pokemon in pokemons:
-            if gen8 and pokemon.identifier in excludeds:
+            if gen8 and pokemon.name in excludeds:
                 continue
             move_availability = PokemonMoveAvailability(
                 version_group_id=version_group.id,

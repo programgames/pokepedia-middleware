@@ -24,7 +24,7 @@ def get_pokepedia_invoke_learn_method(move_method: MoveLearnMethod, gen: int, st
     raise InvalidConditionException(f'Impossible to translate learn method {move_method.name} to French')
 
 
-def get_pokepedia_version_groups_identifiers(gen: int, step: int, method_type: str) -> list:
+def get_pokepedia_version_groups_identifiers(gen: int, step: int) -> list:
     groups_by_gen = {
         1: ['red-blue', 'yellow'],
         2: ['gold-silver', 'crystal'],
@@ -46,11 +46,11 @@ def get_pokepedia_version_groups_identifiers(gen: int, step: int, method_type: s
 
 
 def get_pokepedia_version_groups_identifiers_for_pkm_machine_by_step(gen: int, step: int) -> list:
-    return get_pokepedia_version_groups_identifiers(gen, step, MACHINE_TYPE)
+    return get_pokepedia_version_groups_identifiers(gen, step)
 
 
 def get_pokepedia_version_groups_identifiers_for_pkm_egg_by_step(gen: int, step: int) -> list:
-    return get_pokepedia_version_groups_identifiers(gen, step, EGG_TYPE)
+    return get_pokepedia_version_groups_identifiers(gen, step)
 
 
 def get_steps_by_pokemon_method_and_gen(pokemon: Pokemon, generation: Generation,

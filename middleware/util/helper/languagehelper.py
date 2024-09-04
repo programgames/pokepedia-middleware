@@ -1,7 +1,7 @@
 from middleware.util.helper.ormhelper import get_object_or_none
-from pokeapi.pokemon_v2.models import Language, Move, PokemonType, TypeName, PokemonSpecies, PokemonForm, Item, ItemName
+from pokeapi.pokemon_v2.models import Language, Move, PokemonType, TypeName, PokemonSpecies, PokemonForm, Item
 
-french = get_object_or_none(Language, 'fr')  # type: Language
+french = Language.objects.get(name='fr')
 
 #TODO : verifier si ça prend le bon
 def get_move_french_name(move: Move):

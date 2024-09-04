@@ -20,21 +20,21 @@ def process_pokemon_move(move_method_type: str, start: int, gen: int = None, deb
 
     # Retrieve the learning method
     try:
-        learnmethod = MoveLearnMethod.objects.get(identifier=move_method_type)
+        learnmethod = MoveLearnMethod.objects.get(name=move_method_type)
     except MoveLearnMethod.DoesNotExist:
         logging.error(f"Move method {move_method_type} not found.")
         return
 
     # Retrieve the relevant generations
     if gen:
-        generations = Generation.objects.filter(identifier=generationhelper.gen_int_to_id(gen))
+        generations = Generation.objects.filter(name=generationhelper.gen_int_to_name(gen))
     else:
         generations = Generation.objects.all()
 
     for pokemon_id, pokemon in pokemons.items():
         for generation in generations:
             try:
-                logging.info(f'Processing {pokemon.name} for generation {generation.identifier} '
+                logging.info(f'Processing {pokemon.name} for generation {generation.name} '
                              f'with ID {pokemon_id} using method {move_method_type}')
 
                 # Wrap the processing in a transaction to ensure atomicity
@@ -42,7 +42,7 @@ def process_pokemon_move(move_method_type: str, start: int, gen: int = None, deb
                     pokemonmoveprocessor.process(generation, learnmethod, pokemon)
 
             except Exception as exc:
-                logging.error(f"Error processing {pokemon.identifier} for generation {generation.identifier}. "
+                logging.error(f"Error processing {pokemon.name} for generation {generation.name}. "
                               f"Error: {str(exc)}")
                 if debug:
                     raise

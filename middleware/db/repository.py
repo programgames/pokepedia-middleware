@@ -5,7 +5,7 @@ from django.db.models import F, Func
 
 from middleware.util.helper.languagehelper import get_move_french_name, get_type_french_name
 from pokeapi.pokemon_v2.models import Pokedex, PokemonDexNumber, Pokemon, VersionGroup, PokemonMove, Move, Generation, \
-    PokemonForm, PokemonTypePast, PokemonType, PokemonSpecies, MoveLearnMethod, PokemonFormName, EggGroup, \
+    PokemonForm, PokemonTypePast, PokemonType, PokemonSpecies, MoveLearnMethod, PokemonFormName, \
     PokemonEggGroup
 
 """
@@ -50,56 +50,51 @@ def get_default_gen8_national_dex_pokemon_number() -> set:
 
 
 def find_default_pokemons_in_national_dex(start: int, end: int):
-    national_pokedex = Pokedex.objects.get(identifier='national')
+    national_pokedex = Pokedex.objects.get(name='national')
 
     species_ids = PokemonDexNumber.objects.filter(
         pokedex=national_pokedex,
         pokedex_number__range=(start, end)
-    ).values_list('species_id', flat=True)
+    ).values_list('pokemon_species_id', flat=True)
 
     return Pokemon.objects.filter(
         is_default=True,
-        species_id__in=species_ids
+        pokemon_species_id__in=species_ids
     )
 
 
 def find_alola_pokemons():
-    return Pokemon.objects.filter(
-        pokemonform__form_identifier='alola'
-    )
+    return list(Pokemon.objects.filter(pokemonform__form_name='alola'))
 
 
 def find_galar_pokemons():
-    return Pokemon.objects.filter(
-        pokemonform__form_identifier='galar'
-    )
-
+    return list(Pokemon.objects.filter(pokemonform__form_name='galar'))
 
 def find_default_gen8_pokemons():
-    national_pokedex = Pokedex.objects.get(identifier='national')
+    national_pokedex = Pokedex.objects.get(name='national')
 
     species_ids = PokemonDexNumber.objects.filter(
         pokedex=national_pokedex,
         pokedex_number__in=get_default_gen8_national_dex_pokemon_number()
-    ).values_list('species_id', flat=True)
+    ).values_list('pokemon_species_id', flat=True)
 
     return Pokemon.objects.filter(
         is_default=True,
-        species_id__in=species_ids
+        pokemon_species_id__in=species_ids
     )
 
 
 def find_pokemon_by_identifier(name: str) -> Pokemon:
-    return Pokemon.objects.get(identifier=name)
+    return Pokemon.objects.get(name=name)
 
 
 def find_pokemon_with_specific_page(start_at: int) -> OrderedDict:
-    national_dex = Pokedex.objects.get(identifier='national')
+    national_dex = Pokedex.objects.get(name='national')
 
     species_ids = PokemonDexNumber.objects.filter(
         pokedex=national_dex,
         pokedex_number__gte=start_at
-    ).values_list('species_id', flat=True)
+    ).values_list('pokemon_species_id', flat=True)
 
     availabilities = PokemonMoveAvailability.objects.filter(
         pokemon__species_id__in=species_ids,
@@ -123,7 +118,7 @@ def is_pokemon_available_in_version_groups(pkm: Pokemon, vgs: list):
 def find_availability_by_pkm_and_form(name: str, vg: VersionGroup) -> PokemonMoveAvailability:
     return PokemonMoveAvailability.objects.get(
         version_group=vg,
-        pokemon__identifier=name
+        pokemon__name=name
     )
 
 def get_availability_by_pokemon_and_version_group(pkm: Pokemon, vg: VersionGroup) -> PokemonMoveAvailability:
@@ -194,7 +189,7 @@ def get_french_move_name_by_move_and_generation(move: Move, gen: Generation):
 def find_french_move_by_move_and_generation(move: Move, generation: int):
     alias = MoveNameChangelog.objects.filter(
         move=move,
-        generation__identifier=generationhelper.gen_int_to_id(generation),
+        generation__identifier=generationhelper.gen_int_to_name(generation),
         language__identifier='fr'
     ).first()
 
@@ -210,7 +205,7 @@ def find_pokepedia_move_methods_methods_repository() -> list:
 def find_highest_version_group_by_generation(generation) -> VersionGroup:
     if isinstance(generation, int):
         generation = Generation.objects.get(
-            identifier=generationhelper.gen_int_to_id(generation)
+            name=generationhelper.gen_int_to_name(generation)
         )
 
     version_groups = VersionGroup.objects.filter(
@@ -225,7 +220,7 @@ def find_highest_version_group_by_generation(generation) -> VersionGroup:
 def find_version_group_identifier_by_generation(generation, step: int) -> list:
     if isinstance(generation, int):
         generation = Generation.objects.get(
-            identifier=generationhelper.gen_int_to_id(generation)
+            name=generationhelper.gen_int_to_name(generation)
         )
 
     filter_list = ['colosseum', 'xd']
@@ -345,7 +340,7 @@ def _build_pkm_parent_tree(pokemon: Pokemon, pkmmoves):
 
     for pokemonmove in pkmmoves:
         species_order = pokemonmove.pokemon.species.order
-        method_identifier = pokemonmove.method.identifier
+        method_identifier = pokemonmove.method.name
 
         skip = False
 
@@ -366,20 +361,20 @@ def _build_pkm_parent_tree(pokemon: Pokemon, pkmmoves):
                     if not _is_breedable(specy):
                         continue
 
-                    pkmsandvgs['egg'][specy.order][specy.default_pokemon.identifier] = {
+                    pkmsandvgs['egg'][specy.order][specy.default_pokemon.name] = {
                         "pokemon": specy.default_pokemon,
                         "version_groups": [pokemonmove.version_group]
                     }
             else:
                 if _is_breedable(pokemonmove.pokemon.species):
-                    pkmsandvgs[method_identifier][species_order][pokemonmove.pokemon.identifier] = {
+                    pkmsandvgs[method_identifier][species_order][pokemonmove.pokemon.name] = {
                         "pokemon": pokemonmove.pokemon,
                         "version_groups": [pokemonmove.version_group]
                     }
 
             if pokemonmove.version_group not in pkmsandvgs[method_identifier][species_order][
-                pokemonmove.pokemon.identifier]['version_groups']:
-                pkmsandvgs[method_identifier][species_order][pokemonmove.pokemon.identifier]['version_groups'].append(
+                pokemonmove.pokemon.name]['version_groups']:
+                pkmsandvgs[method_identifier][species_order][pokemonmove.pokemon.name]['version_groups'].append(
                     pokemonmove.version_group)
 
         if len(pkmsandvgs[method_identifier][species_order]) == 0:
@@ -395,5 +390,5 @@ def _cleanup_pkm_parent_tree(pkmsandvgs):
 
 
 def _is_actual_specy_or_evolution(specy, mainspecy):
-    species_identifiers = [element.identifier for element in mainspecy.evolution_chain.species.all()]
-    return specy.identifier in species_identifiers[species_identifiers.index(mainspecy.identifier):]
+    species_identifiers = [element.name for element in mainspecy.evolution_chain.species.all()]
+    return specy.name in species_identifiers[species_identifiers.index(mainspecy.name):]

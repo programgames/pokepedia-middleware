@@ -66,7 +66,7 @@ DATABASES = {
         "USER": "ash",
         "PASSWORD": "pokemon",
         "HOST": "localhost",
-        "PORT": "5430",
+        "PORT": "5432",
         "CONN_MAX_AGE": 30,
     }
 }

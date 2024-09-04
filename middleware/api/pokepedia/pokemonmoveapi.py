@@ -39,7 +39,7 @@ def _handle_machine_moves(pokemon, name, generation: int, method_type: str, step
     if 1 <= generation <= 6:
         return _get_pokemon_moves_from_cache(step, name, generation, method_type)
     elif generation == 7:
-        vg_identifier = 'ultra-sun-ultra-moon' if step == 1 and not pokemon.identifier in ['meltan',
+        vg_identifier = 'ultra-sun-ultra-moon' if step == 1 and not pokemon.name in ['meltan',
                                                                                            'melmetal'] else 'lets-go-pikachu-lets-go-eevee'
         vg = ormhelper.get_object_or_none(VersionGroup, vg_identifier)
         return _get_pokemon_moves_from_cache(step, name, generation, method_type, vg)
@@ -56,14 +56,14 @@ def _get_pokemon_moves_from_cache(step: int, name: str, generation: int, method_
     return repository.get_item_from_cache(
         cache_key,
         lambda: pokemonmoveapiclient.get_pokemon_moves(
-            name, generation, method_type, version_group.identifier if version_group else None, dt
+            name, generation, method_type, version_group.name if version_group else None, dt
         )
     )
 
 
 def _handle_template_not_found(exc, method_type, generation, pokemon, moves_data, step):
     try:
-        machine_method = MoveLearnMethod.objects.get(identifier=method_type)
+        machine_method = MoveLearnMethod.objects.get(name=method_type)
         version = repository.find_highest_version_group_by_generation(generation)
 
         pkmmoves = PokemonMove.objects.filter(
@@ -80,12 +80,12 @@ def _handle_template_not_found(exc, method_type, generation, pokemon, moves_data
 
             if pkmmoves_number == 0:
                 raise NoMachineMoveLearnAndNoTemplateException(
-                    f'{pokemon.identifier} does not learn any moves by machine',
+                    f'{pokemon.name} does not learn any moves by machine',
                     {'section': moves_data['section'], 'page': moves_data['page'], 'wikitext': moves_data['wikitext']}
                 )
             else:
                 raise MissingMachineMoveTemplateException(
-                    f'{pokemon.identifier} is missing a machine move template',
+                    f'{pokemon.name} is missing a machine move template',
                     {'section': moves_data['section'], 'page': moves_data['page'], 'wikitext': moves_data['wikitext']}
                 )
 
@@ -93,12 +93,12 @@ def _handle_template_not_found(exc, method_type, generation, pokemon, moves_data
             pkmmoves_number = pkmmoves.count()
             if pkmmoves_number == 0:
                 raise NoEggMoveLearnAndNoTemplateException(
-                    f'{pokemon.identifier} does not learn any moves by reproduction',
+                    f'{pokemon.name} does not learn any moves by reproduction',
                     {'section': moves_data['section'], 'page': moves_data['page'], 'wikitext': moves_data['wikitext']}
                 )
             else:
                 raise MissingEggMoveTemplateException(
-                    f'{pokemon.identifier} is missing an egg move template',
+                    f'{pokemon.name} is missing an egg move template',
                     {'section': moves_data['section'], 'page': moves_data['page'], 'wikitext': moves_data['wikitext']}
                 )
     except ObjectDoesNotExist:

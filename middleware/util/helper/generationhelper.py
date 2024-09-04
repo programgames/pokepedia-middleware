@@ -8,7 +8,7 @@ from pokeapi.pokemon_v2.models import Generation, VersionGroup, Pokemon
 
 
 
-def gen_int_to_id(integer) -> str:
+def gen_int_to_name(integer) -> str:
     if integer == 1:
         return 'generation-i'
     elif integer == 2:
@@ -67,7 +67,7 @@ def check_if_pokemon_has_move_availability_in_generation(pokemon: Pokemon, gener
 
 def check_if_pokemon_is_available_in_lgpe(pokemon: Pokemon) -> bool:
     try:
-        version_group = VersionGroup.objects.get(identifier='lets-go-pikachu-lets-go-eevee')
+        version_group = VersionGroup.objects.get(name='lets-go-pikachu-lets-go-eevee')
     except ObjectDoesNotExist:
         return False
 

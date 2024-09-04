@@ -41,7 +41,7 @@ def _get_preformatteds_database_pokemon_egg_moves(pokemon: Pokemon, generation: 
         move_name = repository.get_french_move_name_by_move_and_generation(move_with_vg.Move, generation)
 
         move_dto = _fill_egg_move(
-            original_pokemon, learn_method, move_name['name'], move_name['alias'],
+            original_pokemon, move_name['name'], move_name['alias'],
             move_with_vg, generationhelper.gen_to_int(generation), move_with_vg.Move, step
         )
         preformatteds.append(move_dto)
@@ -55,7 +55,7 @@ def _get_version_groups_for_pokemon(pokemon, gen_number, step):
     return pokemonmovehelper.get_pokepedia_version_groups_identifiers_for_pkm_egg_by_step(gen_number, step)
 
 
-def _filter_egg_moves(preformatteds: list, version_groups: list, step: int) -> list:
+def _filter_egg_moves(preformatteds: list, version_groups: list) -> list:
     pre_filtered = []
     unspecifics = []
 
@@ -91,7 +91,7 @@ def _get_pokemon_eggmoove_name(parent: dict, gen: Generation, step: int):
 
     genvgs = repository.find_version_group_identifier_by_generation(gen, step)
     if len(vgs) != len(genvgs):
-        pkmname += f" jeu({versiongrouphelper.get_vg_string_from_vg_identifiers([vg.identifier for vg in vgs])})"
+        pkmname += f" jeu({versiongrouphelper.get_vg_string_from_vg_identifiers([vg.name for vg in vgs])})"
 
     pkmname += ', '
     return pkmname
@@ -195,11 +195,11 @@ def _get_pokemon_egg_move_forms(pokemon: Pokemon, generation: Generation, learn_
 
 def _get_version_group_for_gen7(pokemon, step):
     if step == 1 and pokemon.name not in ['meltan', 'melmetal']:
-        return VersionGroup.objects.get(identifier='ultra-sun-ultra-moon')
-    return VersionGroup.objects.get(identifier='lets-go-pikachu-lets-go-eevee')
+        return VersionGroup.objects.get(name='ultra-sun-ultra-moon')
+    return VersionGroup.objects.get(name='lets-go-pikachu-lets-go-eevee')
 
 
-def _fill_egg_move(pokemon: Pokemon, learn_method: MoveLearnMethod, name: str, alias: str, move_with_vg,
+def _fill_egg_move(pokemon: Pokemon, name: str, alias: str, move_with_vg,
                    generation: int, eggmove: Move, step: int) -> EggMove:
     move = EggMove()
     move.name = alias or name

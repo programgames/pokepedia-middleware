@@ -18,7 +18,7 @@ def filter_dive_pokemon_move_lgfr(moves: list) -> list:
 
 def remove_dive_move_lgfr(moves: list) -> list:
     return [pkmmove for pkmmove in moves if not (
-            pkmmove.move.identifier == 'dive' and pkmmove.version_group.identifier == 'firered-leafgreen'
+            pkmmove.move.name == 'dive' and pkmmove.version_group.name == 'firered-leafgreen'
     )]
 
 
@@ -56,7 +56,7 @@ def remove_egg_move_exceptions(gen: Generation, pkm: Pokemon, moves: list) -> li
     filtered = []
 
     for pkmmove in moves:
-        move_id = pkmmove.move.identifier
+        move_id = pkmmove.move.name
         if gen_int in exceptions and move_id in exceptions[gen_int]:
             if pkm.name in exceptions[gen_int][move_id]:
                 continue

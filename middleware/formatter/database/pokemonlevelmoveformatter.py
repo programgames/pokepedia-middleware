@@ -47,7 +47,7 @@ def _determine_columns(gen_number: int, pokemon: Pokemon) -> int:
     Determine the number of columns based on the generation and Pokémon availability.
     """
     if gen_number == 7:
-        lgpe = VersionGroup.objects.get(identifier='lets-go-pikachu-lets-go-eevee')
+        lgpe = VersionGroup.objects.get(name='lets-go-pikachu-lets-go-eevee')
         availability = repository.get_availability_by_pokemon_and_version_group(pokemon, lgpe)
         return 3 if availability else 2
     elif gen_number in {3, 4}:
@@ -128,7 +128,7 @@ def _sort_level_moves(formatteds: dict) -> list:
     return sorted_moves
 
 
-def _get_formatted_moves_by_pokemons(pokemon: Pokemon, generation: Generation, learn_method: PokemonMoveMethod):
+def _get_formatted_moves_by_pokemons(pokemon: Pokemon, generation: Generation, learn_method: MoveLearnMethod):
     """
     Return the fully formatted list of Pokémon level move for a specific Pokémon.
     """
@@ -155,11 +155,11 @@ def _get_pokemon_level_move_forms(pokemon: Pokemon, generation: Generation, lear
     """
     Return a list of fully formatted Pokémon level move by forms.
     """
-    generation = Generation.objects.get(identifier=generation.name)
+    generation = Generation.objects.get(name=generation.name)
     version_group = repository.find_highest_version_group_by_generation(generation)
 
     if pokemon.name in {'meltan', 'melmetal'}:
-        version_group = VersionGroup.objects.get(identifier='lets-go-pikachu-lets-go-eevee')
+        version_group = VersionGroup.objects.get(name='lets-go-pikachu-lets-go-eevee')
 
     availability = PokemonMoveAvailability.objects.filter(
         version_group=version_group, pokemon=pokemon, has_pokepedia_page=True
