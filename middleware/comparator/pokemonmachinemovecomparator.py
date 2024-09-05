@@ -2,7 +2,7 @@ def _clean_string(string: str) -> str:
     """
     Cleans the input string by removing or replacing specific substrings.
     """
-    return string.replace('N.', '').replace(', ', ' ').replace('<br>', ' ').replace('-', '—').replace('’', '\'')
+    return string.replace(', ', ' ').replace('<br>', ' ').replace('-', '—').replace('’', '\'')
 
 
 def compare_moves(pokepedia_moves: dict, database_moves: dict, form_order: dict) -> bool:

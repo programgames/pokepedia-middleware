@@ -46,6 +46,7 @@ DEFAULT_GEN8_NATIONAL_DEX_POKEMON_NUMBERS = {
     889, 890, 891, 892, 893, 894, 895, 896, 897, 898
 }
 
+
 def get_default_gen8_national_dex_pokemon_number() -> set:
     return DEFAULT_GEN8_NATIONAL_DEX_POKEMON_NUMBERS
 
@@ -70,6 +71,7 @@ def find_alola_pokemons():
 
 def find_galar_pokemons():
     return list(Pokemon.objects.filter(pokemonform__form_name='galar'))
+
 
 def find_default_gen8_pokemons():
     national_pokedex = Pokedex.objects.get(name='national')
@@ -100,7 +102,7 @@ def find_pokemon_with_specific_page(start_at: int) -> OrderedDict:
     availabilities = PokemonMoveAvailability.objects.filter(
         pokemon__pokemon_species__id__in=species_ids,
         has_pokepedia_page=True
-    ).select_related('pokemon').order_by('-pokemon_id')
+    ).select_related('pokemon').order_by('pokemon_id')
 
     pokemons = OrderedDict(
         (availability.pokemon.id, availability.pokemon) for availability in availabilities
@@ -122,6 +124,7 @@ def find_availability_by_pkm_and_form(name: str, vg: VersionGroup) -> PokemonMov
         pokemon__name=name
     )
 
+
 def get_availability_by_pokemon_and_version_group(pkm: Pokemon, vg: VersionGroup) -> PokemonMoveAvailability:
     return PokemonMoveAvailability.objects.filter(
         pokemon=pkm,
@@ -134,7 +137,10 @@ def find_moves_by_pokemon_move_method_and_version_group(pkm: Pokemon, move_learn
     return PokemonMove.objects.filter(
         pokemon=pkm,
         move_learn_method=move_learn_method,
-        version_group=vg
+        version_group=vg,
+    ).exclude(
+        level=0,
+        pokemon__pokemon_species__evolves_from_species__isnull=True
     ).order_by('level')
 
 
@@ -149,13 +155,13 @@ def find_moves_by_pokemon_move_method_and_version_groups(pkm: Pokemon, move_lear
 
 def find_moves_by_pokemon_move_method_and_version_groups_with_concat(pkm: Pokemon, move_learn_method: MoveLearnMethod,
                                                                      vgs_identifier: list):
-
     return Move.objects.filter(
         pokemonmove__pokemon=pkm,
         pokemonmove__pokemon_move_method=move_learn_method,
         pokemonmove__version_group__identifier__in=vgs_identifier
     ).annotate(
-        version_group_identifiers=Func(F('pokemonmove__version_group__identifier'), function='GROUP_CONCAT', template="%(function)s(%(expressions)s, '/')")
+        version_group_identifiers=Func(F('pokemonmove__version_group__identifier'), function='GROUP_CONCAT',
+                                       template="%(function)s(%(expressions)s, '/')")
     ).distinct()
 
 
@@ -299,7 +305,6 @@ def find_pokemon_by_french_form_name(original_pokemon: Pokemon, name: str):
     raise RuntimeError(f'Form not found for name {name}')
 
 
-
 def find_minimal_pokemon_in_evolution_chain(pkm: Pokemon, gen: Generation) -> Pokemon:
     if pkm.pokemon_species.evolves_from_species_id is None:
         return pkm
@@ -334,8 +339,6 @@ def find_pokemon_learning_move_by_egg_groups(pokemon: Pokemon, move: Move, gener
 def _is_breedable(specy: PokemonSpecies) -> bool:
     egg_groups = PokemonEggGroup.objects.get(pokemon_species=specy)
     return egg_groups[0].name in ['no-eggs', 'indeterminate']
-
-
 
 
 def _build_pkm_parent_tree(pokemon: Pokemon, pkmmoves):

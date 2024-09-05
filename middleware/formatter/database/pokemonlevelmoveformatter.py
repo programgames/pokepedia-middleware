@@ -36,7 +36,7 @@ def _get_preformatteds_database_pokemon_moves(pokemon: Pokemon, generation: Gene
         for pokemon_move_entity in moves:
             french_move = repository.get_french_move_by_pokemon_move_and_generation(pokemon_move_entity, generation)
             move = preformatteds.get(french_move['name'], LevelUpMove())
-            move = _fill_leveling_move(move, column, french_move['name'], french_move['alias'], pokemon_move_entity)
+            move = _fill_leveling_move(move, column, french_move['name'], french_move['alias'], pokemon_move_entity, gen_number)
             preformatteds[french_move['name']] = move
 
     return preformatteds
@@ -79,16 +79,15 @@ def _format_level(move: LevelUpMove, column: int, previous_weight: int) -> dict:
 
     if getattr(move, 'level' + str(column)):
         level_str = str(getattr(move, 'level' + str(column)))
-        #TODO a corriger levelExtra
         if any(getattr(move, attr + str(column), None) for attr in ['on_start', 'on_evolution', 'levelExtra']):
-            level = level + ', N.' + level_str if level else 'N.' + level_str
+            level = level + ', ' + level_str if level else 'N.' + level_str
         else:
             level = level_str
         weight = getattr(move, 'level' + str(column))
 
     if getattr(move, 'level' + str(column) + 'Extra'):
         extra_level = str(getattr(move, 'level' + str(column) + 'Extra'))
-        level += ', N.' + extra_level
+        level += ', ' + extra_level
         weight = min(int(re.search(r'\d+', extra_level).group()), weight) if extra_level else weight
 
     return {'level': level, 'weight': max(previous_weight, weight)}
@@ -98,8 +97,14 @@ def _calculate_total_weight(weights: list, formatteds: dict) -> str:
     """
     Calculate the position the Pokémon level move should have in the list.
     """
-    total = min(weight['weight'] for weight in weights if
-                weight is not None and weight['weight'] is not None and weight['level'] != '-')
+    filtered_weights = []
+    for weight in weights:
+        if weight is not None and weight['weight'] is not None and weight['level'] != '-' and weight['level'] != 'Départ':
+            filtered_weights.append(weight)
+    if not filtered_weights:
+        total = 0
+    else:
+        total = min(weight['weight'] for weight in filtered_weights)
 
     while True:
         if str(total) in formatteds:
@@ -201,7 +206,7 @@ def _get_pokemon_level_move_forms(pokemon: Pokemon, generation: Generation, lear
 
 
 def _fill_leveling_move(move: LevelUpMove, column: int, name: str, alias: str,
-                        pokemon_move_entity: PokemonMove) -> LevelUpMove:
+                        pokemon_move_entity: PokemonMove, gen_number) -> LevelUpMove:
     """
     Update a LevelUpMove with level information.
     """

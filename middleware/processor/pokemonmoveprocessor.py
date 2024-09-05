@@ -5,6 +5,7 @@ from middleware.provider.database import pokemonmoveprovider
 from middleware.util.helper import pokemonhelper, generationhelper, specificcasehelper, pokemonmovehelper
 from middleware.api.pokepedia import pokemonmoveapi, pokepedia_client
 from middleware.comparator import pokemonmachinemovecomparator
+from middleware.util.helper.generationhelper import gen_to_int, gen_int_to_name
 from pokeapi.pokemon_v2.models import Pokemon, Generation, MoveLearnMethod
 
 
@@ -17,6 +18,8 @@ def process(generation: Generation, learn_method: MoveLearnMethod, pokemon: Poke
     if specificcasehelper.is_specific_pokemon_move_case(learn_method, pokemon, generation):
         return
 
+    print(f'Processing {pokemon.name} species id {pokemon.pokemon_species_id} for generation '
+          f'with ID {generation.id} using method {learn_method.name} ')
     # Determine the number of steps to process based on the learning method and generation
     steps = pokemonmovehelper.get_steps_by_pokemon_method_and_gen(pokemon, generation, learn_method)
     for step in range(1, steps + 1):
@@ -32,10 +35,12 @@ def process(generation: Generation, learn_method: MoveLearnMethod, pokemon: Poke
             if not pokemonmachinemovecomparator.compare_moves(pokepedia_data['satanized']['forms'], database_moves, form_order):
                 print(f'Error detected for {pokepedia_pokemon_name}, step {step}, uploading ...')
                 _generate_and_upload(learn_method, pokemon, generation, database_moves, pokepedia_data, pokepedia_pokemon_name, form_order, step)
+                return True
 
         except PokemonMoveException as exc:
             # Handle errors specific to Pokémon move processing
             pokemonmoveerrorhandler.handlerpokemonmoveerror(exc, pokemon, generation, step, pokepedia_pokemon_name)
+    return False
 
 
 def _get_pokepedia_moves_by_method(pokemon: Pokemon, learn_method: MoveLearnMethod, gen: int, pokepedia_pokemon_name: str, step: int) -> dict:

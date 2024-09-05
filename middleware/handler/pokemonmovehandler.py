@@ -1,9 +1,11 @@
 import logging
 import os
 
+from attr.validators import instance_of
 from dotenv import load_dotenv
 from middleware.db.repository import find_pokemon_with_specific_page
 import middleware.processor.pokemonmoveprocessor as pokemonmoveprocessor
+from middleware.exception import MaxChangesReached
 from middleware.util.helper import generationhelper
 from django.db import transaction
 
@@ -12,7 +14,7 @@ from pokeapi.pokemon_v2.models import Generation, MoveLearnMethod
 load_dotenv()
 
 
-def process_pokemon_move(move_method_type: str, start: int, gen: int = None, debug: bool = False):
+def process_pokemon_move(move_method_type: str, start: int, gen: int = None, debug: bool = False, max_changes = int):
     logging.basicConfig(filename=os.getenv('LOG_PATH'), level=logging.INFO)
 
     # Fetch the list of Pokémon with specific pages
@@ -31,19 +33,27 @@ def process_pokemon_move(move_method_type: str, start: int, gen: int = None, deb
     else:
         generations = Generation.objects.all()
 
-    for pokemon_id, pokemon in pokemons.items():
-        for generation in generations:
-            try:
-                logging.info(f'Processing {pokemon.name} for generation {generation.name} '
-                             f'with ID {pokemon_id} using method {move_method_type}')
+    try:
+        for pokemon_id, pokemon in pokemons.items():
+            for generation in generations:
+                try:
+                    logging.info(f'Processing {pokemon.name} for generation {generation.name} '
+                                 f'with ID {pokemon_id} using method {move_method_type}')
 
-                # Wrap the processing in a transaction to ensure atomicity
-                with transaction.atomic():
-                    pokemonmoveprocessor.process(generation, learnmethod, pokemon)
-
-            except Exception as exc:
-                logging.error(f"Error processing {pokemon.name} for generation {generation.name}. "
-                              f"Error: {str(exc)}")
-                if debug:
-                    raise
+                    # Wrap the processing in a transaction to ensure atomicity
+                    with transaction.atomic():
+                        changed = pokemonmoveprocessor.process(generation, learnmethod, pokemon)
+                        if changed:
+                            max_changes = max_changes -1
+                        if max_changes == 0:
+                            raise MaxChangesReached  # Sortir des deux boucles
+                except Exception as exc:
+                    if isinstance(exc,MaxChangesReached):
+                        raise exc
+                    logging.error(f"Error processing {pokemon.name} for generation {generation.name}. "
+                                  f"Error: {str(exc)}")
+                    if debug:
+                        raise
+    except MaxChangesReached:
+        logging.info("Max changes limit reached. Exiting processing.")
 
