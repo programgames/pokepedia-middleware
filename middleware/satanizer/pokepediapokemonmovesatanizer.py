@@ -63,12 +63,12 @@ def _process_single_template(moves: list, section: dict, form: dict):
     in_end_section = False
 
     for move in moves:
-        if not in_template and not re.match(r'^}}$', move) and not in_end_section:
+        if not in_template and not re.match(r'^}}$', move) and not in_end_section and not re.match(r'.*{{#invoke:Apprentissage\|.*', move):
             section['top_comments'].append(move)
         elif re.match(r'^}}$', move):
             in_template = False
             in_end_section = True
-        elif re.match(r'.*{{#invoke:Apprentissage\|.*', move):
+        elif re.match(r'.*{{#invoke:Apprentissage\|.*', move) :
             in_template = True
             in_end_section = False
         elif in_end_section:

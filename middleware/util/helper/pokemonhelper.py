@@ -20,7 +20,7 @@ def find_pokepedia_pokemon_url_name(pokemon: Pokemon) -> str:
         return specific
 
     # Assuming languagehelper.french is the identifier for the French language
-    species_name = get_pokemon_specy_french_name(pokemon.pokemon_species).replace(' ', '_')
+    species_name = get_pokemon_specy_french_name(pokemon.pokemon_species).name.replace(' ', '_')
 
     if not species_name:
         raise RuntimeError(f'Species name not found for Pokémon: {pokemon.name}')

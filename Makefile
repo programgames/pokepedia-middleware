@@ -1,6 +1,9 @@
 local_config = --settings=config.local
 
-.PHONY: help
+.PHONY: all pokeapi
+
+all: pokeapi
+
 .SILENT:
 
 help:
@@ -39,3 +42,8 @@ make-migrations:  # Create migrations files if schema has changed
 shell:  # Load a shell
 	python manage.py shell ${local_config}
 
+docker-setup:
+	$(MAKE) -C pokeapi docker-setup
+
+docker-build-db:
+	$(MAKE) -C pokeapi docker-build-db

@@ -1,5 +1,5 @@
 from middleware.util.helper.ormhelper import get_object_or_none
-from pokeapi.pokemon_v2.models import Language, Move, PokemonType, TypeName, PokemonSpecies, PokemonForm, Item
+from pokeapi.pokemon_v2.models import Language, Move, PokemonType, TypeName, PokemonSpecies, PokemonForm, Item, Type
 
 french = Language.objects.get(name='fr')
 
@@ -7,8 +7,8 @@ french = Language.objects.get(name='fr')
 def get_move_french_name(move: Move):
     return move.movename.get(language_id=french.id)
 
-def get_type_french_name(pokemontype: PokemonType):
-    return TypeName.objects.get(language_id=french.id,type_id=pokemontype.type.id)
+def get_type_french_name(type_entity: Type):
+    return TypeName.objects.get(language_id=french.id,type=type_entity)
 
 def get_pokemon_specy_french_name(specy: PokemonSpecies):
     return specy.pokemonspeciesname.get(language_id=french.id)

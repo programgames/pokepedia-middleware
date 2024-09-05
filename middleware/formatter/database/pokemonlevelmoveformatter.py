@@ -79,7 +79,7 @@ def _format_level(move: LevelUpMove, column: int, previous_weight: int) -> dict:
 
     if getattr(move, 'level' + str(column)):
         level_str = str(getattr(move, 'level' + str(column)))
-        if any(getattr(move, attr + str(column)) for attr in ['on_start', 'on_evolution', 'levelExtra']):
+        if any(getattr(move, attr + str(column), None) for attr in ['on_start', 'on_evolution', 'levelExtra']):
             level = level + ', N.' + level_str if level else 'N.' + level_str
         else:
             level = level_str
@@ -97,7 +97,7 @@ def _calculate_total_weight(weights: list, formatteds: dict) -> str:
     """
     Calculate the position the Pokémon level move should have in the list.
     """
-    total = min(weight['weight'] for weight in weights if weight['weight'] is not None)
+    total = min(weight['weight'] for weight in weights if weight is not None and weight['weight'] is not None)
 
     while True:
         if str(total) in formatteds:
@@ -138,14 +138,23 @@ def _get_formatted_moves_by_pokemons(pokemon: Pokemon, generation: Generation, l
 
     for name, move in pre_formatteds.items():
         name_alias = f"{name}{{{{!}}}}{move.alias}" if move.alias else name
-        # noinspection PyUnboundLocalVariable
+
+        name = name.name
+
+        # On calcule le premier poids
+        first_weight = _format_level(move, 1, 0)
+
+        # On crée la liste de weights en utilisant d'abord le premier poids
         weights = [
-            _format_level(move, 1, 0),
-            _format_level(move, 2, weights[0]['weight']),
-            _format_level(move, 3, weights[1]['weight']) if generation_number in {3, 4, 7} else None
+            first_weight,
+            _format_level(move, 2, first_weight['weight']),
+            _format_level(move, 3, _format_level(move, 2, first_weight['weight'])['weight']) if generation_number in {3,
+                                                                                                                      4,
+                                                                                                                      7} else None
         ]
+
         total_weight = _calculate_total_weight(weights, formatteds)
-        formatteds[total_weight] = ' / '.join([name_alias] + [w['level'] for w in weights if w])
+        formatteds[total_weight] = ' / '.join([name] + [w['level'] for w in weights if w])
 
     return _sort_level_moves(formatteds)
 
@@ -165,11 +174,11 @@ def _get_pokemon_level_move_forms(pokemon: Pokemon, generation: Generation, lear
         version_group=version_group, pokemon=pokemon, has_pokepedia_page=True
     ).first()
 
-    if not availability or not availability.forms or not availability.forms[0].level:
+    if not availability or not availability.forms or not availability.forms.all().first() or not availability.forms.all().first().has_pokepedia_page:
         if len(form_order) > 1:
             raise RuntimeError(f'Too many forms for this Pokemon: {pokemon}')
 
-        specy_name = get_pokemon_specy_french_name(pokemon.pokemon_species).replace(' ', '_')
+        specy_name = get_pokemon_specy_french_name(pokemon.pokemon_species).name.replace(' ', '_')
         form_order_name = next(iter(form_order))
 
         if specy_name != form_order_name:  # handle case of Pokémon with forms on different pages like Sylveroy

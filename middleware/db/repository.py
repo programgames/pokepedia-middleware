@@ -128,30 +128,30 @@ def get_availability_by_pokemon_and_version_group(pkm: Pokemon, vg: VersionGroup
     ).select_related('pokemon', 'version_group').first()
 
 
-def find_moves_by_pokemon_move_method_and_version_group(pkm: Pokemon, pkm_move_method: MoveLearnMethod,
+def find_moves_by_pokemon_move_method_and_version_group(pkm: Pokemon, move_learn_method: MoveLearnMethod,
                                                         vg: VersionGroup):
     return PokemonMove.objects.filter(
         pokemon=pkm,
-        pokemon_move_method=pkm_move_method,
+        move_learn_method=move_learn_method,
         version_group=vg
     ).order_by('level')
 
 
-def find_moves_by_pokemon_move_method_and_version_groups(pkm: Pokemon, pkm_move_method: MoveLearnMethod,
+def find_moves_by_pokemon_move_method_and_version_groups(pkm: Pokemon, move_learn_method: MoveLearnMethod,
                                                          vgs_identifier: list):
     return PokemonMove.objects.filter(
         pokemon=pkm,
-        pokemon_move_method=pkm_move_method,
+        move_learn_method=move_learn_method,
         version_group__identifier__in=vgs_identifier
     ).order_by('version_group__identifier')
 
 
-def find_moves_by_pokemon_move_method_and_version_groups_with_concat(pkm: Pokemon, pkm_move_method: MoveLearnMethod,
+def find_moves_by_pokemon_move_method_and_version_groups_with_concat(pkm: Pokemon, move_learn_method: MoveLearnMethod,
                                                                      vgs_identifier: list):
 
     return Move.objects.filter(
         pokemonmove__pokemon=pkm,
-        pokemonmove__pokemon_move_method=pkm_move_method,
+        pokemonmove__pokemon_move_method=move_learn_method,
         pokemonmove__version_group__identifier__in=vgs_identifier
     ).annotate(
         version_group_identifiers=Func(F('pokemonmove__version_group__identifier'), function='GROUP_CONCAT', template="%(function)s(%(expressions)s, '/')")
@@ -211,7 +211,7 @@ def find_highest_version_group_by_generation(generation) -> VersionGroup:
     version_groups = VersionGroup.objects.filter(
         generation=generation
     ).exclude(
-        identifier__in=['colosseum', 'xd', 'lets-go-pikachu-lets-go-eevee']
+        name__in=['colosseum', 'xd', 'lets-go-pikachu-lets-go-eevee']
     )
 
     return version_groups.order_by('-order').first()
