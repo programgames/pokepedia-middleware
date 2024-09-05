@@ -24,7 +24,13 @@ class WikimediaClient:
 
     def edit(self, endpoint: str, parameters: dict):
 
-        return
+        nom_fichier = './mon_fichier.txt'
+
+
+        # Ouverture du fichier en mode 'write' (écriture avec suppression du contenu existant)
+        with open(nom_fichier, 'w') as fichier:
+            fichier.write(parameters['text'])
+
         content = wikimedia_session.post(endpoint, data=parameters)
 
         result = json.loads(content.content)

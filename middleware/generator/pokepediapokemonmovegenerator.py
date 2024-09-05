@@ -32,7 +32,12 @@ def generate_move_wiki_text(learn_method: MoveLearnMethod, pokemon: Pokemon, gen
     # Add bottom comments
     generated.extend(pokepedia_data['bot_comments'])
 
-    return "\r\n".join(generated)
+    result = ''
+
+    for line in generated:
+        result += line + '\r\n'
+
+    return result
 
 
 # noinspection DuplicatedCode

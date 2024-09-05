@@ -8,7 +8,7 @@ def get_move_french_name(move: Move):
     return move.movename.get(language_id=french.id)
 
 def get_type_french_name(type_entity: Type):
-    return TypeName.objects.get(language_id=french.id,type=type_entity)
+    return TypeName.objects.get(language_id=french.id,type=type_entity).name
 
 def get_pokemon_specy_french_name(specy: PokemonSpecies):
     return specy.pokemonspeciesname.get(language_id=french.id)

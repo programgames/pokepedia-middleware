@@ -79,6 +79,7 @@ def _format_level(move: LevelUpMove, column: int, previous_weight: int) -> dict:
 
     if getattr(move, 'level' + str(column)):
         level_str = str(getattr(move, 'level' + str(column)))
+        #TODO a corriger levelExtra
         if any(getattr(move, attr + str(column), None) for attr in ['on_start', 'on_evolution', 'levelExtra']):
             level = level + ', N.' + level_str if level else 'N.' + level_str
         else:
@@ -97,7 +98,8 @@ def _calculate_total_weight(weights: list, formatteds: dict) -> str:
     """
     Calculate the position the Pokémon level move should have in the list.
     """
-    total = min(weight['weight'] for weight in weights if weight is not None and weight['weight'] is not None)
+    total = min(weight['weight'] for weight in weights if
+                weight is not None and weight['weight'] is not None and weight['level'] != '-')
 
     while True:
         if str(total) in formatteds:
@@ -137,11 +139,8 @@ def _get_formatted_moves_by_pokemons(pokemon: Pokemon, generation: Generation, l
     generation_number = generationhelper.gen_name_to_gen_number(generation.name)
 
     for name, move in pre_formatteds.items():
-        name_alias = f"{name}{{{{!}}}}{move.alias}" if move.alias else name
+        name = move.alias  if move.alias else name.name
 
-        name = name.name
-
-        # On calcule le premier poids
         first_weight = _format_level(move, 1, 0)
 
         # On crée la liste de weights en utilisant d'abord le premier poids

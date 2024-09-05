@@ -3,6 +3,7 @@ from middleware.util.helper import generationhelper, specificcasehelper
 from collections import OrderedDict, defaultdict
 from django.db.models import F, Func
 
+from middleware.util.helper.generationhelper import gen_to_int
 from middleware.util.helper.languagehelper import get_move_french_name, get_type_french_name
 from pokeapi.pokemon_v2.models import Pokedex, PokemonDexNumber, Pokemon, VersionGroup, PokemonMove, Move, Generation, \
     PokemonForm, PokemonTypePast, PokemonType, PokemonSpecies, MoveLearnMethod, PokemonFormName, \
@@ -161,11 +162,15 @@ def find_moves_by_pokemon_move_method_and_version_groups_with_concat(pkm: Pokemo
 def get_french_move_by_pokemon_move_and_generation(pokemon_move: PokemonMove, gen: Generation):
     move = Move.objects.get(id=pokemon_move.move_id)
 
-    alias = MoveNameChangelog.objects.filter(
-        move=move,
-        generation=gen,
-        language__iso639='fr'
-    ).first()
+    for g in range(1, gen_to_int(gen) + 1):
+        alias = MoveNameChangelog.objects.filter(
+            move=move,
+            generation=g,
+            language__iso639='fr'
+        ).first()
+
+        if alias:
+            break  # Sort de la boucle dès qu'on trouve un alias
 
     return {
         'name': get_move_french_name(move),

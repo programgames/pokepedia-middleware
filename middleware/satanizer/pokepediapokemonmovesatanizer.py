@@ -68,6 +68,7 @@ def _process_single_template(moves: list, section: dict, form: dict):
         elif re.match(r'^}}$', move):
             in_template = False
             in_end_section = True
+            # section['bot_comments'].append(move)
         elif re.match(r'.*{{#invoke:Apprentissage\|.*', move) :
             in_template = True
             in_end_section = False
