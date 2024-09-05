@@ -90,7 +90,7 @@ def _process_multiple_templates(moves: list, section: dict, forms: OrderedDict):
     for move in moves:
         if not in_template and not in_form and not re.match(r'.*=.*=.*', move) and not in_end_section:
             section['top_comments'].append(move)
-        elif re.match(r'.*=.*=.*', move):
+        elif re.match(r'.*=.*=.*', move) and not re.match(r'.*{{#invoke:Apprentissage\|.*', move) :
             in_form = True
             in_template = False
             in_end_section = False

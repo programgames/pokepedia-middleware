@@ -28,7 +28,7 @@ class WikimediaClient:
 
 
         # Ouverture du fichier en mode 'write' (écriture avec suppression du contenu existant)
-        with open(nom_fichier, 'w') as fichier:
+        with open(nom_fichier, 'w', encoding='utf-8') as fichier:
             fichier.write(parameters['text'])
 
         content = wikimedia_session.post(endpoint, data=parameters)
