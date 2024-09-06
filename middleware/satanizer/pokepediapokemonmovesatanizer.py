@@ -20,8 +20,8 @@ def check_and_sanitize_moves(moves: list, pokemon_name: str) -> dict:
 
     # Validate header
     header_pattern = (
-        r'(\[\[Septième génération]])|(\[\[Huitième génération]])|'
-        r'(Par montée en \[\[niveau]])|(Par \[\[CT]]\/\[\[CS]])|'
+        r'(\[\[Huitième génération]])|(\[\[Neuvième génération]])'
+        r'(Par montée en \[\[niveau]])|(Par \[\[CT]]\/\[\[CS]])|(Par \[\[CT]])||(Par \[\[DT]])'
         r'\{\{Jeu\|SL}} et \{\{Jeu\|USUL}}|(Par \[\[reproduction]])'
     )
     if not re.search(header_pattern, moves[0]):

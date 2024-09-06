@@ -19,7 +19,7 @@ def get_pokemon_moves(name: str, generation: int, move_type: str, version_group_
                                                                     version_group_identifier, dt)
 
     page = name.replace("’", "%27").replace("'", "%27").replace(" ", "_")
-    if generation < 7:
+    if generation < 8:
         page = '{}/Génération_{}'.format(page, generation)
 
     url = ('https://www.pokepedia.fr/api.php?action=parse&format=json&page={page}&prop=wikitext&'
@@ -36,7 +36,7 @@ def get_pokemon_moves(name: str, generation: int, move_type: str, version_group_
 
 def get_pokemon_move_sections(name: str, generation: int) -> dict:
     page = name.replace("’", "%27").replace("'", "%27").replace(" ", "_")
-    if generation < 7:
+    if generation < 8:
         page = '{}/G%C3%A9n%C3%A9ration_{}'.format(page, generation)
 
     sections_url = ('https://www.pokepedia.fr/api.php?action=parse&format=json&page={}&prop=sections&'
