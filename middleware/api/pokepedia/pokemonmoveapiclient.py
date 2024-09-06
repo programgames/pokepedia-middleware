@@ -53,24 +53,27 @@ def get_section_index_by_pokemon_move_type_and_generation(move_type: str, sectio
     section_paths = sections['sections']
 
     section_name_mapping = {
-        (LEVELING_UP_TYPE, generation <= 6): 'Capacités apprises//Par montée en niveau',
-        (LEVELING_UP_TYPE, generation == 7): 'Capacités apprises//Par montée en niveau//Septième génération',
+        (LEVELING_UP_TYPE, generation <= 7): 'Capacités apprises//Par montée en niveau',
         (LEVELING_UP_TYPE, generation == 8): 'Capacités apprises//Par montée en niveau//Huitième génération',
+        (LEVELING_UP_TYPE, generation == 9): 'Capacités apprises//Par montée en niveau//Neuvième génération',
         (MACHINE_TYPE, generation <= 6): 'Capacités apprises//Par CT/CS',
         (MACHINE_TYPE, generation == 7 and version_group_identifier in {'ultra-sun-ultra-moon', 'sun-moon'}):
-            'Capacités apprises//Par CT/CS//Septième génération//Pokémon Soleil et Lune et Pokémon Ultra-Soleil et Ultra-Lune',
+            'Capacités apprises//Par CT//Pokémon Soleil et Lune et Pokémon Ultra-Soleil et Ultra-Lune',
         (MACHINE_TYPE, generation == 7 and version_group_identifier == 'lets-go-pikachu-lets-go-eevee'):
-            "Capacités apprises//Par CT/CS//Septième génération//Pokémon : Let's Go, Pikachu et Let's Go, Évoli",
-        (MACHINE_TYPE, generation == 8 and not dt): "Capacités apprises//Par CT/CS//Huitième génération",
-        (MACHINE_TYPE, generation == 8 and dt): "Capacités apprises//Par DT//Huitième génération",
-        (EGG_TYPE, 2 <= generation <= 6): "Capacités apprises//Par reproduction",
-        (EGG_TYPE, generation == 7): "Capacités apprises//Par reproduction//Septième génération",
-        (EGG_TYPE, generation == 8): "Capacités apprises//Par reproduction//Huitième génération",
+            "Capacités apprises//Par CT//Pokémon : Let's Go, Pikachu et Let's Go, Évoli",
+        (MACHINE_TYPE, generation == 8 and not dt and version_group_identifier in {'sword-shield','the-isle-of-armor','the-crown-tundra'}): "Capacités apprises//Par CT//Huitième génération//Pokémon Épée et Bouclier",
+        (MACHINE_TYPE, generation == 9 and not dt and version_group_identifier in {'brilliant-diamond-and-shining-pearl'}): "Capacités apprises//Par CT//Neuvième génération",
+        (MACHINE_TYPE, generation == 8 and dt and version_group_identifier in {'sword-shield','the-isle-of-armor','the-crown-tundra'}): "Capacités apprises//Par DT//Huitième génération//Pokémon Épée et Bouclier",
+        (MACHINE_TYPE, generation == 8 and dt and version_group_identifier in {'brilliant-diamond-and-shining-pearl'}): "Capacités apprises//Par DT//Huitième génération//Pokémon Diamant Étincelant et Perle Scintillante",
+        (EGG_TYPE, 2 <= generation <= 7): "Capacités apprises//Par reproduction",
+        (EGG_TYPE, generation == 8 and version_group_identifier in {'sword-shield','the-isle-of-armor','the-crown-tundra'} ): "Capacités apprises//Par reproduction//Huitième génération//Pokémon Épée et Bouclier",
+        (EGG_TYPE, generation == 8 and version_group_identifier in {'brilliant-diamond-and-shining-pearl'} ): "Capacités apprises//Par reproduction//Huitième génération//Pokémon Diamant Étincelant et Perle Scintillante",
+        (EGG_TYPE, generation == 9 and version_group_identifier in {'brilliant-diamond-and-shining-pearl'} ): "Capacités apprises//Par capacité Œuf//Neuvième génération//Par reproduction",
         (TUTOR_TYPE, generation == 2 and version_group_identifier == 'crystal'): "Capacités apprises//Par Donneur de capacités//Pokémon Cristal",
-        (TUTOR_TYPE, 3 <= generation <= 6): "Capacités apprises//Par Donneur de capacités//{}".format(
+        (TUTOR_TYPE, 3 <= generation <= 7): "Capacités apprises//Par Donneur de capacités//{}".format(
             _get_version_group_name(version_group_identifier)),
-        (TUTOR_TYPE, generation == 7): "Capacités apprises//Par Donneur de capacités//Septième génération",
-        (TUTOR_TYPE, generation == 8): "Capacités apprises//Par Donneur de capacités//Huitième génération"
+        (TUTOR_TYPE, generation == 8): "Capacités apprises//Par Donneur de capacités//Huitième génération",
+        (TUTOR_TYPE, generation == 9): "Capacités apprises//Par Donneur de capacités//Neuvième génération"
     }
 
     if (move_type == EGG_TYPE and generation == 1) or (move_type == TUTOR_TYPE and generation == 1):

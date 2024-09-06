@@ -48,7 +48,7 @@ class WikimediaClient:
 
         for section in content['parse']['sections']:
             level = int(section['level'])
-            line = section['line'].replace('<i>', ' ', ).replace('</i>', ' ').replace('  ', ' ').strip()
+            line = section['line'].replace('<i>', ' ', ).replace('</i>', ' ').replace('  ', ' ').replace(' =','').strip()
 
             if not section_title:
                 section_title = line

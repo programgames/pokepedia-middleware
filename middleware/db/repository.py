@@ -165,22 +165,7 @@ def find_moves_by_pokemon_move_method_and_version_groups_with_concat(pkm: Pokemo
 
 
 def get_french_move_by_pokemon_move_and_generation(pokemon_move: PokemonMove, gen: Generation):
-    move = Move.objects.get(id=pokemon_move.move_id)
-
-    for g in range(1, gen_to_int(gen) + 1):
-        alias = MoveNameChangelog.objects.filter(
-            move=move,
-            generation=g,
-            language__iso639='fr'
-        ).first()
-
-        if alias:
-            break  # Sort de la boucle dès qu'on trouve un alias
-
-    return {
-        'name': get_move_french_name(move),
-        'alias': alias.name if alias else None
-    }
+    return get_french_move_name_by_move_and_generation(pokemon_move.move, gen)
 
 
 def get_french_move_name_by_move_and_generation(move: Move, gen: Generation):
@@ -258,7 +243,7 @@ def find_french_slot1_name_by_gen(pokemon: Pokemon, generation: Generation) -> s
         slot=1
     ).first()
 
-    if type_past:
+    if type_past and type_past.generation_id >= generation.id:
         return get_type_french_name(type_past.type)
 
     pokemon_type = PokemonType.objects.get(
@@ -276,7 +261,8 @@ def get_item_from_cache(key: str, func):
         return cache_item.data
 
     result = func()
-    CacheItem.objects.create(key=key, data=result)
+    cache_item =CacheItem.objects.create(key=key, data=result)
+    cache_item.save()
     return result
 
 
