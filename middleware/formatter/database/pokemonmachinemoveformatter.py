@@ -165,14 +165,14 @@ def _get_pokemon_machine_move_forms(pokemon: Pokemon, generation: Generation, le
         version_group=version_group, pokemon=pokemon, has_pokepedia_page=True
     ).first()
 
-    if not availability or not availability.forms:
+    if not availability or not availability.forms.all():
         specy_name = get_pokemon_specy_french_name(pokemon.pokemon_species).replace(' ', '_')
         form_order_name = next(iter(form_order))
         if specy_name != form_order_name:
             specy_name = form_order_name
         return {specy_name: _get_formatted_moves_by_pokemons(pokemon, generation, learn_method, step)}
 
-    if availability.forms[0].has_pokepedia_page:
+    if availability.forms.first().has_pokepedia_page:
         specy_name = get_pokemon_specy_french_name(pokemon.pokemon_species)
 
         return {specy_name: _get_formatted_moves_by_pokemons(pokemon, generation, learn_method, step)}
