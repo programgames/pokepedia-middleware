@@ -178,7 +178,7 @@ def _get_pokemon_level_move_forms(pokemon: Pokemon, generation: Generation, lear
         version_group=version_group, pokemon=pokemon, has_pokepedia_page=True
     ).first()
 
-    if not availability or not availability.forms or not availability.forms.all().first() or not availability.forms.all().first().has_pokepedia_page:
+    if not availability or not availability.forms or not availability.forms.all().first() or availability.forms.all().first().has_pokepedia_page:
         if len(form_order) > 1:
             raise RuntimeError(f'Too many forms for this Pokemon: {pokemon}')
 
@@ -190,7 +190,7 @@ def _get_pokemon_level_move_forms(pokemon: Pokemon, generation: Generation, lear
 
         return {specy_name: _get_formatted_moves_by_pokemons(pokemon, generation, learn_method)}
 
-    if availability.forms[0].has_pokepedia_page:
+    if availability.forms.first().has_pokepedia_page:
         specy_name = get_pokemon_specy_french_name(pokemon.pokemon_species).replace(' ', '_')
         return {specy_name: _get_formatted_moves_by_pokemons(pokemon, generation, learn_method)}
 

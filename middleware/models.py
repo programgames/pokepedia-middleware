@@ -33,18 +33,6 @@ class MoveNameChangelog(models.Model):
     )
     pass
 
-class PkmAvailabilityForm(models.Model):
-    parent = models.ForeignKey('PokemonMoveAvailability', related_name='parent_form', on_delete=models.CASCADE)
-    child = models.ForeignKey('PokemonMoveAvailability', related_name='child_form', on_delete=models.CASCADE)
-    version_group = models.ForeignKey('pokemon_v2.VersionGroup', on_delete=models.CASCADE)
-
-    class Meta:
-        unique_together = (('parent', 'child', 'version_group'),)
-
-    def __str__(self):
-        return f"Form link between {self.parent} and {self.child} in {self.version_group}"
-
-
 class HasMachine(models.Model):
     machine = models.ForeignKey(
         "pokemon_v2.Machine",
@@ -79,11 +67,8 @@ class PokemonMoveAvailability(models.Model):
     level = models.BooleanField(default=True)
     tutor = models.BooleanField(default=True)
     egg = models.BooleanField(default=True)
-    forms = models.ManyToManyField(
-        "PokemonMoveAvailability",
-        blank=True,
-        related_name="%(class)s",
-    )
+    forms = models.ManyToManyField('self', blank=True, related_name='parent_forms', symmetrical=False)
+
 
     def __str__(self):
         return f"{self.pokemon} in {self.version_group}"

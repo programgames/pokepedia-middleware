@@ -15,12 +15,17 @@
 - cd pokeapi
 - make install
 
-### Without docker
-- make setup
-- make serve ( optionnal , it start a server for the API)
-- make build-db
-- cd ..
-- python manage.py migrate ( for app migrations )
+[//]: # (### Without docker)
+
+[//]: # (- make setup)
+
+[//]: # (- make serve &#40; optionnal , it start a server for the API&#41;)
+
+[//]: # (- make build-db)
+
+[//]: # (- cd ..)
+
+[//]: # (- python manage.py migrate &#40; for app migrations &#41;)
 
 ### With docker
 - make docker-setup
@@ -28,6 +33,8 @@
 - make hasura-apply
 
 ## Middleware starting
+- cd ..
+- make migrate
+- python manage.py init
 - cp .env.dist .env
 - setup your env variables
-- python middleware.py init

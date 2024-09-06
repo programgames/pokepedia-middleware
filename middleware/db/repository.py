@@ -3,7 +3,6 @@ from middleware.util.helper import generationhelper, specificcasehelper
 from collections import OrderedDict, defaultdict
 from django.db.models import F, Func
 
-from middleware.util.helper.generationhelper import gen_to_int
 from middleware.util.helper.languagehelper import get_move_french_name, get_type_french_name
 from pokeapi.pokemon_v2.models import Pokedex, PokemonDexNumber, Pokemon, VersionGroup, PokemonMove, Move, Generation, \
     PokemonForm, PokemonTypePast, PokemonType, PokemonSpecies, MoveLearnMethod, PokemonFormName, \
@@ -235,7 +234,7 @@ def find_version_group_identifier_by_generation(generation, step: int) -> list:
         )
 
     filter_list = ['colosseum', 'xd']
-    gen_int = generationhelper.gen_to_int(generation)
+    gen_int = gen_to_int(generation)
 
     if gen_int == 7:
         if step == 1:
@@ -286,7 +285,7 @@ def find_pokemon_by_french_form_name(original_pokemon: Pokemon, name: str):
     if specific_case:
         return specific_case
 
-    form_name_entities = PokemonFormName.objects.filter(form_name=name)
+    form_name_entities = PokemonFormName.objects.filter(name=name)
 
     if not form_name_entities.exists():
         form_name_entity = PokemonFormName.objects.filter(pokemon_name=name.title()).first()
@@ -299,7 +298,7 @@ def find_pokemon_by_french_form_name(original_pokemon: Pokemon, name: str):
 
     for form_name_entity in form_name_entities:
         form_entity = PokemonForm.objects.get(id=form_name_entity.pokemon_form_id)
-        if form_entity.pokemon.species_id == original_pokemon.pokemon_species.id:
+        if form_entity.pokemon.pokemon_species_id == original_pokemon.pokemon_species.id:
             return form_entity.pokemon
 
     raise RuntimeError(f'Form not found for name {name}')
@@ -400,3 +399,17 @@ def _cleanup_pkm_parent_tree(pkmsandvgs):
 def _is_actual_specy_or_evolution(specy, mainspecy):
     species_identifiers = [element.name for element in mainspecy.evolution_chain.species.all()]
     return specy.name in species_identifiers[species_identifiers.index(mainspecy.name):]
+
+def gen_to_int(generation: Generation) -> int:
+    mapping = {
+        'generation-i': 1,
+        'generation-ii': 2,
+        'generation-iii': 3,
+        'generation-iv': 4,
+        'generation-v': 5,
+        'generation-vi': 6,
+        'generation-vii': 7,
+        'generation-viii': 8,
+    }
+
+    return mapping[generation.name]
