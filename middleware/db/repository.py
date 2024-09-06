@@ -156,7 +156,7 @@ def find_moves_by_pokemon_move_method_and_version_groups_with_concat(pkm: Pokemo
                                                                      vgs_identifier: list):
     return Move.objects.filter(
         pokemonmove__pokemon=pkm,
-        pokemonmove__pokemon_move_method=move_learn_method,
+        pokemonmove__pokemon_move_method__id=move_learn_method.id,  # Use the ID of move_learn_method
         pokemonmove__version_group__identifier__in=vgs_identifier
     ).annotate(
         version_group_identifiers=Func(F('pokemonmove__version_group__identifier'), function='GROUP_CONCAT',
