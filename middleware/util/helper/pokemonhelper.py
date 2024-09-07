@@ -14,6 +14,10 @@ SPECIFIC_NAMES = {
     'calyrex-shadow': 'Sylveroy_Cavalier_d\'Effroi',
 }
 
+SPECIFIC_FORM_NAME = {
+    'Fulguris': 'Fulguris Avatar',
+}
+
 def find_pokepedia_pokemon_url_name(pokemon: Pokemon) -> str:
     specific = find_pokepedia_pokemon_page_specific_name_if_available(pokemon)
     if specific:
@@ -38,3 +42,9 @@ def find_pokepedia_pokemon_url_name(pokemon: Pokemon) -> str:
 
 def find_pokepedia_pokemon_page_specific_name_if_available(pokemon: Pokemon) -> str:
     return SPECIFIC_NAMES.get(pokemon.name, '')
+
+def get_default_pokemon_form_name_from_database(pokemon_name: str):
+    if pokemon_name in SPECIFIC_FORM_NAME:
+        return SPECIFIC_FORM_NAME[pokemon_name]
+    else:
+        return  pokemon_name

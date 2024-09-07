@@ -47,6 +47,7 @@ def get_pokemon_move_sections(name: str, generation: int) -> dict:
     }
 
 
+
 def get_section_index_by_pokemon_move_type_and_generation(move_type: str, sections: dict, generation: int,
                                                           version_group_identifier: str = None,
                                                           dt: bool = None) -> int:

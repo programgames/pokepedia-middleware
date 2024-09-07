@@ -5,7 +5,6 @@ from middleware.provider.database import pokemonmoveprovider
 from middleware.util.helper import pokemonhelper, generationhelper, specificcasehelper, pokemonmovehelper
 from middleware.api.pokepedia import pokemonmoveapi, pokepedia_client
 from middleware.comparator import pokemonmachinemovecomparator
-from middleware.util.helper.generationhelper import gen_to_int, gen_int_to_name
 from pokeapi.pokemon_v2.models import Pokemon, Generation, MoveLearnMethod
 
 
@@ -27,7 +26,7 @@ def process(generation: Generation, learn_method: MoveLearnMethod, pokemon: Poke
 
         try:
             # Retrieve and compare Poképedia data with the database data
-            pokepedia_data = _get_pokepedia_moves_by_method(pokemon, learn_method, generationhelper.gen_name_to_gen_number(generation.name), pokepedia_pokemon_name, step)
+            pokepedia_data = _get_pokepedia_moves_by_method(pokemon, learn_method, generation.id, pokepedia_pokemon_name, step)
             form_order = _format_forms(pokepedia_data)
 
             database_moves = pokemonmoveprovider.get_database_pokemon_moves(pokemon, generation, learn_method, form_order, step)
@@ -38,7 +37,6 @@ def process(generation: Generation, learn_method: MoveLearnMethod, pokemon: Poke
                 return True
 
         except PokemonMoveException as exc:
-            # Handle errors specific to Pokémon move processing
             pokemonmoveerrorhandler.handlerpokemonmoveerror(exc, pokemon, generation, step, pokepedia_pokemon_name)
     return False
 

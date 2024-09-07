@@ -1,5 +1,6 @@
 import middleware.db.repository as repository
 from middleware.util.helper import pokemonmovehelper, generationhelper
+from middleware.util.helper.pokemonhelper import get_default_pokemon_form_name_from_database
 from pokeapi.pokemon_v2.models import Pokemon, Generation, MoveLearnMethod
 
 
@@ -15,13 +16,13 @@ def generate_move_wiki_text(learn_method: MoveLearnMethod, pokemon: Pokemon, gen
 
     # Determine the learn method for Poképedia
     pokepedia_learn_method = pokemonmovehelper.get_pokepedia_invoke_learn_method(
-        learn_method, generationhelper.gen_to_int(generation), step
+        learn_method, generation.id, step
     )
 
     if len(database_data) == 1:
         generated.extend(_generate_single_form_text(pokemon,
-            pokepedia_pokemon_name, pokepedia_data, pokepedia_learn_method,
-            french_slot1_name, generation, learn_method, database_data[pokepedia_pokemon_name]
+            get_default_pokemon_form_name_from_database(pokepedia_pokemon_name), pokepedia_data, pokepedia_learn_method,
+            french_slot1_name, generation, learn_method, database_data[get_default_pokemon_form_name_from_database(pokepedia_pokemon_name)]
         ))
     else:
         generated.extend(_generate_multiple_forms_text(
@@ -41,16 +42,16 @@ def generate_move_wiki_text(learn_method: MoveLearnMethod, pokemon: Pokemon, gen
 
 
 # noinspection DuplicatedCode
-def _generate_single_form_text(pokemon, pokepedia_pokemon_name, pokepedia_data, pokepedia_learn_method,
+def _generate_single_form_text(pokemon, pokemon_name, pokepedia_data, pokepedia_learn_method,
                                french_slot1_name, generation, learn_method, moves) -> list:
     generated = []
 
     # Add form-specific top comments
-    generated.extend(pokepedia_data['forms'][pokepedia_pokemon_name]['top_comments'])
+    generated.extend(pokepedia_data['forms'][pokemon_name]['top_comments'])
 
     # Begin the learn method block
     generated.append(f"{{{{#invoke:Apprentissage|{pokepedia_learn_method}|type={french_slot1_name}|"
-                     f"génération={generationhelper.gen_name_to_gen_number(generation.name)}|")
+                     f"génération={generation.id}|")
 
     # Special case for Queulorior
     if learn_method.name == 'egg' and any(group.name == 'monster' for group in pokemon.pokemon_species.egg_groups):
@@ -61,7 +62,7 @@ def _generate_single_form_text(pokemon, pokepedia_pokemon_name, pokepedia_data, 
     generated.append("}}")
 
     # Add form-specific bottom comments
-    generated.extend(pokepedia_data['forms'][pokepedia_pokemon_name]['bot_comments'])
+    generated.extend(pokepedia_data['forms'][pokemon_name]['bot_comments'])
 
     return generated
 
@@ -73,7 +74,7 @@ def _generate_multiple_forms_text(database_data, form_order, generation, learn_m
 
     for form, moves in database_data.items():
         form_key = form + form_order[form]
-        header_level = "=====" if 7 <= generationhelper.gen_to_int(generation) <= 8 else "===="
+        header_level = "=====" if 7 <= generation.id <= 8 else "===="
         generated.append(f"{header_level} {form_key} {header_level}")
 
         # Add form-specific top comments
@@ -81,7 +82,7 @@ def _generate_multiple_forms_text(database_data, form_order, generation, learn_m
 
         # Begin the learn method block
         generated.append(f"{{{{#invoke:Apprentissage|{pokepedia_learn_method}|type={french_slot1_name}|"
-                         f"génération={generationhelper.gen_name_to_gen_number(generation.name)}|")
+                         f"génération={generation.id}|")
 
         # Special case for Queulorior
         if learn_method.name == 'egg' and any(group.name == 'monster' for group in form.species.egg_groups):
@@ -98,6 +99,6 @@ def _generate_multiple_forms_text(database_data, form_order, generation, learn_m
 
 def generate_specific_no_pokemon_machine_move_wikitext(pokemon: Pokemon, generation: Generation, step: int) -> str:
     french_slot1_name = repository.find_french_slot1_name_by_gen(pokemon, generation)
-    pokepedia_learn_method = 'capsule' if generationhelper.gen_to_int(generation) == 8 and step == 2 else 'disque'
+    pokepedia_learn_method = 'capsule' if generation.id == 8 and step == 2 else 'disque'
 
-    return f"{{{{#invoke:Apprentissage|{pokepedia_learn_method}|type={french_slot1_name}|génération={generationhelper.gen_name_to_gen_number(generation.name)}|Aucune|}}}}"
+    return f"{{{{#invoke:Apprentissage|{pokepedia_learn_method}|type={french_slot1_name}|génération={generation.id}|Aucune|}}}}"

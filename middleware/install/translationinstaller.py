@@ -26,8 +26,7 @@ def load_french_aliases():
             if not move:
                 raise RuntimeError('Move not found : ' + row[0])
             for i in range(first_gen, second_gen + 1):
-                generation_identifier = generationhelper.gen_int_to_name(i)
-                generation = Generation.objects.get(name=generation_identifier)
+                generation = Generation.objects.get(id=i)
                 changelog = MoveNameChangelog()
                 changelog.language_id = french.id
                 changelog.move_id = move.id

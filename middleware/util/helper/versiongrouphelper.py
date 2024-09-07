@@ -47,12 +47,11 @@ def get_version_group_by_gen_and_column(generation, column: int) -> VersionGroup
         }
     }
 
-    gen_int = generationhelper.gen_name_to_gen_number(generation.name)
     try:
-        version_group_identifier = mappings[gen_int][column]
+        version_group_identifier = mappings[generation.id][column]
         return VersionGroup.objects.get(name=version_group_identifier)
     except (KeyError, ObjectDoesNotExist):
-        raise InvalidConditionException(f"Version group not found for generation {gen_int} and column {column}")
+        raise InvalidConditionException(f"Version group not found for generation {generation.id} and column {column}")
 
 
 def vg_id_to_short_name(version_group: str) -> str:

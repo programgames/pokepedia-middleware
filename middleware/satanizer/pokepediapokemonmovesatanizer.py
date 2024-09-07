@@ -1,6 +1,7 @@
 import re
 from collections import OrderedDict
 from middleware.exception import WrongHeaderError, TemplateNotFoundError
+from middleware.util.helper.pokemonhelper import get_default_pokemon_form_name_from_database
 
 """
 Parse, check, and sanitize data from a config Pokémon level move section.
@@ -39,6 +40,7 @@ def check_and_sanitize_moves(moves: list, pokemon_name: str) -> dict:
 
     forms = OrderedDict()
 
+    pokemon_name = get_default_pokemon_form_name_from_database(pokemon_name)
     if templates == 1:
         forms[pokemon_name] = {
             'top_comments': [],

@@ -14,7 +14,7 @@ from pokeapi.pokemon_v2.models import Generation, MoveLearnMethod
 load_dotenv()
 
 
-def process_pokemon_move(move_method_type: str, start: int, gen: int = None, debug: bool = False, max_changes = int):
+def process_pokemon_move(move_method_type: str, start: int, from_gen: int = None,to_gen: int = None, debug: bool = False, max_changes = int):
     logging.basicConfig(filename=os.getenv('LOG_PATH'), level=logging.INFO)
 
     # Fetch the list of Pokémon with specific pages
@@ -28,8 +28,8 @@ def process_pokemon_move(move_method_type: str, start: int, gen: int = None, deb
         return
 
     # Retrieve the relevant generations
-    if gen:
-        generations = Generation.objects.filter(name=generationhelper.gen_int_to_name(gen))
+    if from_gen and to_gen:
+        generations = Generation.objects.filter(id__gte=from_gen, id__lte=to_gen)
     else:
         generations = Generation.objects.all()
 

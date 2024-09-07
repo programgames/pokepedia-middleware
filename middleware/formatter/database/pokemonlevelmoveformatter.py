@@ -25,9 +25,8 @@ def _get_preformatteds_database_pokemon_moves(pokemon: Pokemon, generation: Gene
     """
     Return a dict containing a list of LevelUpMove to ease future formatting/sorting.
     """
-    gen_number = generationhelper.gen_name_to_gen_number(generation.name)
     preformatteds = {}
-    columns = _determine_columns(gen_number, pokemon)
+    columns = _determine_columns(generation.id, pokemon)
 
     for column in range(1, columns + 1):
         version_group = versiongrouphelper.get_version_group_by_gen_and_column(generation, column)
@@ -36,7 +35,8 @@ def _get_preformatteds_database_pokemon_moves(pokemon: Pokemon, generation: Gene
         for pokemon_move_entity in moves:
             french_move = repository.get_french_move_by_pokemon_move_and_generation(pokemon_move_entity, generation)
             move = preformatteds.get(french_move['name'], LevelUpMove())
-            move = _fill_leveling_move(move, column, french_move['name'], french_move['alias'], pokemon_move_entity, gen_number)
+            move = _fill_leveling_move(move, column, french_move['name'], french_move['alias'], pokemon_move_entity,
+                                       generation.id)
             preformatteds[french_move['name']] = move
 
     return preformatteds
@@ -99,7 +99,8 @@ def _calculate_total_weight(weights: list, formatteds: dict) -> str:
     """
     filtered_weights = []
     for weight in weights:
-        if weight is not None and weight['weight'] is not None and weight['level'] != '-' and weight['level'] != 'Départ':
+        if weight is not None and weight['weight'] is not None and weight['level'] != '-' and weight[
+            'level'] != 'Départ':
             filtered_weights.append(weight)
     if not filtered_weights:
         total = 0
@@ -141,10 +142,12 @@ def _get_formatted_moves_by_pokemons(pokemon: Pokemon, generation: Generation, l
     """
     pre_formatteds = _get_preformatteds_database_pokemon_moves(pokemon, generation, learn_method)
     formatteds = {}
-    generation_number = generationhelper.gen_name_to_gen_number(generation.name)
+
+    lgpe = VersionGroup.objects.get(name='lets-go-pikachu-lets-go-eevee')
+    lgpe_availability = repository.get_availability_by_pokemon_and_version_group(pokemon, lgpe)
 
     for name, move in pre_formatteds.items():
-        name = move.alias  if move.alias else name.name
+        name = move.alias if move.alias else name
 
         first_weight = _format_level(move, 1, 0)
 
@@ -152,9 +155,8 @@ def _get_formatted_moves_by_pokemons(pokemon: Pokemon, generation: Generation, l
         weights = [
             first_weight,
             _format_level(move, 2, first_weight['weight']),
-            _format_level(move, 3, _format_level(move, 2, first_weight['weight'])['weight']) if generation_number in {3,
-                                                                                                                      4,
-                                                                                                                      7} else None
+            _format_level(move, 3, _format_level(move, 2, first_weight['weight'])['weight'])
+            if generation.id in {3,4,} or (generation.id == 7 and lgpe_availability) else None
         ]
 
         total_weight = _calculate_total_weight(weights, formatteds)
@@ -182,7 +184,7 @@ def _get_pokemon_level_move_forms(pokemon: Pokemon, generation: Generation, lear
         if len(form_order) > 1:
             raise RuntimeError(f'Too many forms for this Pokemon: {pokemon}')
 
-        specy_name = get_pokemon_specy_french_name(pokemon.pokemon_species).name.replace(' ', '_')
+        specy_name = get_pokemon_specy_french_name(pokemon.pokemon_species).replace(' ', '_')
         form_order_name = next(iter(form_order))
 
         if specy_name != form_order_name:  # handle case of Pokémon with forms on different pages like Sylveroy

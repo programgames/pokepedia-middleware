@@ -55,22 +55,21 @@ def get_pokepedia_version_groups_identifiers_for_pkm_egg_by_step(gen: int, step:
 
 def get_steps_by_pokemon_method_and_gen(pokemon: Pokemon, generation: Generation,
                                         learn_method: MoveLearnMethod) -> int:
-    gen_int = generationhelper.gen_to_int(generation)
 
     if learn_method.name == LEVELING_UP_TYPE:
         return 1
     elif learn_method.name == MACHINE_TYPE:
-        if gen_int <= 6:
+        if generation.id <= 6:
             return 1
-        elif gen_int == 7:
+        elif generation.id == 7:
             if generationhelper.check_if_pokemon_is_available_in_lgpe(pokemon):
                 return 1 if pokemon.name in {'meltan', 'melmetal'} else 2
             return 1
-        elif gen_int == 8:
+        elif generation.id == 8:
             return 2
     elif learn_method.name == EGG_TYPE:
         return 1
 
     raise NotImplementedError(
-        f'Step not implemented for learn method {learn_method.name} and generation {gen_int}')
+        f'Step not implemented for learn method {learn_method.name} and generation {generation.id}')
 
