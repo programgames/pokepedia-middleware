@@ -1,6 +1,7 @@
 # syncpokemonmachinemoves.py
 from django.core.management.base import BaseCommand
-from middleware.handler import pokemonmovehandler
+from middleware.handler.pokemonmove import pokemonmovehandler
+
 
 class Command(BaseCommand):
     help = 'Sync pokemon machine moves'

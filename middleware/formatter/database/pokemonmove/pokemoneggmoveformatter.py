@@ -23,10 +23,9 @@ def get_formatted_egg_database_moves(pokemon: Pokemon, generation: Generation, l
 
 def _get_preformatteds_database_pokemon_egg_moves(pokemon: Pokemon, generation: Generation, step: int,
                                                   learn_method: MoveLearnMethod) -> list:
-    gen_number = generationhelper.gen_name_to_gen_number(generation.name)
     preformatteds = []
 
-    version_groups = _get_version_groups_for_pokemon(pokemon, gen_number, step)
+    version_groups = _get_version_groups_for_pokemon(pokemon, generation.id, step)
 
     original_pokemon = pokemon
     pokemon = repository.find_minimal_pokemon_in_evolution_chain(pokemon, generation)
@@ -42,7 +41,7 @@ def _get_preformatteds_database_pokemon_egg_moves(pokemon: Pokemon, generation: 
 
         move_dto = _fill_egg_move(
             original_pokemon, move_name['name'], move_name['alias'],
-            move_with_vg, generationhelper.gen_to_int(generation), move_with_vg.Move, step
+            move_with_vg,generation, move_with_vg.Move, step
         )
         preformatteds.append(move_dto)
 
@@ -154,14 +153,12 @@ def _get_formatted_moves_by_pokemons(pokemon: Pokemon, generation: Generation, l
 
 def _get_pokemon_egg_move_forms(pokemon: Pokemon, generation: Generation, learn_method: MoveLearnMethod,
                                 form_order: dict, step):
-    gen_number = generationhelper.gen_to_int(generation)
-
-    if gen_number in {1, 2, 3, 4, 5, 6, 8}:
+    if generation.id in {1, 2, 3, 4, 5, 6, 8}:
         version_group = repository.find_highest_version_group_by_generation(generation)
-    elif gen_number == 7:
+    elif generation.id == 7:
         version_group = _get_version_group_for_gen7(pokemon, step)
     else:
-        raise InvalidConditionException(f'Invalid generation/step condition: {gen_number} / {step}')
+        raise InvalidConditionException(f'Invalid generation/step condition: {generation.id} / {step}')
 
     availability = PokemonMoveAvailability.objects.filter(
         version_group=version_group,
@@ -200,7 +197,7 @@ def _get_version_group_for_gen7(pokemon, step):
 
 
 def _fill_egg_move(pokemon: Pokemon, name: str, alias: str, move_with_vg,
-                   generation: int, eggmove: Move, step: int) -> EggMove:
+                   generation: Generation, eggmove: Move, step: int) -> EggMove:
     move = EggMove()
     move.name = alias or name
     move.alias = alias
@@ -226,7 +223,7 @@ def _calculate_weight(move: EggMove) -> float:
         divisor *= 10
     return weight
 
-def _fill_parents(pokemon: Pokemon, move: EggMove, gen: int, step: int):
+def _fill_parents(pokemon: Pokemon, move: EggMove, gen: Generation, step: int):
     """
     Fill the parent Pokémon information for the given move.
     """

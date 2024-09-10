@@ -1,8 +1,5 @@
-from middleware.formatter.database import (
-    pokemonlevelmoveformatter,
-    pokemonmachinemoveformatter,
-    pokemoneggmoveformatter
-)
+from middleware.formatter.database.pokemonmove import pokemoneggmoveformatter, pokemonlevelmoveformatter, \
+    pokemonmachinemoveformatter
 from middleware.util.helper.pokemonmovehelper import LEVELING_UP_TYPE, MACHINE_TYPE, EGG_TYPE
 from pokeapi.pokemon_v2.models import Pokemon, Generation, MoveLearnMethod
 

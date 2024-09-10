@@ -3,7 +3,7 @@ import re
 
 from middleware.db import repository
 from middleware.exception import InvalidConditionException
-from middleware.formatter.database.pokemoneggmoveformatter import _get_formatted_moves_by_pokemons
+from middleware.formatter.database.pokemonmove.pokemoneggmoveformatter import _get_formatted_moves_by_pokemons
 from middleware.formatter.dto.machinemove import MachineMove
 from middleware.models import PokemonMoveAvailability
 from middleware.util.helper import pokemonmovehelper, specificcasehelper, versiongrouphelper, machinehelper, \
@@ -150,16 +150,14 @@ def _sort_pokemon_machine_moves(formatteds: dict) -> list:
 
 def _get_pokemon_machine_move_forms(pokemon: Pokemon, generation: Generation, learn_method: MoveLearnMethod,
                                     form_order: dict, step):
-    gen_number = generationhelper.gen_to_int(generation)
-
-    if 1 <= gen_number <= 6:
+    if 1 <= generation.id <= 6:
         version_group = repository.find_highest_version_group_by_generation(generation)
-    elif gen_number == 7 and step == 1:
+    elif generation.id == 7 and step == 1:
         version_group = VersionGroup.objects.get(name='ultra-sun-ultra-moon')
-    elif gen_number == 7 and step == 2 or gen_number == 8 and step == 2:
+    elif generation.id == 7 and step == 2 or generation.id == 8 and step == 2:
         version_group = VersionGroup.objects.get(name='lets-go-pikachu-lets-go-eevee')
     else:
-        raise InvalidConditionException(f'Invalid generation/step condition: {gen_number} / {step}')
+        raise InvalidConditionException(f'Invalid generation/step condition: {generation.id} / {step}')
 
     availability = PokemonMoveAvailability.objects.filter(
         version_group=version_group, pokemon=pokemon, has_pokepedia_page=True

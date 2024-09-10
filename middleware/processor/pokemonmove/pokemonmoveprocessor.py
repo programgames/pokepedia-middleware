@@ -1,9 +1,10 @@
-from middleware.errorhandler import pokemonmoveerrorhandler
+from middleware.errorhandler.pokemonmove import pokemonmoveerrorhandler
 from middleware.exception.exceptions import PokemonMoveException
-from middleware.generator import pokepediapokemonmovegenerator
+from middleware.generator.pokemonmove import pokepediapokemonmovegenerator
 from middleware.provider.database import pokemonmoveprovider
 from middleware.util.helper import pokemonhelper, generationhelper, specificcasehelper, pokemonmovehelper
-from middleware.api.pokepedia import pokemonmoveapi, pokepedia_client
+from middleware.api.pokepedia import pokepedia_client
+from middleware.api.pokepedia.pokemonmove import pokemonmoveapi
 from middleware.comparator import pokemonmachinemovecomparator
 from pokeapi.pokemon_v2.models import Pokemon, Generation, MoveLearnMethod
 
