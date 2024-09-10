@@ -261,7 +261,7 @@ def get_item_from_cache(key: str, func):
         return cache_item.data
 
     result = func()
-    cache_item =CacheItem.objects.create(key=key, data=result)
+    cache_item = CacheItem.objects.create(key=key, data=result)
     cache_item.save()
     return result
 
