@@ -7,10 +7,9 @@ from middleware.exception import (
     InvalidConditionException,
     MissingEggMoveTemplateException
 )
-from middleware.generator import pokepediapokemonmovegenerator
+from middleware.generator.pokemonmove import pokepediapokemonmovegenerator
 from middleware.models import PokemonMoveAvailability
 from middleware.provider.database import pokemonmoveprovider
-from middleware.util.helper import generationhelper
 from middleware.util.helper.languagehelper import get_pokemon_specy_french_name
 from pokeapi.pokemon_v2.models import Pokemon, Generation, VersionGroup, MoveLearnMethod
 
@@ -35,7 +34,8 @@ def handlerpokemonmoveerror(exc: PokemonMoveException, pokemon: Pokemon, generat
             machine = MoveLearnMethod.objects.get(name='machine')
             if not _has_multiple_forms_for_machine_moves(generation, step, pokemon):
                 specy_name = get_pokemon_specy_french_name(pokemon.pokemon_species).replace(' ', '_')
-                if generationhelper.gen_to_int(generation) > 6:
+                if generation.id > 6:
+                    # too specific as i remember with specific case, better to do it manually ?
                     raise exc
                 pokepedia_data = {
                     'top_comments': ['=== Par [[CT]]/[[CS]] ==='],
@@ -64,7 +64,7 @@ def handlerpokemonmoveerror(exc: PokemonMoveException, pokemon: Pokemon, generat
         if not exc.additional_data['wikitext']:
             egg = MoveLearnMethod.objects.get(name='egg')
             specy_name = get_pokemon_specy_french_name(pokemon.pokemon_species).replace(' ', '_')
-            if generationhelper.gen_to_int(generation) > 6:
+            if generation.id > 6:
                 raise exc
             pokepedia_data = {
                 'top_comments': ['=== Par [[reproduction]] ==='],
@@ -92,17 +92,16 @@ def handlerpokemonmoveerror(exc: PokemonMoveException, pokemon: Pokemon, generat
 
 
 def _has_multiple_forms_for_machine_moves(generation: Generation, step: int, pokemon: Pokemon) -> bool:
-    gen_number = generationhelper.gen_to_int(generation)
 
-    if 1 <= gen_number <= 6 or gen_number == 8:
+    if 1 <= generation.id <= 6 or generation.id == 8:
         version_group = repository.find_highest_version_group_by_generation(generation)
-    elif gen_number == 7:
+    elif generation.id == 7:
         if step == 1 and pokemon.name not in ['meltan', 'melmetal']:
             version_group = VersionGroup.objects.get(name='ultra-sun-ultra-moon')
         else:
             version_group = VersionGroup.objects.get(name='lets-go-pikachu-lets-go-eevee')
     else:
-        raise InvalidConditionException(f'Invalid generation/step condition: {gen_number} / {step}')
+        raise InvalidConditionException(f'Invalid generation/step condition: {generation.id} / {step}')
 
     availability = PokemonMoveAvailability.objects.filter(
         version_group=version_group,

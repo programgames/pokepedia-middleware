@@ -208,7 +208,7 @@ def _get_pokemon_level_move_forms(pokemon: Pokemon, generation: Generation, lear
 
 
 def _fill_leveling_move(move: LevelUpMove, column: int, name: str, alias: str,
-                        pokemon_move_entity: PokemonMove, gen_number) -> LevelUpMove:
+                        pokemon_move_entity: PokemonMove) -> LevelUpMove:
     """
     Update a LevelUpMove with level information.
     """

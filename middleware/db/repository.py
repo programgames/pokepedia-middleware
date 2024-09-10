@@ -213,15 +213,10 @@ def find_highest_version_group_by_generation(generation) -> VersionGroup:
 
 
 def find_version_group_identifier_by_generation(generation, step: int) -> list:
-    if isinstance(generation, int):
-        generation = Generation.objects.get(
-            name=generationhelper.gen_int_to_name(generation)
-        )
 
     filter_list = ['colosseum', 'xd']
-    gen_int = gen_to_int(generation)
 
-    if gen_int == 7:
+    if generation.id == 7:
         if step == 1:
             filter_list.append('lets-go-pikachu-lets-go-eevee')
         elif step == 2:
@@ -305,17 +300,17 @@ def find_minimal_pokemon_in_evolution_chain(pkm: Pokemon, gen: Generation) -> Po
     raise RuntimeError(f'No species found in evolution chain for pokemon: {pkm.id}')
 
 
-def find_pokemon_learning_move_by_egg_groups(pokemon: Pokemon, move: Move, generation: int, step: int):
+def find_pokemon_learning_move_by_egg_groups(pokemon: Pokemon, move: Move, generation: Generation, step: int):
     filtersvg = []
-    if generation == 7 and step == 1:
+    if generation.id == 7 and step == 1:
         filtersvg.append('lets-go-pikachu-lets-go-eevee')
-    if generation == 7 and step == 2:
+    if generation.id == 7 and step == 2:
         filtersvg.extend(['sun-moon', 'ultra-sun-ultra-moon'])
 
     pkmmoves = PokemonMove.objects.filter(
         move=move,
-        pokemon__species__generation_id__lte=generation,
-        version_group__generation_id=generation
+        pokemon__species__generation_id__lte=generation.id,
+        version_group__generation_id=generation.id
     ).exclude(version_group__identifier__in=filtersvg).select_related('pokemon', 'version_group', 'method')
 
     return _build_pkm_parent_tree(pokemon, pkmmoves)

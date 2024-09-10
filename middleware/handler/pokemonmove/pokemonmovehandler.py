@@ -1,12 +1,10 @@
 import logging
 import os
 
-from attr.validators import instance_of
 from dotenv import load_dotenv
 from middleware.db.repository import find_pokemon_with_specific_page
-import middleware.processor.pokemonmoveprocessor as pokemonmoveprocessor
+import middleware.processor.pokemonmove.pokemonmoveprocessor as pokemonmoveprocessor
 from middleware.exception import MaxChangesReached
-from middleware.util.helper import generationhelper
 from django.db import transaction
 
 from pokeapi.pokemon_v2.models import Generation, MoveLearnMethod

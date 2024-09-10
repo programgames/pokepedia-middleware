@@ -1,6 +1,7 @@
 # syncpokemonlevelmoves.py
 from django.core.management.base import BaseCommand
-from middleware.handler import pokemonmovehandler
+from middleware.handler.pokemonmove import pokemonmovehandler
+
 
 class Command(BaseCommand):
     help = 'Sync pokemon level moves'
@@ -20,4 +21,4 @@ class Command(BaseCommand):
         if not max_changes:
             max_changes = 9999999999999
         debug = kwargs.get('debug', False)
-        pokemonmovehandler.process_pokemon_move('level-up', start, gen_from,to_gen, debug, max_changes)
+        pokemonmovehandler.process_pokemon_move('level-up', start, gen_from, to_gen, debug, max_changes)
