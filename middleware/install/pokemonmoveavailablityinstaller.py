@@ -23,8 +23,7 @@ sun_moon_vg = VersionGroup.objects.get(name='sun-moon')
 ultra_sun_ultra_moon_vg = VersionGroup.objects.get(name='ultra-sun-ultra-moon')
 lgpe_vg = VersionGroup.objects.get(name='lets-go-pikachu-lets-go-eevee')
 sword_shield_vg = VersionGroup.objects.get(name='sword-shield')
-
-
+scarlet_violet_vg = VersionGroup.objects.get(name='scarlet-violet')
 
 
 def load_basic_move_availabilities():
@@ -146,6 +145,8 @@ def load_specific_pokemon_move_availabilities():
                                                 'urshifu-single-strike', ['urshifu-rapid-strike'])
     save_pokemon_move_availabilities_with_forms([sword_shield_vg],
                                                 'calyrex', ['calyrex-ice', 'calyrex-shadow'], True)
+    save_pokemon_move_availabilities_with_forms([scarlet_violet_vg],
+                                                'oinkologne', ['oinkologne-female'], False)
 
 
 @transaction.atomic

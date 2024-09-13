@@ -35,8 +35,7 @@ def _get_preformatteds_database_pokemon_moves(pokemon: Pokemon, generation: Gene
         for pokemon_move_entity in moves:
             french_move = repository.get_french_move_by_pokemon_move_and_generation(pokemon_move_entity, generation)
             move = preformatteds.get(french_move['name'], LevelUpMove())
-            move = _fill_leveling_move(move, column, french_move['name'], french_move['alias'], pokemon_move_entity,
-                                       generation.id)
+            move = _fill_leveling_move(move, column, french_move['name'], french_move['alias'], pokemon_move_entity)
             preformatteds[french_move['name']] = move
 
     return preformatteds

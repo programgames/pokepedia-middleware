@@ -2,7 +2,7 @@ from middleware.api.pokepedia.pokemonmove import pokemonmoveapiclient
 from middleware.db import repository
 from middleware.exception import UnsupportedException
 from middleware.util.helper import ormhelper
-from pokemon_v2.models import VersionGroup
+from pokeapi.pokemon_v2.models import VersionGroup
 
 
 def get_moves_from_cache(step: int, name: str, generation: int, method_type: str, version_group=None, dt=None) -> dict:

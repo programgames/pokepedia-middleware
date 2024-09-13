@@ -64,6 +64,7 @@ def handlerpokemonmoveerror(exc: PokemonMoveException, pokemon: Pokemon, generat
         if not exc.additional_data['wikitext']:
             egg = MoveLearnMethod.objects.get(name='egg')
             specy_name = get_pokemon_specy_french_name(pokemon.pokemon_species).replace(' ', '_')
+            # too specific as i remember with specific case, better to do it manually ?
             if generation.id > 6:
                 raise exc
             pokepedia_data = {
